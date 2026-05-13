@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Local launch scripts
+start-wt.bat
+
 # Python
 __pycache__/
 *.py[cod]
@@ -21,6 +24,10 @@ logs/
 *.log
 *.pid
 dump.rdb
+*.rdb
+*.sqlite
+*.sqlite3
+*.db
 
 # Uploads / generated user files
 uploads/
@@ -30,12 +37,19 @@ node_modules/
 dist/
 build/
 .vite/
+dist-ssr/
 
 # IDE / OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Docker / local overrides
 *.local
+docker-compose.override.yml
