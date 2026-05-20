@@ -88,5 +88,9 @@
   "error_system": "⚠️ Sistem Hatası",
   "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╚ Выберите язык\n╠ Dil seçin</pre>",
   "new_referral_notification": "🎉 <b>Yeni Davetli!</b>\nBiri linkinizi kullanarak kayıt oldu.",
-  "unknown_command": "⚠️ Bilinmeyen komut. /start tuşuna basın veya menüyü kullanın."
+  "unknown_command": "⚠️ Bilinmeyen komut. /start tuşuna basın veya menüyü kullanın.",
+  "btn_trading": "📈 Trading",
+  "btn_education": "📚 Eğitim",
+  "trading_title": "📈 <b>Trading</b>\n\nBölüm geliştirme aşamasında.",
+  "education_title": "📚 <b>Eğitim</b>\n\nBölüm geliştirme aşamasında."
 }

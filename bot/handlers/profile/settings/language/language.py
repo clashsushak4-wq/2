@@ -17,7 +17,9 @@ from bot.handlers.keyboards.profile import (
     language_inline_kb,
     settings_inline_kb,
 )
+from bot.handlers.keyboards.main_menu import main_menu_kb
 from bot.states import ProfileState
+from shared.config import config
 from shared.database.repo.users import UserRepo
 from shared.utils.cache import set_user_lang
 from shared.utils.i18n import i18n
@@ -104,6 +106,7 @@ async def confirm_change(
     callback: types.CallbackQuery,
     session: AsyncSession,
     state: FSMContext,
+    is_admin: bool = False,
 ):
     """Подтверждение смены языка → save + возврат в Настройки."""
     target_lang_code = callback.data.split("_")[2]
@@ -130,4 +133,10 @@ async def confirm_change(
         callback,
         new_i18n("settings_title"),
         settings_inline_kb(new_i18n),
+    )
+
+    # Обновляем нижнюю reply-клавиатуру на новом языке.
+    await callback.message.answer(
+        new_i18n("lang_changed_success", named_lang=target_lang_name),
+        reply_markup=main_menu_kb(new_i18n, callback.from_user.id, is_admin=is_admin),
     )

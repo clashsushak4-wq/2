@@ -30,8 +30,8 @@ async def universal_back(
     # 2. Ищем маршрут в реестре
     target_handler = back_registry.get_handler(current_state_str)
 
-    # 2.1. Если мы в главном меню админки — выходим в главное меню пользователя
-    if current_state_str == "AdminState:main":
+    # 2.1. Если мы в главном меню раздела — выходим в главное меню пользователя
+    if current_state_str in ("AdminState:main", "TradingState:main", "EducationState:main"):
         await nav_start(message, session, _, state, is_admin=is_admin)
         return
 

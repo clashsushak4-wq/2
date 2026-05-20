@@ -88,5 +88,9 @@
   "error_system": "⚠️ System Error",
   "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╚ Выберите язык</pre>",
   "new_referral_notification": "🎉 <b>New Referral!</b>\nSomeone registered using your link.",
-  "unknown_command": "⚠️ Unknown command. Press /start or use the menu."
+  "unknown_command": "⚠️ Unknown command. Press /start or use the menu.",
+  "btn_trading": "📈 Trading",
+  "btn_education": "📚 Education",
+  "trading_title": "📈 <b>Trading</b>\n\nSection under development.",
+  "education_title": "📚 <b>Education</b>\n\nSection under development."
 }

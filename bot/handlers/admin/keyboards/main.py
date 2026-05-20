@@ -17,6 +17,10 @@ def admin_main_kb(_: Callable) -> InlineKeyboardMarkup | None:
     (`main_menu_kb`) остаётся на экране — через её кнопку «Назад»
     пользователь выходит в главное меню (см. `universal_back`).
 
+    Управление форум-темами в приватном чате с ботом сделано не
+    кнопкой, а текстовой командой `/topic <название>` — см.
+    `bot/handlers/admin/topics.py`.
+
     Возвращает `None`, если `WEBAPP_BASE_URL` не задан — Telegram
     отклоняет `InlineKeyboardMarkup` с пустым `inline_keyboard`.
     """

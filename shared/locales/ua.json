@@ -88,5 +88,9 @@
   "error_system": "⚠️ Помилка системи",
   "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╚ Выберите язык</pre>",
   "new_referral_notification": "🎉 <b>Новий реферал!</b>\nХтось зареєструвався за вашим посиланням.",
-  "unknown_command": "⚠️ Невідома команда. Натисніть /start або скористайтесь меню."
+  "unknown_command": "⚠️ Невідома команда. Натисніть /start або скористайтесь меню.",
+  "btn_trading": "📈 Trading",
+  "btn_education": "📚 Навчання",
+  "trading_title": "📈 <b>Trading</b>\n\nРозділ у розробці.",
+  "education_title": "📚 <b>Навчання</b>\n\nРозділ у розробці."
 }

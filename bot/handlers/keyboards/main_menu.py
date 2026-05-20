@@ -9,7 +9,8 @@ def main_menu_kb(_: Callable, user_id: int, is_admin: bool | None = None) -> Rep
     Главное меню.
 
     Раскладка:
-        [👤 Профиль] [ℹ️ Информация]
+        [� Trading]  [📚 Обучение]
+        [�👤 Профиль]  [ℹ️ Информация]
         [🛡 Админ панель]   ← только если is_admin
 
     :param _: функция перевода
@@ -18,13 +19,15 @@ def main_menu_kb(_: Callable, user_id: int, is_admin: bool | None = None) -> Rep
     """
     builder = ReplyKeyboardBuilder()
     builder.button(text=_("btn_profile"))
+    builder.button(text=_("btn_education"))
+    builder.button(text=_("btn_trading"))
     builder.button(text=_("btn_info"))
 
     # Кнопка "Админ панель" доступна только администраторам
     if is_admin:
         builder.button(text=_("btn_admin_panel"))
-        builder.adjust(2, 1)
+        builder.adjust(2, 2, 1)
     else:
-        builder.adjust(2)
+        builder.adjust(2, 2)
 
     return builder.as_markup(resize_keyboard=True)
