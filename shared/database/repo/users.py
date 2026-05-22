@@ -72,15 +72,15 @@ class UserRepo(BaseRepo):
 
     async def is_nickname_taken(self, nickname: str) -> bool:
         """Проверяет, занят ли никнейм."""
-        stmt = select(User).where(User.nickname == nickname)
+        stmt = select(User).where(func.lower(User.nickname) == func.lower(nickname))
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none() is not None
 
     async def get_by_nickname(self, nickname: str) -> User | None:
-        """Возвращает пользователя по нику (case-sensitive, как хранится)."""
+        """Возвращает пользователя по нику (case-insensitive)."""
         if not nickname:
             return None
-        stmt = select(User).where(User.nickname == nickname)
+        stmt = select(User).where(func.lower(User.nickname) == func.lower(nickname))
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 

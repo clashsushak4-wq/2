@@ -23,10 +23,6 @@ class Settings(BaseSettings):
     # TRADING
     TRADING_MODE: Literal["DEMO", "REAL"] = "DEMO"
 
-    # BYBIT
-    BYBIT_API_KEY: Optional[SecretStr] = None
-    BYBIT_SECRET: Optional[SecretStr] = None
-
     # WEB
     WEBAPP_BASE_URL: Optional[str] = None
 

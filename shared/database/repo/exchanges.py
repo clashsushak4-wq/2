@@ -33,7 +33,7 @@ class ExchangeRepo(BaseRepo):
             api_secret_enc=crypto.encrypt(api_secret),
         )
         self.session.add(exchange)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(exchange)
         return exchange
 
@@ -41,7 +41,6 @@ class ExchangeRepo(BaseRepo):
         result = await self.session.execute(
             delete(Exchange).where(Exchange.id == exchange_id)
         )
-        await self.session.commit()
         return result.rowcount > 0
 
     def decrypt_key(self, exchange: Exchange) -> tuple[str, str]:

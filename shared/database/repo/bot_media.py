@@ -37,8 +37,8 @@ class BotMediaRepo(BaseRepo):
         атомарно обновить поля и `updated_at`. Для совместимости
         с SQLite-тестами — fallback на ручной select+update/insert.
         """
-        bind = self.session.bind
-        if bind is None or bind.dialect.name == "postgresql":
+        bind = self.session.get_bind()
+        if bind.dialect.name == "postgresql":
             stmt = pg_insert(BotMedia).values(
                 key=key,
                 file_url=file_url,

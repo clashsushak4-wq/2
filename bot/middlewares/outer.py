@@ -1,9 +1,6 @@
 # middlewares/outer.py
 """
 Внешние мидлвари для обработки апдейтов.
-
-Для обратной совместимости UserValidationMiddleware реэкспортируется из
-bot.middlewares.user_validation — реальный класс вынесен туда.
 """
 from typing import Callable, Awaitable, Dict, Any
 from aiogram import BaseMiddleware

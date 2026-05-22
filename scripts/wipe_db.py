@@ -68,6 +68,10 @@ async def main(confirm: bool) -> int:
     logger.info("Цель Redis: %s", config.REDIS_URL)
     logger.info("Таблицы PG к очистке: %s", ", ".join(TABLES))
 
+    if config.TRADING_MODE != "DEMO":
+        logger.error("\n[CRITICAL] ОШИБКА: Запрещено выполнять очистку БД в режиме TRADING_MODE='%s'! Только для DEMO.", config.TRADING_MODE)
+        return 1
+
     if not confirm:
         logger.info("\nDRY RUN. Запусти с --yes чтобы выполнить очистку.")
         return 0

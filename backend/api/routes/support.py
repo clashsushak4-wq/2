@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.api.schemas.support import (
     TicketResponse, TicketMessageResponse, 
@@ -103,7 +103,7 @@ async def get_support_counts(
 
 @router.get("/admin/tickets", response_model=list[TicketResponse])
 async def get_tickets(
-    status: str = 'new',
+    status: str = Query("new", pattern="^(new|in_progress|closed)$"),
     session: AsyncSession = Depends(get_session),
     _admin_id: int = Depends(get_admin_user_id),
 ):

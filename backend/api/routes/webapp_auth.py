@@ -100,7 +100,7 @@ async def login(
     if not nickname:
         raise HTTPException(status_code=400, detail="Empty nickname")
 
-    if login_rate_limited(_client_ip(request), nickname):
+    if await login_rate_limited(_client_ip(request), nickname):
         raise HTTPException(status_code=429, detail="Too many login attempts")
 
     repo = UserRepo(session)
@@ -118,7 +118,7 @@ async def login(
 
     user_agent = request.headers.get("user-agent")
     token, expires_at = await issue_session_token(session, user.tg_id, user_agent=user_agent)
-    login_reset(_client_ip(request), nickname)
+    await login_reset(_client_ip(request), nickname)
 
     return LoginResponse(
         success=True,

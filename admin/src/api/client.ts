@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useToastStore } from '../shared/ui/useToast';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -35,6 +36,8 @@ apiClient.interceptors.response.use(
   (res) => res,
   (err) => {
     console.error('API Error:', err.response?.data || err.message);
+    const errorMsg = err.response?.data?.detail || err.message || 'Ошибка сети';
+    useToastStore.getState().add(errorMsg, 'error');
     if (err.response?.status === 401) {
       localStorage.removeItem(STORAGE_KEY);
       window.dispatchEvent(new CustomEvent('admin:unauthorized'));

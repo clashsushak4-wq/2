@@ -42,6 +42,8 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+let isSessionClearing = false;
+
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -50,10 +52,14 @@ apiClient.interceptors.response.use(
     const url: string = error?.config?.url || '';
     const usedBearer = (error?.config?.headers?.Authorization || '').startsWith('Bearer ');
     if (status === 401 && usedBearer && !FORCE_INIT_DATA_PATHS.some((p) => url.includes(p))) {
-      try {
-        useAuthStore.getState().clearSession();
-      } catch {
-        /* ignore */
+      if (!isSessionClearing) {
+        isSessionClearing = true;
+        try {
+          useAuthStore.getState().clearSession();
+        } catch {
+          /* ignore */
+        }
+        setTimeout(() => { isSessionClearing = false; }, 1000);
       }
     }
     console.error('API Error:', error.response?.data || error.message);

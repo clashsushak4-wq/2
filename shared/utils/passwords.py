@@ -86,10 +86,6 @@ def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
-def constant_time_eq(a: str, b: str) -> bool:
-    return hmac.compare_digest(a, b)
-
-
 def validate_password_format(password: str) -> Tuple[bool, str | None]:
     """Базовая проверка формата пароля. Возвращает (ok, error_key)."""
     from shared.constants import MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH

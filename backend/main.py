@@ -1,13 +1,17 @@
 import logging
 import os
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from shared.utils.logger import setup_logger
+from shared.database.core import session_maker
+from shared.database.repo.sessions import SessionRepo
 
 setup_logger()  # Unified loguru + stdlib logging bridge for backend
 
@@ -22,15 +26,33 @@ _BASE = os.path.dirname(__file__)
 
 
 # ── Lifecycle ────────────────────────────────────────────────
+async def _session_cleanup_worker():
+    while True:
+        try:
+            async with session_maker() as session:
+                repo = SessionRepo(session)
+                await repo.cleanup_expired()
+                await session.commit()
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.error("Error in session cleanup task: %s", e)
+        await asyncio.sleep(60 * 60)  # Каждый час
+
+
 @asynccontextmanager
 async def lifespan(application: FastAPI):
+    cleanup_task = asyncio.create_task(_session_cleanup_worker())
     await startup_bot_webhook()
     yield
     await shutdown_bot_webhook()
+    cleanup_task.cancel()
 
 
 app = FastAPI(title="Trading Bot API", version="1.0.0", lifespan=lifespan)
 
+# ── Proxy Headers (Real IP) ──────────────────────────────────
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["127.0.0.1"])
 
 # ── CORS ─────────────────────────────────────────────────────
 _default_origins = ["http://localhost:5173", "http://localhost:5175", "http://localhost:3000"]

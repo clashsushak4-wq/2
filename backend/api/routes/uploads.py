@@ -35,6 +35,8 @@ THUMB_MAX_DIM = 256
 WEBP_QUALITY = 82
 THUMB_QUALITY = 70
 
+upload_semaphore = asyncio.Semaphore(3)
+
 
 def _process_image_sync(raw: bytes, base_name: str) -> tuple[bytes, bytes]:
     """CPU-bound работа: ресайз + WebP. Запускать через asyncio.to_thread.
@@ -97,25 +99,31 @@ async def upload_file(
             detail=f"File type {ext} not allowed. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
         )
 
-    contents = await file.read()
-    if len(contents) > MAX_FILE_SIZE:
+    if getattr(file, "size", 0) and file.size > MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail="File too large (max 10 MB)")
 
     uid = uuid.uuid4().hex
 
-    # Видео: сохраняем как есть, без превью.
+    # Видео: сохраняем как есть, без превью (потоковая загрузка для экономии RAM).
     if ext in VIDEO_EXTENSIONS:
         filename = f"{uid}{ext}"
         filepath = _safe_join(filename)
-        async with aiofiles.open(filepath, "wb") as f:
-            await f.write(contents)
+        async with upload_semaphore:
+            async with aiofiles.open(filepath, "wb") as f:
+                while chunk := await file.read(1024 * 1024):
+                    await f.write(chunk)
         return UploadResponse(url=f"/uploads/{filename}")
 
     # Картинка: ресайз + WebP + thumbnail. PIL — CPU-bound, в thread.
     try:
-        main_bytes, thumb_bytes = await asyncio.to_thread(
-            _process_image_sync, contents, uid
-        )
+        async with upload_semaphore:
+            contents = await file.read()
+            if len(contents) > MAX_FILE_SIZE:
+                raise HTTPException(status_code=400, detail="File too large (max 10 MB)")
+
+            main_bytes, thumb_bytes = await asyncio.to_thread(
+                _process_image_sync, contents, uid
+            )
     except Exception as e:  # noqa: BLE001
         logger.exception("Image processing failed for %s: %s", file.filename, e)
         raise HTTPException(status_code=400, detail="Invalid or corrupted image") from e

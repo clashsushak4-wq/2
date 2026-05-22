@@ -4,10 +4,10 @@ Signed admin session tokens.
 Используется когда /admin UI открывается из браузера (не как Telegram WebApp),
 поэтому Telegram initData недоступен и нужен отдельный механизм аутентификации.
 
-Формат токена: <base64url(payload_json)>.<hex(hmac_sha256(payload_json, BOT_TOKEN))>
+Формат токена: <base64url(payload_json)>.<hex(hmac_sha256(payload_json, ENCRYPTION_KEY))>
 payload = {"uid": <telegram_id>, "exp": <unix_ts>}
 
-HMAC подписывается BOT_TOKEN'ом — тем же секретом что используется для webhook.
+HMAC подписывается ENCRYPTION_KEY'ом — выделенным секретом для шифрования.
 Ключ никогда не попадает на клиент; клиент только хранит и отдаёт готовый токен.
 """
 
@@ -27,7 +27,7 @@ DEFAULT_TTL_SECONDS = 24 * 60 * 60  # 24 часа
 
 
 def _sign(payload_bytes: bytes) -> str:
-    secret = config.BOT_TOKEN.get_secret_value().encode("utf-8")
+    secret = config.ENCRYPTION_KEY.get_secret_value().encode("utf-8")
     return hmac.new(secret, payload_bytes, hashlib.sha256).hexdigest()
 
 

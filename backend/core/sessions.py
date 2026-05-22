@@ -6,55 +6,49 @@
 from __future__ import annotations
 
 import time
-from collections import defaultdict
 from datetime import datetime
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
+import redis.asyncio as redis
+
+from shared.config import config
 
 from shared.constants import WEBAPP_SESSION_TTL_DAYS
 from shared.database.repo.sessions import SessionRepo
 
 
-# Простой in-memory rate limiter на login-эндпоинт.
-# 5 попыток на nickname + ip за 60 секунд.
 _MAX_ATTEMPTS = 5
 _WINDOW_SECONDS = 60
-_login_attempts: dict[str, list[float]] = defaultdict(list)
-_last_cleanup: float = 0.0
-_CLEANUP_INTERVAL = 300
+
+redis_client = redis.from_url(
+    config.REDIS_URL.get_secret_value() if hasattr(config.REDIS_URL, "get_secret_value") else config.REDIS_URL,
+    decode_responses=True
+)
 
 
-def _cleanup_attempts(now: float) -> None:
-    global _last_cleanup
-    if now - _last_cleanup <= _CLEANUP_INTERVAL:
-        return
-    stale_keys = [
-        key for key, ts in _login_attempts.items() if all(now - t >= _WINDOW_SECONDS for t in ts)
-    ]
-    for key in stale_keys:
-        del _login_attempts[key]
-    _last_cleanup = now
-
-
-def login_rate_limited(client_ip: str, nickname: str) -> bool:
+async def login_rate_limited(client_ip: str, nickname: str) -> bool:
     """True, если для пары (ip, nickname) лимит превышен."""
-    now = time.monotonic()
-    _cleanup_attempts(now)
-    key = f"{client_ip}:{nickname.lower()}"
-    attempts = [t for t in _login_attempts[key] if now - t < _WINDOW_SECONDS]
-    if len(attempts) >= _MAX_ATTEMPTS:
-        _login_attempts[key] = attempts
-        return True
-    attempts.append(now)
-    _login_attempts[key] = attempts
-    return False
+    key = f"rate_limit:login:{client_ip}:{nickname.lower()}"
+    
+    async with redis_client.pipeline(transaction=True) as pipe:
+        await pipe.incr(key)
+        # Ставим TTL, только если ключа не было (для первого инкремента)
+        # Если redis-py < 4.2 не поддерживает nx=True в expire,
+        # то можно использовать expire(key, _WINDOW_SECONDS)
+        # Но в современных версиях это работает, или проще ставить TTL всегда, 
+        # продлевая блокировку при спаме (что даже лучше).
+        await pipe.expire(key, _WINDOW_SECONDS)
+        results = await pipe.execute()
+        
+    attempts = results[0]
+    return attempts > _MAX_ATTEMPTS
 
 
-def login_reset(client_ip: str, nickname: str) -> None:
+async def login_reset(client_ip: str, nickname: str) -> None:
     """Сбросить счётчик после успешного логина."""
-    key = f"{client_ip}:{nickname.lower()}"
-    _login_attempts.pop(key, None)
+    key = f"rate_limit:login:{client_ip}:{nickname.lower()}"
+    await redis_client.delete(key)
 
 
 async def issue_session_token(

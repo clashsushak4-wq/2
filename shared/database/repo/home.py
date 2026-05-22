@@ -29,9 +29,10 @@ class HomeRepo(BaseRepo):
         if not kwargs:
             return await self.session.get(HomeTile, tile_id)
             
-        stmt = update(HomeTile).where(HomeTile.id == tile_id).values(**kwargs).returning(HomeTile)
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        stmt = update(HomeTile).where(HomeTile.id == tile_id).values(**kwargs)
+        await self.session.execute(stmt)
+        await self.session.flush()
+        return await self.session.get(HomeTile, tile_id)
 
     async def delete_tile(self, tile_id: int) -> bool:
         stmt = delete(HomeTile).where(HomeTile.id == tile_id)

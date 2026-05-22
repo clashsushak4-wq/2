@@ -9,6 +9,8 @@ from collections import OrderedDict
 import time
 import logging
 
+from aiogram.fsm.storage.base import BaseStorage
+from aiogram.fsm.storage.redis import RedisStorage
 from shared.constants import SENSITIVE_TRADING_STATES
 from bot.utils import get_event_user
 
@@ -26,16 +28,19 @@ class ThrottlingMiddleware(BaseMiddleware):
     # Время жизни записи в кэше (1 час)
     CACHE_TTL_SECONDS = 3600
     
-    def __init__(self, rate_limit: float = 0.5, critical_rate_limit: float = 3.0):
+    def __init__(self, storage: BaseStorage, rate_limit: float = 0.5, critical_rate_limit: float = 3.0):
         """
         Args:
+            storage: FSM Storage (RedisStorage / MemoryStorage)
             rate_limit: Минимальное время между обычными запросами в секундах
             critical_rate_limit: Минимальное время между критичными операциями в секундах
         """
         super().__init__()
         self.rate_limit = rate_limit
         self.critical_rate_limit = critical_rate_limit
-        # OrderedDict для LRU eviction и контроля размера
+        self.storage = storage
+        self.is_redis = isinstance(storage, RedisStorage)
+        # OrderedDict для LRU eviction и контроля размера (fallback для MemoryStorage)
         self.user_last_request: OrderedDict[tuple, float] = OrderedDict()
     
     def _cleanup_old_entries(self, current_time: float):
@@ -67,41 +72,55 @@ class ThrottlingMiddleware(BaseMiddleware):
         user_id = user.id
         current_time = time.time()
         
-        # Очистка старых записей и контроль размера кэша
-        self._cleanup_old_entries(current_time)
-        self._ensure_cache_size()
-        
-        # Проверяем текущее состояние
         state = data.get("state")
         current_state = None
         if state:
             current_state = await state.get_state()
-        
-        # Определяем лимит в зависимости от состояния
+            
         is_critical = current_state in self.CRITICAL_STATES
         limit = self.critical_rate_limit if is_critical else self.rate_limit
-        request_key = (user_id, is_critical)
         
-        # Проверяем, не слишком ли быстро пользователь отправляет запросы
-        if request_key in self.user_last_request:
-            time_passed = current_time - self.user_last_request[request_key]
-            if time_passed < limit:
-                # Слишком быстро - игнорируем запрос
-                logger.warning(f"[THROTTLE] user_id={user_id}, critical={is_critical}, time_passed={time_passed:.2f}s")
-                
-                # Отправляем предупреждение только для сообщений
-                # event — это Update (middleware на dp.update), достаём message
+        if self.is_redis:
+            # Распределенный Redis throttling
+            redis = self.storage.redis
+            key = f"throttle:{user_id}:{int(is_critical)}"
+            # Используем SET EX NX (атомарная операция)
+            is_allowed = await redis.set(key, "1", ex=max(1, int(limit)), nx=True)
+            
+            if not is_allowed:
+                logger.warning(f"[THROTTLE-REDIS] user_id={user_id}, critical={is_critical}")
                 msg = getattr(event, "message", None)
                 if msg and isinstance(msg, Message):
                     try:
-                        wait_time = max(1, int(limit - time_passed))
-                        await msg.answer(f"⏱ Слишком быстро! Подождите {wait_time} секунд.")
+                        await msg.answer("⏱ Слишком быстро! Подождите немного.")
                     except Exception as e:
                         logger.debug(f"Failed to send throttle message: {e}")
-                
                 return
-        
-        # Обновляем время последнего запроса
-        self.user_last_request[request_key] = current_time
+        else:
+            # Очистка старых записей и контроль размера кэша (Fallback)
+            self._cleanup_old_entries(current_time)
+            self._ensure_cache_size()
+
+            request_key = (user_id, is_critical)
+            
+            # Проверяем, не слишком ли быстро пользователь отправляет запросы
+            if request_key in self.user_last_request:
+                time_passed = current_time - self.user_last_request[request_key]
+                if time_passed < limit:
+                    # Слишком быстро - игнорируем запрос
+                    logger.warning(f"[THROTTLE-MEM] user_id={user_id}, critical={is_critical}, time_passed={time_passed:.2f}s")
+                    
+                    msg = getattr(event, "message", None)
+                    if msg and isinstance(msg, Message):
+                        try:
+                            wait_time = max(1, int(limit - time_passed))
+                            await msg.answer(f"⏱ Слишком быстро! Подождите {wait_time} секунд.")
+                        except Exception as e:
+                            logger.debug(f"Failed to send throttle message: {e}")
+                    
+                    return
+            
+            # Обновляем время последнего запроса
+            self.user_last_request[request_key] = current_time
         
         return await handler(event, data)
