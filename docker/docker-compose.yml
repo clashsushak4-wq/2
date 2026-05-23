@@ -40,6 +40,7 @@ services:
       - ../bot:/app/bot
       - ../shared:/app/shared
       - ../logs:/app/logs
+      - ../uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,6 +61,7 @@ services:
       - ../shared:/app/shared
       - ../webapp:/app/webapp
       - ../admin:/app/admin
+      - ../uploads:/app/uploads
     ports:
       - "8000:8000"
     depends_on:
