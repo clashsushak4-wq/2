@@ -28,7 +28,7 @@ class ThrottlingMiddleware(BaseMiddleware):
     # Время жизни записи в кэше (1 час)
     CACHE_TTL_SECONDS = 3600
     
-    def __init__(self, storage: BaseStorage, rate_limit: float = 0.5, critical_rate_limit: float = 3.0):
+    def __init__(self, storage: BaseStorage, rate_limit: float = 0.1, critical_rate_limit: float = 3.0):
         """
         Args:
             storage: FSM Storage (RedisStorage / MemoryStorage)
@@ -84,15 +84,19 @@ class ThrottlingMiddleware(BaseMiddleware):
             # Распределенный Redis throttling
             redis = self.storage.redis
             key = f"throttle:{user_id}:{int(is_critical)}"
-            # Используем SET EX NX (атомарная операция)
-            is_allowed = await redis.set(key, "1", ex=max(1, int(limit)), nx=True)
+            # Используем SET PX NX для поддержки миллисекунд (limit=0.5 -> 500ms)
+            is_allowed = await redis.set(key, "1", px=max(1, int(limit * 1000)), nx=True)
             
             if not is_allowed:
                 logger.warning(f"[THROTTLE-REDIS] user_id={user_id}, critical={is_critical}")
-                msg = getattr(event, "message", None)
-                if msg and isinstance(msg, Message):
+                if hasattr(event, "answer"):
                     try:
-                        await msg.answer("⏱ Слишком быстро! Подождите немного.")
+                        # Если это CallbackQuery, нужно ответить, чтобы кнопка не зависала
+                        from aiogram.types import CallbackQuery
+                        if isinstance(event, CallbackQuery):
+                            await event.answer("⏱ Слишком быстро! Подождите немного.", show_alert=False)
+                        else:
+                            await event.answer("⏱ Слишком быстро! Подождите немного.")
                     except Exception as e:
                         logger.debug(f"Failed to send throttle message: {e}")
                 return
@@ -110,11 +114,13 @@ class ThrottlingMiddleware(BaseMiddleware):
                     # Слишком быстро - игнорируем запрос
                     logger.warning(f"[THROTTLE-MEM] user_id={user_id}, critical={is_critical}, time_passed={time_passed:.2f}s")
                     
-                    msg = getattr(event, "message", None)
-                    if msg and isinstance(msg, Message):
+                    if hasattr(event, "answer"):
                         try:
-                            wait_time = max(1, int(limit - time_passed))
-                            await msg.answer(f"⏱ Слишком быстро! Подождите {wait_time} секунд.")
+                            from aiogram.types import CallbackQuery
+                            if isinstance(event, CallbackQuery):
+                                await event.answer("⏱ Слишком быстро! Подождите немного.", show_alert=False)
+                            else:
+                                await event.answer("⏱ Слишком быстро! Подождите немного.")
                         except Exception as e:
                             logger.debug(f"Failed to send throttle message: {e}")
                     

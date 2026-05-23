@@ -58,6 +58,8 @@ services:
     volumes:
       - ../backend:/app/backend
       - ../shared:/app/shared
+      - ../webapp:/app/webapp
+      - ../admin:/app/admin
     ports:
       - "8000:8000"
     depends_on:
@@ -78,5 +80,21 @@ services:
   #     - "5173:5173"
   #   command: npm run dev -- --host
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: trading_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../docker/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
+  caddy_data:
+  caddy_config:

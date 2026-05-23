@@ -28,7 +28,10 @@ def admin_main_kb(_: Callable) -> InlineKeyboardMarkup | None:
     if not webapp_url:
         return None
 
-    admin_url = webapp_url.rsplit("/webapp", 1)[0] + "/admin/"
+    admin_url = (config.ADMIN_WEBAPP_URL or "").rstrip("/") + "/"
+    if not admin_url or admin_url == "/":
+        return None
+
     return InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(

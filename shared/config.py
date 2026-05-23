@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     TRADING_MODE: Literal["DEMO", "REAL"] = "DEMO"
 
     # WEB
-    WEBAPP_BASE_URL: Optional[str] = None
+    WEBAPP_BASE_URL: str | None = None
+    ADMIN_WEBAPP_URL: str | None = None
 
     # SECURITY
     ENCRYPTION_KEY: SecretStr
