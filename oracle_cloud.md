@@ -6,7 +6,7 @@
 
 *   **IP-адрес:** `138.2.175.223`
 *   **Имя пользователя:** `ubuntu`
-*   **SSH Ключ:** `secret/ssh-key-2026-05-22.key` (лежит в корне проекта локально)
+*   **SSH Ключ:** `.secret/ssh-key-2026-05-22.key` (лежит в корне проекта локально)
 *   **Домен:** `sdtxtrx.duckdns.org`
 *   **Директория проекта на сервере:** `/home/ubuntu/bot`
 
@@ -27,7 +27,7 @@
 
 ### 1. Подключение по SSH
 ```bash
-ssh -i secret/ssh-key-2026-05-22.key ubuntu@138.2.175.223
+ssh -i .secret/ssh-key-2026-05-22.key ubuntu@138.2.175.223
 ```
 
 ### 2. Обновление Python-кода (Бэкенд и Бот)
@@ -52,8 +52,8 @@ cd ../admin && npm run build
 
 **Шаг 2: Загрузка на сервер (выполнять из корня проекта локально)**
 ```bash
-scp -i secret/ssh-key-2026-05-22.key -r webapp/dist ubuntu@138.2.175.223:/home/ubuntu/bot/webapp/
-scp -i secret/ssh-key-2026-05-22.key -r admin/dist ubuntu@138.2.175.223:/home/ubuntu/bot/admin/
+scp -i .secret/ssh-key-2026-05-22.key -r webapp/dist ubuntu@138.2.175.223:/home/ubuntu/bot/webapp/
+scp -i .secret/ssh-key-2026-05-22.key -r admin/dist ubuntu@138.2.175.223:/home/ubuntu/bot/admin/
 ```
 
 ### 4. Просмотр логов
@@ -65,7 +65,7 @@ docker-compose logs --tail=100 -f bot backend
 
 ## Переменные окружения (.env)
 *   Файл `.env` лежит на сервере по пути `/home/ubuntu/bot/.env`.
-*   Локальный файл конфигурации для сервера спрятан в папку с секретами: `secret/.env.oracle_cloud`. Он является точной копией серверного конфигурационного файла. Если нужно изменить настройки на сервере, меняйте их в `secret/.env.oracle_cloud`, а затем загружайте на сервер:
+*   Локальный файл конфигурации для сервера спрятан в папку с секретами: `.secret/.env.oracle_cloud`. Он является точной копией серверного конфигурационного файла. Если нужно изменить настройки на сервере, меняйте их в `.secret/.env.oracle_cloud`, а затем загружайте на сервер:
     ```bash
-    scp -i secret/ssh-key-2026-05-22.key secret/.env.oracle_cloud ubuntu@138.2.175.223:/home/ubuntu/bot/.env
+    scp -i .secret/ssh-key-2026-05-22.key .secret/.env.oracle_cloud ubuntu@138.2.175.223:/home/ubuntu/bot/.env
     ```
