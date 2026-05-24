@@ -1,4 +1,4 @@
-# handlers/admin/panel.py
+﻿# handlers/admin/panel.py
 
 # IMPORTS
 
@@ -11,7 +11,7 @@ from bot.filters.localized_text import LocalizedText
 from bot.handlers.admin.keyboards.main import admin_main_kb
 from bot.handlers.common.back import back_registry
 from bot.states import AdminState
-from bot.utils_media import send_with_media
+from bot.utils.media import send_with_media
 from shared.utils.decorators import admin_required
 
 router = Router()

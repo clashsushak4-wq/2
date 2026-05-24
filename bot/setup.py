@@ -60,10 +60,13 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     Dispatcher с единым набором middleware и зарегистрированным root_router.
     Важно: порядок middleware имеет значение (logging -> db -> user -> admin -> i18n -> throttling).
     """
+    from bot.middlewares.auth import AuthMiddleware
+    
     dp = Dispatcher(storage=storage)
 
     dp.update.middleware(LoggingMiddleware())
     dp.update.middleware(DbSessionMiddleware(session_pool=session_maker))
+    dp.update.middleware(AuthMiddleware())
     dp.update.middleware(AdminCheckMiddleware())
     dp.update.middleware(I18nMiddleware(storage=storage))
     dp.update.middleware(ThrottlingMiddleware(storage=storage, rate_limit=0.5, critical_rate_limit=3.0))

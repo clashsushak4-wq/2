@@ -1,4 +1,4 @@
-# handlers/profile/profile.py
+﻿# handlers/profile/profile.py
 """Главный экран Профиля.
 
 Архитектура:
@@ -22,9 +22,9 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.filters.localized_text import LocalizedText
-from bot.handlers.keyboards.profile import profile_main_inline_kb
+from bot.keyboards.profile import profile_main_inline_kb
 from bot.states import ProfileState
-from bot.utils_media import edit_with_media, send_with_media
+from bot.utils.media import edit_with_media, send_with_media
 from shared.database.repo.users import UserRepo
 
 

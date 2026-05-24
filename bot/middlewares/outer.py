@@ -1,4 +1,4 @@
-# middlewares/outer.py
+﻿# middlewares/outer.py
 """
 Внешние мидлвари для обработки апдейтов.
 """
@@ -10,7 +10,7 @@ from shared.config import config
 from shared.constants import SENSITIVE_TRADING_STATES
 from shared.utils.logger import setup_logger
 
-from bot.utils import get_event_user
+from bot.utils.common import get_event_user
 
 logger = setup_logger()
 

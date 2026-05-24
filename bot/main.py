@@ -8,8 +8,9 @@ from shared.config import config
 from shared.utils.asyncio_policy import apply_windows_event_loop_policy
 from shared.utils.logger import setup_logger
 from shared.lifecycle import shutdown_shared_resources
-from bot.error_handler import register_error_handler
+from bot.handlers.errors import register_error_handler
 from bot.setup import build_bot, build_dispatcher, build_storage, setup_bot_commands
+from bot.middlewares.auth import AuthMiddleware
 from shared.utils.i18n import i18n
 
 # LOGGER SETUP
@@ -89,7 +90,7 @@ async def main():
     await setup_bot_commands(bot)
 
     # START POLLING
-    await bot.delete_webhook(drop_pending_updates=True)
+    await bot.delete_webhook(drop_pending_updates=False)
 
     try:
         logger.info("✅ Бот запущен и готов к работе")

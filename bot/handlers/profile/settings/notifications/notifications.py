@@ -1,4 +1,4 @@
-# handlers/profile/settings/notifications/notifications.py
+﻿# handlers/profile/settings/notifications/notifications.py
 """Экран уведомлений. Открывается callback'ом `profile:notifications`
 из меню Настроек, всё работает через редактирование того же сообщения.
 """
@@ -9,7 +9,7 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.handlers.keyboards.profile import notifications_kb
+from bot.keyboards.profile import notifications_kb
 from bot.states import ProfileState
 from shared.database.repo.users import UserRepo
 

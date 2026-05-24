@@ -1,4 +1,4 @@
-# handlers/education/education.py
+﻿# handlers/education/education.py
 
 # IMPORTS
 
@@ -8,10 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Callable
 
 from bot.filters.localized_text import LocalizedText
-from bot.handlers.keyboards.education import education_main_inline_kb
+from bot.keyboards.education import education_main_inline_kb
 from bot.handlers.common.back import back_registry
 from bot.states import EducationState
-from bot.utils_media import send_with_media
+from bot.utils.media import send_with_media
 
 router = Router()
 

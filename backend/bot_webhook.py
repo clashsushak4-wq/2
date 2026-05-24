@@ -9,7 +9,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Update
 from fastapi import APIRouter, Header, HTTPException, Request
 
-from bot.error_handler import register_error_handler
+from bot.handlers.errors import register_error_handler
 from bot.setup import build_bot, build_dispatcher, build_storage, setup_bot_commands
 from shared.utils.i18n import i18n
 from shared.config import config
@@ -65,7 +65,7 @@ async def startup_bot_webhook() -> None:
         try:
             await _bot.set_webhook(
                 url=webhook_url,
-                drop_pending_updates=True,
+                drop_pending_updates=False,
                 secret_token=webhook_secret,
             )
             logger.info("Telegram webhook is set to %s (with secret_token)", webhook_url)

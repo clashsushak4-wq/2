@@ -103,23 +103,26 @@ def security_logout_all_confirm_kb(_: Callable) -> InlineKeyboardMarkup:
 
 # --- SUB-INLINE: экраны выбора языка ---
 
-def language_inline_kb(_: Callable) -> InlineKeyboardMarkup:
-    """Выбор языка (сетка 2×2) + возврат в Настройки.
+def language_inline_kb(_: Callable, show_back: bool = True) -> InlineKeyboardMarkup:
+    """Выбор языка (сетка 2×2) + опциональный возврат в Настройки.
 
     Раскладка:
         [🇷🇺 Русский]  [🇺🇸 English]
         [🇺🇦 Українська] [🇹🇷 Türkçe]
-        [↩️ Назад]
-    Две кнопки в ряду заполняют ширину сообщения, поэтому визуально
-    клавиатура выровнена по краям медиа-карточки сверху.
+        [↩️ Назад] (только если show_back=True)
     """
     builder = InlineKeyboardBuilder()
     builder.button(text=_("lang_ru"), callback_data="lang_ru")
     builder.button(text=_("lang_en"), callback_data="lang_en")
     builder.button(text=_("lang_ua"), callback_data="lang_ua")
     builder.button(text=_("lang_tr"), callback_data="lang_tr")
-    builder.button(text=_("btn_back"), callback_data="profile:back_to_settings")
-    builder.adjust(2, 2, 1)
+    
+    if show_back:
+        builder.button(text=_("btn_back"), callback_data="profile:back_to_settings")
+        builder.adjust(2, 2, 1)
+    else:
+        builder.adjust(2, 2)
+        
     return builder.as_markup()
 
 
@@ -137,11 +140,22 @@ def language_confirm_kb(_: Callable, target_lang_code: str) -> InlineKeyboardMar
 # --- SUB-INLINE: экраны смены ника ---
 
 def change_nick_start_kb(_: Callable) -> InlineKeyboardMarkup:
-    """Кнопка начала смены ника + возврат в Настройки."""
+    """Изменение ника (Настройки → Никнейм).
+    [Изменить сейчас]
+    [↩️ Назад]
+    """
     builder = InlineKeyboardBuilder()
     builder.button(text=_("btn_change_nick_action"), callback_data="start_change_nick")
     builder.button(text=_("btn_back"), callback_data="profile:back_to_settings")
     builder.adjust(1)
+    return builder.as_markup()
+
+def cancel_nick_change_kb(_: Callable) -> InlineKeyboardMarkup:
+    """Отмена ввода ника.
+    [↩️ Отмена]
+    """
+    builder = InlineKeyboardBuilder()
+    builder.button(text=_("btn_cancel"), callback_data="cancel_change_nick")
     return builder.as_markup()
 
 

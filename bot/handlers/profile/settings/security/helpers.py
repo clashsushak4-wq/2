@@ -1,4 +1,4 @@
-# handlers/profile/settings/security/helpers.py
+﻿# handlers/profile/settings/security/helpers.py
 """Общие хелперы раздела «Безопасность».
 
 Содержит функции, которые переиспользуются между подмодулями
@@ -15,8 +15,8 @@ from typing import Callable
 from aiogram import types
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.handlers.keyboards.profile import security_inline_kb
-from bot.utils_media import edit_with_media
+from bot.keyboards.profile import security_inline_kb
+from bot.utils.media import edit_with_media
 from shared.database.repo.users import UserRepo
 
 logger = logging.getLogger(__name__)

@@ -2,7 +2,7 @@
 from aiogram import Router
 
 from .common import router as common_router
-from .common.unknown import router as unknown_router
+from .unknown import router as unknown_router
 from .profile import router as profile_router
 from .info import router as info_router
 from .admin import router as admin_router

@@ -1,4 +1,4 @@
-# middlewares/throttling.py
+﻿# middlewares/throttling.py
 """
 Middleware для защиты от спама и rate limiting.
 """
@@ -12,7 +12,7 @@ import logging
 from aiogram.fsm.storage.base import BaseStorage
 from aiogram.fsm.storage.redis import RedisStorage
 from shared.constants import SENSITIVE_TRADING_STATES
-from bot.utils import get_event_user
+from bot.utils.common import get_event_user
 
 logger = logging.getLogger(__name__)
 
@@ -90,15 +90,14 @@ class ThrottlingMiddleware(BaseMiddleware):
             if not is_allowed:
                 logger.warning(f"[THROTTLE-REDIS] user_id={user_id}, critical={is_critical}")
                 if hasattr(event, "answer"):
-                    try:
-                        # Если это CallbackQuery, нужно ответить, чтобы кнопка не зависала
-                        from aiogram.types import CallbackQuery
-                        if isinstance(event, CallbackQuery):
-                            await event.answer("⏱ Слишком быстро! Подождите немного.", show_alert=False)
-                        else:
-                            await event.answer("⏱ Слишком быстро! Подождите немного.")
-                    except Exception as e:
-                        logger.debug(f"Failed to send throttle message: {e}")
+                        try:
+                            # Если это CallbackQuery, нужно ответить, чтобы кнопка не зависала
+                            from aiogram.types import CallbackQuery
+                            if isinstance(event, CallbackQuery):
+                                await event.answer("⏱ Слишком быстро! Подождите немного.", show_alert=False)
+                            # Для обычных сообщений просто игнорируем, не спамим в ответ
+                        except Exception as e:
+                            logger.debug(f"Failed to send throttle message: {e}")
                 return
         else:
             # Очистка старых записей и контроль размера кэша (Fallback)
@@ -119,8 +118,7 @@ class ThrottlingMiddleware(BaseMiddleware):
                             from aiogram.types import CallbackQuery
                             if isinstance(event, CallbackQuery):
                                 await event.answer("⏱ Слишком быстро! Подождите немного.", show_alert=False)
-                            else:
-                                await event.answer("⏱ Слишком быстро! Подождите немного.")
+                            # Для обычных сообщений просто игнорируем, не спамим в ответ
                         except Exception as e:
                             logger.debug(f"Failed to send throttle message: {e}")
                     

@@ -1,4 +1,4 @@
-# handlers/common/navigation.py
+﻿# handlers/common/navigation.py
 import logging
 from aiogram import types
 from aiogram.fsm.context import FSMContext
@@ -6,13 +6,42 @@ from typing import Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.states import OnboardingState
-from bot.handlers.keyboards.main_menu import main_menu_kb
-from bot.handlers.keyboards.profile import language_inline_kb
+from bot.keyboards.main_menu import main_menu_kb
+from bot.keyboards.profile import language_inline_kb
 from bot.handlers.common.start.service import get_or_create_user
-from bot.utils_media import send_with_media
+from bot.utils.media import send_with_media
 from shared.utils.i18n import i18n
+from shared.database.repo.users import UserRepo
 
 logger = logging.getLogger(__name__)
+
+async def _notify_referrer(session: AsyncSession, bot, referrer_id: int) -> None:
+    try:
+        repo = UserRepo(session)
+        referrer = await repo.get_user(referrer_id)
+        if referrer:
+            await bot.send_message(
+                chat_id=referrer_id,
+                text=i18n.get("new_referral_notification", lang=referrer.language)
+            )
+    except Exception as e:
+        logger.warning(f"Не удалось отправить уведомление рефереру {referrer_id}: {e}")
+
+async def _route_to_onboarding(message: types.Message, session: AsyncSession, _: Callable, state: FSMContext) -> None:
+    await state.set_state(OnboardingState.language)
+    await send_with_media(
+        message,
+        session,
+        media_key="onboarding_welcome",
+        text=i18n.get("welcome_select_language", lang="ru"),
+        reply_markup=language_inline_kb(_, show_back=False),
+    )
+
+async def _route_to_main_menu(message: types.Message, _: Callable, user_nickname: str, is_admin: bool | None) -> None:
+    await message.answer(
+        text=_("start_back", nickname=user_nickname),
+        reply_markup=main_menu_kb(_, message.from_user.id, is_admin=is_admin)
+    )
 
 async def nav_start(
     message: types.Message,
@@ -41,36 +70,10 @@ async def nav_start(
         start_args=start_args
     )
 
-    # 2. Логика новичка (или если нет ника)
+    # 2. Маршрутизация
     if is_new or user.nickname is None:
-        # Уведомление рефереру (того, кто пригласил)
         if is_new and user.referrer_id:
-            try:
-                # Получаем реферера из БД для использования его языка
-                from shared.database.repo.users import UserRepo
-                repo = UserRepo(session)
-                referrer = await repo.get_user(user.referrer_id)
-                if referrer:
-                    await message.bot.send_message(
-                        chat_id=user.referrer_id,
-                        text=i18n.get("new_referral_notification", lang=referrer.language)
-                    )
-            except Exception as e:
-                logger.warning(f"Не удалось отправить уведомление рефереру {user.referrer_id}: {e}")
-
-        # Отправляем на выбор языка (с опциональным фото из админки)
-        await state.set_state(OnboardingState.language)
-
-        await send_with_media(
-            message,
-            session,
-            media_key="onboarding_welcome",
-            text=i18n.get("welcome_select_language", lang="ru"),
-            reply_markup=language_inline_kb(_),
-        )
+            await _notify_referrer(session, message.bot, user.referrer_id)
+        await _route_to_onboarding(message, session, _, state)
     else:
-        # 3. Логика старичка -> Главное меню
-        await message.answer(
-            text=_("start_back", nickname=user.nickname),
-            reply_markup=main_menu_kb(_, message.from_user.id, is_admin=is_admin)
-        )
+        await _route_to_main_menu(message, _, user.nickname, is_admin)

@@ -1,4 +1,4 @@
-# handlers/trading/trading.py
+﻿# handlers/trading/trading.py
 
 # IMPORTS
 
@@ -8,10 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Callable
 
 from bot.filters.localized_text import LocalizedText
-from bot.handlers.keyboards.trading import trading_main_inline_kb
+from bot.keyboards.trading import trading_main_inline_kb
 from bot.handlers.common.back import back_registry
 from bot.states import TradingState
-from bot.utils_media import send_with_media
+from bot.utils.media import send_with_media
 
 router = Router()
 

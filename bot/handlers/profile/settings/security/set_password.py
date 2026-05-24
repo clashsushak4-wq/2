@@ -1,4 +1,4 @@
-# handlers/profile/settings/security/set_password.py
+﻿# handlers/profile/settings/security/set_password.py
 """Создание пароля WebApp (когда у пользователя его ещё нет).
 
 Поток FSM:
@@ -19,9 +19,9 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.handlers.keyboards.profile import security_cancel_kb, security_inline_kb
+from bot.keyboards.profile import security_cancel_kb, security_inline_kb
 from bot.states import ProfileState
-from bot.utils_media import edit_with_media
+from bot.utils.media import edit_with_media
 from shared.database.repo.sessions import SessionRepo
 from shared.database.repo.users import UserRepo
 from shared.utils.passwords import validate_password_format

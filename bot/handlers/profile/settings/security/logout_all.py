@@ -1,4 +1,4 @@
-# handlers/profile/settings/security/logout_all.py
+﻿# handlers/profile/settings/security/logout_all.py
 """Завершить все активные WebApp-сессии пользователя.
 
 Хендлеры:
@@ -15,7 +15,7 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.handlers.keyboards.profile import security_logout_all_confirm_kb
+from bot.keyboards.profile import security_logout_all_confirm_kb
 from bot.states import ProfileState
 from shared.database.repo.sessions import SessionRepo
 from shared.database.repo.users import UserRepo

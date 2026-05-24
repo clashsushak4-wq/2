@@ -1,4 +1,4 @@
-# handlers/info/info.py
+﻿# handlers/info/info.py
 """Раздел «Информация».
 
 Архитектура (минимальный каркас, аналог раздела Профиль):
@@ -20,7 +20,7 @@ from aiogram import Router, types
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.filters.localized_text import LocalizedText
-from bot.utils_media import send_with_media
+from bot.utils.media import send_with_media
 
 
 router = Router()

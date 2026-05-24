@@ -28,7 +28,7 @@ logger = logging.getLogger("wipe_db")
 TABLES = [
     "ticket_messages",
     "tickets",
-    "trades",
+    "user_sessions",
     "home_tiles",
     "exchanges",
     "users",
