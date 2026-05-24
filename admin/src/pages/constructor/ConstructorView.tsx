@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Blocks, Plus, Loader2, Smartphone, Save, List, LayoutGrid } from 'lucide-react';
 import {
@@ -10,168 +10,63 @@ import {
   useSensors,
   DragOverlay,
 } from '@dnd-kit/core';
-import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { api } from '../../api/client';
-import type { HomeTile, HomeTileCreate, HomeTileUpdate } from '../../api/client';
+import type { HomeTile } from '../../api/client';
 import { TileEditor, LivePreview, GridTile, ListTile, DragGhost } from './components';
-import { useToastStore } from '../../shared/ui';
+import { useConstructorData } from './hooks';
 
 /* ── Main View ────────────────────────────────────────── */
 export const ConstructorView = () => {
-  const [tiles, setTiles] = useState<HomeTile[]>([]);
-  const serverTiles = useRef<HomeTile[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const {
+    tiles,
+    isLoading,
+    isSaving,
+    activeDragId,
+    hasChanges,
+    handleDragStart,
+    handleDragEnd,
+    handleToggleActive,
+    handleSaveAll,
+    handleDiscardChanges,
+    handleCreate,
+    handleUpdate,
+    handleDelete,
+    handleDuplicate,
+  } = useConstructorData();
+
   const [editingTile, setEditingTile] = useState<HomeTile | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeDragId, setActiveDragId] = useState<number | null>(null);
-  const toast = useToastStore((s) => s.add);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const isDirty = useCallback(() => {
-    if (tiles.length !== serverTiles.current.length) return true;
-    return tiles.some((t, i) => {
-      const s = serverTiles.current[i];
-      return t.id !== s.id || t.is_active !== s.is_active;
-    });
-  }, [tiles]);
-
-  const loadTiles = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await api.tiles.getAll();
-      setTiles(data);
-      serverTiles.current = data;
-    } catch (e: any) {
-      toast(e?.message || 'Ошибка загрузки', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => { loadTiles(); }, [loadTiles]);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveDragId(event.active.id as number);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    setActiveDragId(null);
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIndex = tiles.findIndex(t => t.id === active.id);
-    const newIndex = tiles.findIndex(t => t.id === over.id);
-    if (oldIndex === -1 || newIndex === -1) return;
-    const newTiles = [...tiles];
-    const [moved] = newTiles.splice(oldIndex, 1);
-    newTiles.splice(newIndex, 0, moved);
-    setTiles(newTiles);
-  };
-
-  const handleToggleActive = (tile: HomeTile) => {
-    setTiles(prev => prev.map(t => t.id === tile.id ? { ...t, is_active: !t.is_active } : t));
-  };
-
-  const handleSaveAll = async () => {
-    setIsSaving(true);
-    try {
-      const orders = tiles.map((t, i) => ({ id: t.id, order: i }));
-      await api.tiles.reorder(orders);
-
-      const toggleUpdates = tiles
-        .map((tile) => {
-          const server = serverTiles.current.find(s => s.id === tile.id);
-          if (server && server.is_active !== tile.is_active) {
-            return api.tiles.update(tile.id, { is_active: tile.is_active });
-          }
-          return null;
-        })
-        .filter((p): p is Promise<HomeTile> => p !== null);
-
-      await Promise.all(toggleUpdates);
-
-      toast('Все изменения сохранены');
-      await loadTiles();
-    } catch (e: any) {
-      toast(e?.message || 'Ошибка сохранения', 'error');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDiscardChanges = () => {
-    setTiles([...serverTiles.current]);
-    toast('Изменения отменены', 'info');
-  };
-
-  const handleCreate = async (data: HomeTileCreate) => {
-    try {
-      await api.tiles.create(data);
-      setShowEditor(false);
-      setEditingTile(null);
-      toast('Тайл создан');
-      await loadTiles();
-    } catch (e: any) {
-      toast(e?.message || 'Ошибка создания', 'error');
-    }
-  };
-
-  const handleUpdate = async (id: number, data: Partial<HomeTileCreate>) => {
-    try {
-      await api.tiles.update(id, data as HomeTileUpdate);
-      setShowEditor(false);
-      setEditingTile(null);
-      toast('Тайл сохранён');
-      await loadTiles();
-    } catch (e: any) {
-      toast(e?.message || 'Ошибка обновления', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await api.tiles.delete(id);
-      setShowEditor(false);
-      setEditingTile(null);
-      toast('Тайл удалён');
-      await loadTiles();
-    } catch (e: any) {
-      toast(e?.message || 'Ошибка удаления', 'error');
-    }
-  };
-
-  const handleDuplicate = async (tile: HomeTile) => {
-    try {
-      await api.tiles.create({
-        type: tile.type,
-        size: tile.size,
-        order: tiles.length,
-        is_active: false,
-        content: { ...tile.content, title: (tile.content?.title || '') + ' (копия)' },
-      });
-      toast('Тайл дублирован', 'info');
-      await loadTiles();
-    } catch (e: any) {
-      toast(e?.message || 'Ошибка дублирования', 'error');
-    }
-  };
-
   const openNewEditor = () => { setEditingTile(null); setShowEditor(true); };
   const openEditEditor = (tile: HomeTile) => { setEditingTile(tile); setShowEditor(true); };
   const closeEditor = () => { setShowEditor(false); setEditingTile(null); };
 
-  const hasChanges = isDirty();
+  const onSaveWrapper = async (data: any) => {
+    const success = await handleCreate(data);
+    if (success) closeEditor();
+  };
+
+  const onUpdateWrapper = async (id: number, data: any) => {
+    const success = await handleUpdate(id, data);
+    if (success) closeEditor();
+  };
+
+  const onDeleteWrapper = async (id: number) => {
+    const success = await handleDelete(id);
+    if (success) closeEditor();
+  };
+
   const dragTile = activeDragId ? tiles.find(t => t.id === activeDragId) : null;
 
   return (
@@ -306,9 +201,9 @@ export const ConstructorView = () => {
           <TileEditor
             tile={editingTile}
             nextOrder={tiles.length}
-            onSave={handleCreate}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
+            onSave={onSaveWrapper}
+            onUpdate={onUpdateWrapper}
+            onDelete={onDeleteWrapper}
             onClose={closeEditor}
           />
         )}

@@ -1,0 +1,1 @@
+export { useMediaSlots } from './useMediaSlots';

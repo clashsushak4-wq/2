@@ -1,37 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { ExchangeCard, AddExchangeForm } from './components';
-import { api } from '../../api/client';
-import type { ExchangeItem } from '../../api/client';
+import { useExchanges } from './hooks';
 
 export const ExchangesView = () => {
-  const [exchanges, setExchanges] = useState<ExchangeItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await api.exchanges.getAll();
-      setExchanges(data);
-    } catch (e) {
-      console.error('Failed to load exchanges:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const handleAdd = useCallback(async (name: string, apiKey: string, apiSecret: string) => {
-    await api.exchanges.create(name, apiKey, apiSecret);
-    await load();
-  }, [load]);
-
-  const handleDelete = useCallback(async (id: number) => {
-    await api.exchanges.delete(id);
-    setExchanges((prev) => prev.filter((e) => e.id !== id));
-  }, []);
+  const { exchanges, isLoading, handleAdd, handleDelete } = useExchanges();
 
   return (
     <motion.div
@@ -62,3 +35,4 @@ export const ExchangesView = () => {
     </motion.div>
   );
 };
+

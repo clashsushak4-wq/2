@@ -1,86 +1,23 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
 import { PageWrapper } from '../../shared/ui';
 import { contentFade } from '../../shared/animations';
-import { NewsItem, NewsFilter, DynamicTiles, ArticleModal } from './components';
-import { useState, useCallback, useEffect } from 'react';
+import { NewsFilter, DynamicTiles, ArticleModal, NewsList } from './components';
+import { useState, useCallback } from 'react';
 import { useBackButton, useNews } from '../../hooks';
-import { useTranslation } from '../../i18n';
 import type { NewsArticle } from '../../hooks';
-
-const READ_NEWS_KEY = 'app_read_news';
-
-const loadReadNews = (): Set<string> => {
-  try {
-    const raw = localStorage.getItem(READ_NEWS_KEY);
-    if (!raw) return new Set();
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? new Set(arr) : new Set();
-  } catch {
-    return new Set();
-  }
-};
-
-/* ─── News list for a category ─── */
-const NewsList = ({ category, onSelect, readIds }: {
-  category: 'crypto' | 'forex';
-  onSelect: (article: NewsArticle) => void;
-  readIds: Set<string>;
-}) => {
-  const { items, isLoading, error } = useNews(category);
-  const { t } = useTranslation();
-
-  if (isLoading && items.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-32">
-        <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
-      </div>
-    );
-  }
-
-  if (error && items.length === 0) {
-    return <div className="text-center py-12 text-zinc-500 text-sm">{t('home.loadError')}</div>;
-  }
-
-  if (items.length === 0) {
-    return <div className="text-center py-12 text-zinc-500 text-sm">{t('home.noNews')}</div>;
-  }
-
-  return (
-    <>
-      {items.map((article) => (
-        <NewsItem
-          key={article.id}
-          source={article.source}
-          title={article.title}
-          time={article.time}
-          readTime={article.readTime}
-          image={article.image}
-          isUnread={!readIds.has(article.id)}
-          onClick={() => onSelect(article)}
-        />
-      ))}
-    </>
-  );
-};
+import { useReadNews } from './hooks';
 
 export const HomeView = () => {
   const [selectedNews, setSelectedNews] = useState<NewsArticle | null>(null);
   const [activeCategory, setActiveCategory] = useState(0);
-  const [readNews, setReadNews] = useState<Set<string>>(() => loadReadNews());
+  const { readNews, markAsRead } = useReadNews();
 
   const handleCloseNews = useCallback(() => setSelectedNews(null), []);
   useBackButton(selectedNews ? handleCloseNews : null);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(READ_NEWS_KEY, JSON.stringify(Array.from(readNews)));
-    } catch {}
-  }, [readNews]);
-
   const handleNewsClick = (article: NewsArticle) => {
     setSelectedNews(article);
-    setReadNews((prev) => new Set([...prev, article.id]));
+    markAsRead(article.id);
   };
 
   return (
@@ -122,3 +59,4 @@ export const HomeView = () => {
     </>
   );
 };
+
