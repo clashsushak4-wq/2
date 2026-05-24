@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, Image, Video, File } from 'lucide-react';
+import { Send, Paperclip, Image, Video, File, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useBackButton } from '../../../../hooks';
 import { slideFromRight, slideUp, staggerScaleIn, TAP_BUTTON } from '../../../../shared/animations';
@@ -14,9 +14,11 @@ export const SupportChat = ({ onClose }: SupportChatProps) => {
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { messages, isLoading, errorText, sendMessage } = useSupportTicket();
+  const { messages, isLoading, errorText, sendMessage, closeTicket } = useSupportTicket();
   useBackButton(onClose);
 
   useEffect(() => {
@@ -37,6 +39,17 @@ export const SupportChat = ({ onClose }: SupportChatProps) => {
     }
   };
 
+  const handleCloseDialog = async () => {
+    setIsClosing(true);
+    try {
+      await closeTicket();
+      onClose();
+    } catch (error) {
+      setIsClosing(false);
+      setShowCloseConfirm(false);
+    }
+  };
+
   const attachOptions = [
     { icon: Image, label: t('support.photo'), color: 'bg-white/90' },
     { icon: Video, label: t('support.video'), color: 'bg-white/90' },
@@ -53,14 +66,34 @@ export const SupportChat = ({ onClose }: SupportChatProps) => {
         className="absolute inset-0 bg-black flex flex-col"
       >
         {/* Header */}
-        <div className="bg-black px-4 pb-4 flex items-center gap-3 border-b border-zinc-800" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black font-bold">
-            S
-          </div>
-          <div>
-            <h3 className="text-white font-bold">{t('support.supportTeam')}</h3>
-            <p className="text-xs text-zinc-500">{t('support.replyingSoon')}</p>
-          </div>
+        <div className="bg-black px-4 pb-4 flex items-center justify-center border-b border-zinc-800" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
+          {!showCloseConfirm ? (
+            <button
+              onClick={() => setShowCloseConfirm(true)}
+              className={`h-9 px-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/20 transition-colors ${TAP_BUTTON}`}
+            >
+              Завершить диалог
+            </button>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="text-red-400 text-sm font-medium">Точно завершить?</span>
+              <button
+                onClick={handleCloseDialog}
+                disabled={isClosing}
+                className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isClosing ? <Loader2 size={14} className="animate-spin" /> : null}
+                Да
+              </button>
+              <button
+                onClick={() => setShowCloseConfirm(false)}
+                disabled={isClosing}
+                className="px-4 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-sm font-medium hover:bg-zinc-700 transition-colors"
+              >
+                Нет
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Messages */}

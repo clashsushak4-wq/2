@@ -174,6 +174,10 @@ export const api = {
       const response = await apiClient.post(`/support/ticket/${ticketId}/message`, { text });
       return response.data;
     },
+    closeTicket: async (ticketId: number) => {
+      const response = await apiClient.post(`/support/ticket/${ticketId}/close`);
+      return response.data;
+    },
   },
 
   home: {

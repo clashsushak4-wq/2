@@ -112,7 +112,7 @@ export interface ExchangeItem {
   created_at: string;
 }
 
-export type TicketStatus = 'new' | 'in_progress' | 'closed';
+export type TicketStatus = 'new' | 'active' | 'closed';
 
 export interface TicketMessage {
   id: number;
@@ -228,6 +228,9 @@ export const api = {
     },
     closeTicket: async (ticketId: number): Promise<void> => {
       await apiClient.post(`/support/admin/ticket/${ticketId}/close`);
+    },
+    acceptTicket: async (ticketId: number): Promise<void> => {
+      await apiClient.post(`/support/admin/ticket/${ticketId}/accept`);
     },
   },
   botMedia: {

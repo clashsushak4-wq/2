@@ -18,6 +18,8 @@ export const TicketChat = ({ ticketId, onTicketUpdated }: TicketChatProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const toast = useToastStore((s) => s.add);
 
@@ -61,6 +63,21 @@ export const TicketChat = ({ ticketId, onTicketUpdated }: TicketChatProps) => {
       onTicketUpdated();
     } catch (e: any) {
       toast(e?.message || 'Не удалось отправить', 'error');
+    }
+  };
+
+  const handleAccept = async () => {
+    setShowAcceptConfirm(false);
+    setIsAccepting(true);
+    try {
+      await api.support.acceptTicket(ticketId);
+      toast('Тикет принят в работу');
+      onTicketUpdated();
+      await fetchTicket();
+    } catch (e: any) {
+      toast(e?.message || 'Не удалось принять тикет', 'error');
+    } finally {
+      setIsAccepting(false);
     }
   };
 
@@ -111,9 +128,40 @@ export const TicketChat = ({ ticketId, onTicketUpdated }: TicketChatProps) => {
             {ticket.user_nick || `User #${ticket.user_id}`}
           </p>
           <p className="text-[10px] text-zinc-500">
-            #{ticket.id} · ID {ticket.user_id} · {ticket.status === 'new' ? 'Новый' : ticket.status === 'in_progress' ? 'В работе' : 'Закрыт'}
+            #{ticket.id} · ID {ticket.user_id} · {ticket.status === 'new' ? 'Новый' : ticket.status === 'active' ? 'В работе' : 'Закрыт'}
           </p>
         </div>
+        
+        {ticket.status === 'new' && !showAcceptConfirm && (
+          <button
+            onClick={() => setShowAcceptConfirm(true)}
+            disabled={isAccepting}
+            className="h-9 px-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-medium hover:bg-blue-500/20 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {isAccepting ? <Loader2 size={12} className="animate-spin" /> : null}
+            Принять
+          </button>
+        )}
+        {ticket.status === 'new' && showAcceptConfirm && (
+          <div className="flex items-center gap-1.5">
+            <span className="text-blue-400 text-[11px]">Принять?</span>
+            <button
+              onClick={handleAccept}
+              disabled={isAccepting}
+              className="px-2.5 py-1 rounded-md bg-blue-500 text-white text-[11px] font-bold hover:bg-blue-600 transition-colors disabled:opacity-50"
+            >
+              Да
+            </button>
+            <button
+              onClick={() => setShowAcceptConfirm(false)}
+              disabled={isAccepting}
+              className="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-400 text-[11px] font-medium hover:bg-zinc-700 transition-colors"
+            >
+              Нет
+            </button>
+          </div>
+        )}
+
         {!isClosed && !showCloseConfirm && (
           <button
             onClick={() => setShowCloseConfirm(true)}

@@ -93,10 +93,21 @@ export const useSupportTicket = () => {
     }
   }, [t]);
 
+  const closeTicket = useCallback(async () => {
+    if (!ticketIdRef.current) return;
+    try {
+      await api.support.closeTicket(ticketIdRef.current);
+    } catch (error) {
+      console.error('Failed to close ticket', error);
+      throw error;
+    }
+  }, []);
+
   return {
     messages,
     isLoading,
     errorText,
     sendMessage,
+    closeTicket,
   };
 };

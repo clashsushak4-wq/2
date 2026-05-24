@@ -88,6 +88,21 @@ async def send_message(
     messages = await support_repo.get_ticket_history(ticket_id)
     return TicketMessageResponse.model_validate(messages[-1])
 
+@router.post("/ticket/{ticket_id}/close", response_model=SuccessResponse)
+async def close_my_ticket(
+    ticket_id: int,
+    user_id: int = Depends(get_current_user_id),
+    session: AsyncSession = Depends(get_session)
+):
+    """Закрывает тикет (юзер)"""
+    support_repo = SupportRepo(session)
+    ticket = await support_repo.get_ticket_by_id(ticket_id)
+    if not ticket or ticket.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Ticket not found or access denied")
+        
+    await support_repo.close_ticket(ticket_id)
+    return SuccessResponse()
+
 
 # === АДМИНСКИЕ РОУТЫ ===
 
@@ -103,7 +118,7 @@ async def get_support_counts(
 
 @router.get("/admin/tickets", response_model=list[TicketResponse])
 async def get_tickets(
-    status: str = Query("new", pattern="^(new|in_progress|closed)$"),
+    status: str = Query("new", pattern="^(new|active|closed)$"),
     session: AsyncSession = Depends(get_session),
     _admin_id: int = Depends(get_admin_user_id),
 ):
@@ -152,6 +167,21 @@ async def admin_send_message(
     
     messages = await support_repo.get_ticket_history(ticket_id)
     return TicketMessageResponse.model_validate(messages[-1])
+
+@router.post("/admin/ticket/{ticket_id}/accept", response_model=SuccessResponse)
+async def admin_accept_ticket(
+    ticket_id: int,
+    session: AsyncSession = Depends(get_session),
+    _admin_id: int = Depends(get_admin_user_id),
+):
+    """Принимает тикет в работу"""
+    support_repo = SupportRepo(session)
+    ticket = await support_repo.get_ticket_by_id(ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+        
+    await support_repo.accept_ticket(ticket_id)
+    return SuccessResponse()
 
 @router.post("/admin/ticket/{ticket_id}/close", response_model=SuccessResponse)
 async def admin_close_ticket(

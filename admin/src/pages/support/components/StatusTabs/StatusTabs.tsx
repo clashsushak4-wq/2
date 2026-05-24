@@ -8,14 +8,14 @@ interface StatusTabsProps {
 
 const TABS: { key: TicketStatus; label: string }[] = [
   { key: 'new', label: 'Новые' },
-  { key: 'in_progress', label: 'В работе' },
+  { key: 'active', label: 'В работе' },
   { key: 'closed', label: 'Закрытые' },
 ];
 
 export const StatusTabs = ({ active, onChange, counts }: StatusTabsProps) => {
   const countFor = (status: TicketStatus): number => {
     if (status === 'new') return counts.new;
-    if (status === 'in_progress') return counts.active;
+    if (status === 'active') return counts.active;
     return counts.closed;
   };
 

@@ -64,6 +64,11 @@ class SupportRepo(BaseRepo):
         await self.session.execute(stmt)
         await self.session.flush()
         
+    async def accept_ticket(self, ticket_id: int):
+        stmt = update(Ticket).where(Ticket.id == ticket_id).values(status='active')
+        await self.session.execute(stmt)
+        await self.session.flush()
+        
     async def get_counts(self):
         """Счетчики для меню (Новые: 5, В работе: 2) — один запрос через GROUP BY."""
         stmt = (
