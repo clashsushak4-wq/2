@@ -33,6 +33,7 @@ dump.rdb
 
 # Uploads / generated user files
 uploads/
+pictures/
 
 # Node / frontend
 node_modules/
