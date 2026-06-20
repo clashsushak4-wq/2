@@ -41,6 +41,7 @@ dist/
 build/
 .vite/
 dist-ssr/
+*.zip
 
 # IDE / OS
 .vscode/
