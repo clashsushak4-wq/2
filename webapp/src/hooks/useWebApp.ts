@@ -14,6 +14,12 @@ export const useWebApp = () => {
   const [isTelegram, setIsTelegram] = useState(
     () => !!window.Telegram?.WebApp?.initData || !!(window as any).TelegramWebviewProxy,
   );
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const platform = window.Telegram?.WebApp?.platform || '';
+    if (['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform)) return true;
+    return window.innerWidth > 768;
+  });
   const [isLoading, setIsLoading] = useState(
     () => !(window.Telegram?.WebApp?.initData || (window as any).TelegramWebviewProxy),
   );
@@ -48,6 +54,10 @@ export const useWebApp = () => {
         setWebApp(tg);
         const hasTg = !!tg.initData || !!(window as any).TelegramWebviewProxy;
         setIsTelegram(hasTg);
+        
+        const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(tg.platform || '');
+        setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
+        
         setUser(tg.initDataUnsafe?.user || null);
         return hasTg;
       } catch (error) {
@@ -72,13 +82,24 @@ export const useWebApp = () => {
       }
     }, 200);
 
-    return () => clearInterval(interval);
+    const handleResize = () => {
+      const platform = window.Telegram?.WebApp?.platform || '';
+      const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform);
+      setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return {
     webApp,
     user,
     isTelegram,
+    isDesktop,
     isLoading,
   };
 };

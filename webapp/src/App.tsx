@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { AnimatePresence, MotionConfig } from 'framer-motion';
-import { LoadingScreen, BottomNav } from './shared';
+import { LoadingScreen, DesktopLayout, MobileLayout } from './shared';
 import { HomeView, WalletView, SupportView, ProfileView, TradeView } from './pages';
 import { CryptoScreen, ScreenerScreen } from './pages/trade/components';
 import { LoginScreen, NoPasswordScreen, useAuthSession } from './pages/auth';
@@ -12,7 +12,7 @@ import { useI18nStore } from './i18n/useTranslation';
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
   const [isLoading, setIsLoading] = useState(true);
-  const { user, webApp, isTelegram, isLoading: isTgLoading } = useWebApp();
+  const { user, webApp, isTelegram, isDesktop, isLoading: isTgLoading } = useWebApp();
   const { setUser, isFullscreen, setFullscreen, activeMarket, setActiveMarket } = useAppStore();
   const setLanguage = useI18nStore((s) => s.setLanguage);
 
@@ -137,20 +137,14 @@ function MainApp() {
         <AnimatePresence mode="wait">
             {isLoading ? (
                 <LoadingScreen key="loader" onComplete={() => setIsLoading(false)} />
+            ) : isDesktop ? (
+                <DesktopLayout key="desktop-app" activeTab={activeTab} onTabChange={setActiveTab} isFullscreen={isFullscreen}>
+                    {renderContent()}
+                </DesktopLayout>
             ) : (
-                <div 
-                    key="app" 
-                    className="min-h-screen pb-24 transition-all duration-300"
-                    style={{ 
-                        paddingTop: isFullscreen ? 'var(--safe-top, 0px)' : '0px'
-                    }}
-                >
-                    <div className="p-4">
-                        {renderContent()}
-                    </div>
-
-                    <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-                </div>
+                <MobileLayout key="mobile-app" activeTab={activeTab} onTabChange={setActiveTab} isFullscreen={isFullscreen}>
+                    {renderContent()}
+                </MobileLayout>
             )}
         </AnimatePresence>
 
