@@ -1,17 +1,20 @@
+import { useState } from 'react';
 import { useTranslation } from '../../../../../../i18n';
 import { OrderForm } from '../OrderForm';
 import { OrderBook } from '../OrderBook';
 import { PositionTabs } from '../PositionTabs';
-import { MOCK_CURRENT_PRICE, MOCK_FUNDING_RATE, MOCK_FUNDING_COUNTDOWN } from '../../data/mockOrderBook';
+import { MOCK_FUNDING_RATE, MOCK_FUNDING_COUNTDOWN } from '../../data/mockOrderBook';
 
 interface TerminalProps {
   symbol: string;
   base: string;
   quote: string;
+  currentPrice: number;
 }
 
-export const Terminal = ({ symbol: _symbol, base, quote }: TerminalProps) => {
+export const Terminal = ({ symbol: _symbol, base, quote, currentPrice }: TerminalProps) => {
   const { t } = useTranslation();
+  const [price, setPrice] = useState(currentPrice.toString());
 
 
   return (
@@ -50,13 +53,15 @@ export const Terminal = ({ symbol: _symbol, base, quote }: TerminalProps) => {
             symbol={`${base}${quote}`}
             base={base}
             quote={quote}
-            currentPrice={MOCK_CURRENT_PRICE}
+            currentPrice={currentPrice}
+            price={price}
+            onPriceChange={setPrice}
           />
         </div>
 
         {/* Right column: Order Book */}
         <div className="min-w-0 flex flex-col h-full">
-          <OrderBook base={base} quote={quote} />
+          <OrderBook base={base} quote={quote} symbol={`${base}${quote}`} currentPrice={currentPrice} onPriceClick={(p) => setPrice(p.toString())} />
         </div>
       </div>
 

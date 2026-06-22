@@ -240,4 +240,18 @@ export const api = {
       return response.data as { content: string; images: string[] };
     },
   },
+
+  trade: {
+    placeOrder: async (data: {
+      symbol: string;
+      side: 'buy' | 'sell';
+      type: 'limit' | 'market';
+      quantity: number;
+      price?: number;
+      leverage: number;
+    }) => {
+      const response = await apiClient.post('/trade/order', data);
+      return response.data;
+    },
+  },
 };

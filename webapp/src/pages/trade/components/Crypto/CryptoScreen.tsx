@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useBackButton } from '../../../../hooks';
 import { slideFromRight } from '../../../../shared/animations';
+import { useBinanceTicker } from '../../../../hooks/useBinanceMarket';
 import { ChartView, ScreenHeader, SymbolPicker, Terminal } from './components';
 import type { TradePair, ViewMode } from './types';
 
@@ -13,7 +14,9 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
   const [symbol, setSymbolState] = useState('BTCUSDT');
   const [base, setBase] = useState('BTC');
   const [quote, setQuote] = useState('USDT');
-  const [change24h, setChange24h] = useState(1.08);
+  
+  const ticker = useBinanceTicker(symbol);
+  const change24h = ticker ? parseFloat(ticker.priceChangePercent) : 0;
   const [viewMode, setViewMode] = useState<ViewMode>('terminal');
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -23,7 +26,6 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
     setSymbolState(pair.symbol);
     setBase(pair.base);
     setQuote(pair.quote);
-    setChange24h(pair.change);
   }, []);
 
   return (
@@ -44,7 +46,7 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
               onViewModeChange={setViewMode}
               onSymbolPress={() => setPickerOpen(true)}
             />
-            <Terminal symbol={symbol} base={base} quote={quote} />
+            <Terminal symbol={symbol} base={base} quote={quote} currentPrice={ticker ? parseFloat(ticker.lastPrice) : 0} />
           </>
         ) : (
           <ChartView

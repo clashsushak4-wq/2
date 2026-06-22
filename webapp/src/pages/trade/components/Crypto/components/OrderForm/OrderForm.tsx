@@ -3,6 +3,7 @@ import { ChevronDown, Info, Minus, Plus, PlusCircle } from 'lucide-react';
 import { useTranslation } from '../../../../../../i18n';
 import { haptic } from '../../../../../../utils';
 import type { OrderType } from '../../types';
+import { api } from '../../../../../../api/client';
 
 type FormTab = 'open' | 'close';
 
@@ -11,17 +12,47 @@ interface OrderFormProps {
   base: string;
   quote: string;
   currentPrice: number;
+  price: string;
+  onPriceChange: (val: string) => void;
 }
 
-export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice }: OrderFormProps) => {
+export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice, price, onPriceChange }: OrderFormProps) => {
   const { t } = useTranslation();
   const [formTab, setFormTab] = useState<FormTab>('open');
   const [orderType, setOrderType] = useState<OrderType>('limit');
-  const [price, setPrice] = useState(currentPrice.toString());
   const [quantity, setQuantity] = useState('');
   const [sliderValue, setSliderValue] = useState(0);
   const [tpslEnabled, setTpslEnabled] = useState(false);
   const [showOrderTypeMenu, setShowOrderTypeMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const submitOrder = async (side: 'buy' | 'sell') => {
+    if (!quantity || isNaN(parseFloat(quantity))) return;
+    
+    haptic.medium();
+    setIsSubmitting(true);
+    try {
+      await api.trade.placeOrder({
+        symbol,
+        side,
+        type: orderType,
+        quantity: parseFloat(quantity),
+        price: orderType === 'limit' ? parseFloat(price) : undefined,
+        leverage: 10, // mock leverage
+      });
+      // Show success
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert(`Успешно открыта ${side === 'buy' ? 'Long' : 'Short'} позиция!`);
+      }
+    } catch (err) {
+      console.error('Failed to place order:', err);
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert('Ошибка при открытии позиции');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleFormTab = (tab: FormTab) => {
     if (tab === formTab) return;
@@ -38,7 +69,7 @@ export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice }: OrderF
   const adjustPrice = (delta: number) => {
     haptic.light();
     const current = parseFloat(price) || 0;
-    setPrice((current + delta).toFixed(1));
+    onPriceChange((current + delta).toFixed(1));
   };
 
   const sliderStops = [0, 25, 50, 75, 100];
@@ -112,7 +143,7 @@ export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice }: OrderF
                 type="text"
                 inputMode="decimal"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => onPriceChange(e.target.value)}
                 className="w-full bg-transparent text-white text-[15px] font-mono font-semibold outline-none leading-none min-w-0"
               />
               <button
@@ -216,7 +247,11 @@ export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice }: OrderF
         </div>
 
         {/* Open Long button — Bitget cyan */}
-        <button className="w-full h-[46px] rounded-lg bg-white active:bg-zinc-200 transition-colors">
+        <button 
+          onClick={() => submitOrder('buy')}
+          disabled={isSubmitting}
+          className="w-full h-[46px] rounded-lg bg-white active:bg-zinc-200 transition-colors disabled:opacity-50"
+        >
           <span className="text-black text-[12px] font-bold block leading-tight">{t('trade.openLong')}</span>
           <span className="text-black/60 text-[10px] block font-mono leading-tight">0.00 {quote}</span>
         </button>
@@ -228,7 +263,11 @@ export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice }: OrderF
         </div>
 
         {/* Open Short button — Bitget pink */}
-        <button className="w-full h-[46px] rounded-lg bg-violet-500 active:bg-violet-600 transition-colors">
+        <button 
+          onClick={() => submitOrder('sell')}
+          disabled={isSubmitting}
+          className="w-full h-[46px] rounded-lg bg-violet-500 active:bg-violet-600 transition-colors disabled:opacity-50"
+        >
           <span className="text-white text-[12px] font-bold block leading-tight">{t('trade.openShort')}</span>
           <span className="text-white/80 text-[10px] block font-mono leading-tight">0.00 {quote}</span>
         </button>

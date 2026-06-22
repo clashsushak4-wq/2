@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { LayoutGrid, ChevronRight, ChevronDown } from 'lucide-react';
 import { useTranslation } from '../../../../../../i18n';
 import type { OrderBookEntry } from '../../types';
-import { MOCK_ASKS, MOCK_BIDS, MOCK_CURRENT_PRICE, MOCK_MARK_PRICE } from '../../data/mockOrderBook';
+import { MOCK_MARK_PRICE } from '../../data/mockOrderBook';
+import { useBinanceOrderBook } from '../../../../../../hooks/useBinanceMarket';
 
 const formatPrice = (price: number) =>
   price.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -16,16 +17,20 @@ interface RowProps {
   entry: OrderBookEntry;
   maxQty: number;
   side: 'ask' | 'bid';
+  onClick: (price: number) => void;
 }
 
-const OrderBookRow = ({ entry, maxQty, side }: RowProps) => {
+const OrderBookRow = ({ entry, maxQty, side, onClick }: RowProps) => {
   const depthPercent = Math.min((entry.quantity / maxQty) * 100, 100);
   // Bitget-style: asks red, bids cyan
   const barColor = side === 'ask' ? 'bg-violet-500/15' : 'bg-white/10';
   const priceColor = side === 'ask' ? 'text-violet-400' : 'text-white';
 
   return (
-    <div className="relative flex items-center justify-between h-[19px]">
+    <div 
+      className="relative flex items-center justify-between h-[19px] cursor-pointer hover:bg-white/5 transition-colors"
+      onClick={() => onClick(entry.price)}
+    >
       <div
         className={`absolute right-0 top-0 bottom-0 ${barColor}`}
         style={{ width: `${depthPercent}%` }}
@@ -43,17 +48,27 @@ const OrderBookRow = ({ entry, maxQty, side }: RowProps) => {
 interface OrderBookProps {
   base: string;
   quote: string;
+  symbol: string;
+  currentPrice: number;
+  onPriceClick?: (price: number) => void;
 }
 
-export const OrderBook = ({ base, quote }: OrderBookProps) => {
+export const OrderBook = ({ base, quote, symbol, currentPrice, onPriceClick }: OrderBookProps) => {
   const { t } = useTranslation();
+  
+  const liveOrderBook = useBinanceOrderBook(symbol);
+  
+  const asks = liveOrderBook?.asks.slice(0, 10).reverse() || [];
+  const bids = liveOrderBook?.bids.slice(0, 10) || [];
 
-  const maxAskQty = useMemo(() => Math.max(...MOCK_ASKS.map((e) => e.quantity)), []);
-  const maxBidQty = useMemo(() => Math.max(...MOCK_BIDS.map((e) => e.quantity)), []);
+  const maxAskQty = useMemo(() => asks.length > 0 ? Math.max(...asks.map((e) => e.quantity)) : 1, [asks]);
+  const maxBidQty = useMemo(() => bids.length > 0 ? Math.max(...bids.map((e) => e.quantity)) : 1, [bids]);
 
-  const totalBidQty = MOCK_BIDS.reduce((s, e) => s + e.quantity, 0);
-  const totalAskQty = MOCK_ASKS.reduce((s, e) => s + e.quantity, 0);
-  const buyPercent = Math.round((totalBidQty / (totalBidQty + totalAskQty)) * 100);
+  const totalBidQty = bids.reduce((s, e) => s + e.quantity, 0);
+  const totalAskQty = asks.reduce((s, e) => s + e.quantity, 0);
+  const totalDepth = totalBidQty + totalAskQty || 1;
+  
+  const buyPercent = Math.round((totalBidQty / totalDepth) * 100);
   const sellPercent = 100 - buyPercent;
 
   return (
@@ -71,17 +86,17 @@ export const OrderBook = ({ base, quote }: OrderBookProps) => {
       </div>
 
       {/* Asks (sell side) — highest price at top, lowest near current price */}
-      <div className="flex flex-col">
-        {MOCK_ASKS.map((entry, i) => (
-          <OrderBookRow key={`ask-${i}`} entry={entry} maxQty={maxAskQty} side="ask" />
+      <div className="flex flex-col flex-1 justify-end min-h-[190px]">
+        {asks.map((entry, i) => (
+          <OrderBookRow key={`ask-${i}`} entry={entry} maxQty={maxAskQty} side="ask" onClick={(p) => onPriceClick?.(p)} />
         ))}
       </div>
 
       {/* Current price + mark price — Bitget style: large red price with chevron */}
       <div className="flex flex-col items-center justify-center py-px border-y border-zinc-800/50 bg-zinc-900/40">
         <div className="flex items-center gap-0.5 w-full justify-center relative">
-          <span className={`text-[15px] font-bold font-mono tabular-nums leading-tight ${MOCK_CURRENT_PRICE >= MOCK_MARK_PRICE ? 'text-white' : 'text-violet-400'}`}>
-            {formatPrice(MOCK_CURRENT_PRICE)}
+          <span className={`text-[15px] font-bold font-mono tabular-nums leading-tight ${currentPrice >= MOCK_MARK_PRICE ? 'text-white' : 'text-violet-400'}`}>
+            {formatPrice(currentPrice)}
           </span>
           <ChevronRight size={13} className="text-zinc-500 absolute right-1" />
         </div>
@@ -91,9 +106,9 @@ export const OrderBook = ({ base, quote }: OrderBookProps) => {
       </div>
 
       {/* Bids (buy side) */}
-      <div className="flex flex-col">
-        {MOCK_BIDS.map((entry, i) => (
-          <OrderBookRow key={`bid-${i}`} entry={entry} maxQty={maxBidQty} side="bid" />
+      <div className="flex flex-col flex-1 justify-start min-h-[190px]">
+        {bids.map((entry, i) => (
+          <OrderBookRow key={`bid-${i}`} entry={entry} maxQty={maxBidQty} side="bid" onClick={(p) => onPriceClick?.(p)} />
         ))}
       </div>
 
