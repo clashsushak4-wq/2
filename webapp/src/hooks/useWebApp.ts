@@ -17,8 +17,10 @@ export const useWebApp = () => {
   const [isDesktop, setIsDesktop] = useState(() => {
     if (typeof window === 'undefined') return false;
     const platform = window.Telegram?.WebApp?.platform || '';
-    if (['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform)) return true;
-    return window.innerWidth > 768;
+    const isMobilePlatform = ['android', 'android_x', 'ios'].includes(platform);
+    if (isMobilePlatform) return false;
+    const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform);
+    return isDesktopPlatform || window.innerWidth > 768;
   });
   const [isLoading, setIsLoading] = useState(
     () => !(window.Telegram?.WebApp?.initData || (window as any).TelegramWebviewProxy),
@@ -55,8 +57,15 @@ export const useWebApp = () => {
         const hasTg = !!tg.initData || !!(window as any).TelegramWebviewProxy;
         setIsTelegram(hasTg);
         
-        const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(tg.platform || '');
-        setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
+        const platform = tg.platform || '';
+        const isMobilePlatform = ['android', 'android_x', 'ios'].includes(platform);
+        const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform);
+        
+        if (isMobilePlatform) {
+          setIsDesktop(false);
+        } else {
+          setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
+        }
         
         setUser(tg.initDataUnsafe?.user || null);
         return hasTg;
@@ -84,8 +93,13 @@ export const useWebApp = () => {
 
     const handleResize = () => {
       const platform = window.Telegram?.WebApp?.platform || '';
+      const isMobilePlatform = ['android', 'android_x', 'ios'].includes(platform);
       const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform);
-      setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
+      if (isMobilePlatform) {
+        setIsDesktop(false);
+      } else {
+        setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
+      }
     };
     window.addEventListener('resize', handleResize);
 
