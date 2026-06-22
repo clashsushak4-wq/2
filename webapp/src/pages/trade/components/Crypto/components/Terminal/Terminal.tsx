@@ -18,27 +18,26 @@ export const Terminal = ({ symbol: _symbol, base, quote }: TerminalProps) => {
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto pb-[var(--safe-bottom,0px)]">
       {/* Leverage + Funding rate bar — full width */}
       <div className="flex items-start justify-between px-4 py-1 shrink-0 gap-2">
-        <div className="flex items-center gap-1 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button className="text-[11px] text-zinc-200 bg-[#1d1e23] border border-zinc-800 rounded-md px-2.5 py-1 font-semibold leading-none">
             {t('trade.isolated')}
           </button>
           <button className="text-[11px] text-white bg-[#1d1e23] border border-zinc-800 rounded-md px-2 py-1 font-bold flex items-center gap-1 leading-none">
-            <span>10x</span>
-            <span>10x</span>
+            10x
           </button>
           <button className="text-[11px] text-zinc-400 bg-[#1d1e23] border border-zinc-800 rounded-md px-2 py-1 font-semibold leading-none">
             S
           </button>
         </div>
-        <div className="flex flex-col items-end shrink-0">
-          <span className="text-zinc-500 text-[9px] whitespace-nowrap leading-tight">
+        <div className="flex flex-col items-end shrink-0 max-w-[50%] text-right overflow-hidden">
+          <span className="text-zinc-500 text-[9px] leading-tight whitespace-nowrap truncate w-full">
             {t('trade.fundingRate')}
           </span>
-          <span className="text-[10px] whitespace-nowrap font-mono tabular-nums leading-tight">
+          <span className="text-[10px] font-mono tabular-nums leading-tight whitespace-nowrap truncate w-full">
             <span className={MOCK_FUNDING_RATE < 0 ? 'text-violet-400' : 'text-white'}>
               {MOCK_FUNDING_RATE > 0 ? '+' : ''}{MOCK_FUNDING_RATE}%
             </span>
-            <span className="text-zinc-400"> / {MOCK_FUNDING_COUNTDOWN}(8 {t('trade.hoursShort')})</span>
+            <span className="text-zinc-400"> / {MOCK_FUNDING_COUNTDOWN}</span>
           </span>
         </div>
       </div>

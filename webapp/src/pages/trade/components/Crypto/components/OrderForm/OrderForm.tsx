@@ -105,29 +105,27 @@ export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice }: OrderF
       {/* Price input — Bitget style: vertical layout */}
       {orderType === 'limit' && (
         <div className="flex gap-1.5">
-          <div className="bg-[#1d1e23] border border-zinc-800 rounded-md px-2 py-0.5 flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-zinc-500 text-[9px] leading-tight">{t('trade.price')}</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full bg-transparent text-white text-[15px] font-mono font-semibold outline-none leading-tight"
-                />
-              </div>
+          <div className="bg-[#1d1e23] border border-zinc-800 rounded-md px-2 py-1 flex-1 min-w-0 flex flex-col justify-center">
+            <span className="text-zinc-500 text-[9px] leading-none mb-1">{t('trade.price')}</span>
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                inputMode="decimal"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full bg-transparent text-white text-[15px] font-mono font-semibold outline-none leading-none min-w-0"
+              />
               <button
                 onClick={() => adjustPrice(-0.1)}
-                className="p-1 text-zinc-400 active:text-white"
+                className="p-0.5 text-zinc-400 active:text-white shrink-0"
               >
-                <Minus size={13} />
+                <Minus size={14} />
               </button>
               <button
                 onClick={() => adjustPrice(0.1)}
-                className="p-1 text-zinc-400 active:text-white"
+                className="p-0.5 text-zinc-400 active:text-white shrink-0"
               >
-                <Plus size={13} />
+                <Plus size={14} />
               </button>
             </div>
           </div>
@@ -138,18 +136,16 @@ export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice }: OrderF
       )}
 
       {/* Quantity input — Bitget style: vertical layout */}
-      <div className="bg-[#1d1e23] border border-zinc-800 rounded-md px-2 py-0.5">
+      <div className="bg-[#1d1e23] border border-zinc-800 rounded-md px-2 py-2">
         <div className="flex items-center gap-2">
-          <div className="flex flex-col flex-1 min-w-0">
-            <input
-              type="text"
-              inputMode="decimal"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder={t('trade.amount')}
-              className="w-full bg-transparent text-white text-[15px] font-semibold outline-none leading-tight placeholder:text-zinc-400"
-            />
-          </div>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            placeholder={t('trade.amount')}
+            className="w-full bg-transparent text-white text-[14px] font-mono font-semibold outline-none leading-none placeholder:text-zinc-500 placeholder:font-sans"
+          />
           <button className="text-zinc-300 text-[11px] font-bold shrink-0 flex items-center gap-1">
             {base}
             <ChevronDown size={10} className="text-zinc-500" />
