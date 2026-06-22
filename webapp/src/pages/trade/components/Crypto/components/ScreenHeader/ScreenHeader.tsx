@@ -81,7 +81,7 @@ export const ScreenHeader = ({ symbol, change24h, viewMode, onViewModeChange, on
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 md:hidden">
           <button
             onClick={() => handleViewMode('chart')}
             className="w-7 h-7 flex items-center justify-center transition-colors"

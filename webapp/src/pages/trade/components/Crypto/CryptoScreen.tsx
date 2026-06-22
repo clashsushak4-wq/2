@@ -37,25 +37,34 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
         exit="hidden"
         className="absolute inset-0 bg-black flex flex-col"
       >
-        {viewMode === 'terminal' ? (
-          <>
-            <ScreenHeader
-              symbol={symbol}
-              change24h={change24h}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-              onSymbolPress={() => setPickerOpen(true)}
-            />
-            <Terminal symbol={symbol} base={base} quote={quote} currentPrice={ticker ? parseFloat(ticker.lastPrice) : 0} />
-          </>
-        ) : (
-          <ChartView
+        {/* Mobile: Header only shown in terminal mode. Desktop: Always shown */}
+        <div className={`shrink-0 ${viewMode === 'terminal' ? 'block' : 'hidden md:block'}`}>
+          <ScreenHeader
             symbol={symbol}
-            base={base}
             change24h={change24h}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
             onSymbolPress={() => setPickerOpen(true)}
           />
-        )}
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex flex-col md:flex-row flex-1 min-h-0">
+          {/* Chart Area - Full width on mobile (when active), takes remaining space on desktop */}
+          <div className={`flex-1 min-w-0 ${viewMode === 'chart' ? 'flex' : 'hidden md:flex'} flex-col`}>
+            <ChartView
+              symbol={symbol}
+              base={base}
+              change24h={change24h}
+              onSymbolPress={() => setPickerOpen(true)}
+            />
+          </div>
+
+          {/* Terminal / Order Area - Full width on mobile (when active), fixed width sidebar on desktop */}
+          <div className={`w-full md:w-[320px] lg:w-[360px] shrink-0 md:border-l md:border-zinc-900 bg-black ${viewMode === 'terminal' ? 'flex' : 'hidden md:flex'} flex-col`}>
+            <Terminal symbol={symbol} base={base} quote={quote} currentPrice={ticker ? parseFloat(ticker.lastPrice) : 0} />
+          </div>
+        </div>
       </motion.div>
 
       <SymbolPicker
