@@ -16,7 +16,7 @@ interface OrderFormProps {
   onPriceChange: (val: string) => void;
 }
 
-export const OrderForm = ({ symbol: _symbol, base, quote, currentPrice, price, onPriceChange }: OrderFormProps) => {
+export const OrderForm = ({ symbol, base, quote, currentPrice: _currentPrice, price, onPriceChange }: OrderFormProps) => {
   const { t } = useTranslation();
   const [formTab, setFormTab] = useState<FormTab>('open');
   const [orderType, setOrderType] = useState<OrderType>('limit');

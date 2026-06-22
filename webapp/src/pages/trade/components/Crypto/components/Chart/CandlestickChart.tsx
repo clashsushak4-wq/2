@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { createChart, ColorType, ISeriesApi, Time } from 'lightweight-charts';
+import { createChart, ColorType, ISeriesApi, Time, CandlestickSeries, HistogramSeries } from 'lightweight-charts';
 import { Maximize2, Loader2 } from 'lucide-react';
 import { useBinanceKline } from '../../../../../../hooks/useBinanceMarket';
 
@@ -54,7 +54,7 @@ export const CandlestickChart = ({ symbol, interval }: CandlestickChartProps) =>
     });
 
     // Create Candlestick series (white for up, purple for down like Bitget)
-    const candlestickSeries = chart.addCandlestickSeries({
+    const candlestickSeries = chart.addSeries(CandlestickSeries, {
       upColor: '#ffffff',
       downColor: '#a78bfa', // violet-400
       borderVisible: false,
@@ -64,7 +64,7 @@ export const CandlestickChart = ({ symbol, interval }: CandlestickChartProps) =>
     candlestickSeriesRef.current = candlestickSeries;
 
     // Create Volume series
-    const volumeSeries = chart.addHistogramSeries({
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       color: '#26a69a',
       priceFormat: {
         type: 'volume',
