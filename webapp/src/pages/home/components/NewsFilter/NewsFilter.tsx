@@ -11,7 +11,7 @@ export const NewsFilter = ({ activeCategory, onCategoryChange }: NewsFilterProps
   const categories = [t('home.categories.all'), 'Forex', 'Crypto'];
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 px-2 scrollbar-hide">
+    <div className="flex gap-2 overflow-x-auto pb-2 px-2 md:px-0 scrollbar-hide">
         {categories.map((cat, i) => (
             <button 
                 key={cat} 
