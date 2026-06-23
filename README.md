@@ -93,3 +93,5 @@
 ├── alembic.ini                             # Конфиг миграций
 ├── pytest.ini                              # Конфиг тестов
 └── requirements.txt                        # Зависимости Python
+## Последние обновления
+- Обновлен дизайн Desktop версии WebApp (замена SideNav на TopNav).

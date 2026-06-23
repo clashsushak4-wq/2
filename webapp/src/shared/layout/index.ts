@@ -1,5 +1,5 @@
 export * from './LoadingScreen';
 export * from './BottomNav';
-export * from './SideNav';
+export * from './TopNav';
 export * from './DesktopLayout';
 export * from './MobileLayout';

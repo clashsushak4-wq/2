@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { SideNav } from './SideNav';
+import { TopNav } from './TopNav';
 
 interface DesktopLayoutProps {
   activeTab: string;
@@ -11,12 +11,12 @@ interface DesktopLayoutProps {
 export const DesktopLayout = ({ activeTab, onTabChange, children, isFullscreen }: DesktopLayoutProps) => {
   return (
     <div 
-      className="flex h-screen bg-black overflow-hidden"
+      className="flex flex-col h-screen bg-black overflow-hidden"
       style={{ 
         paddingTop: isFullscreen ? 'var(--safe-top, 0px)' : '0px'
       }}
     >
-      <SideNav activeTab={activeTab} onTabChange={onTabChange} />
+      <TopNav activeTab={activeTab} onTabChange={onTabChange} />
       <div className="flex-1 overflow-y-auto">
         <div className="w-full h-full p-8 lg:p-12">
           {children}
