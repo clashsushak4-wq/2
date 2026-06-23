@@ -18,7 +18,7 @@ export const DesktopLayout = ({ activeTab, onTabChange, children, isFullscreen }
     >
       <TopNav activeTab={activeTab} onTabChange={onTabChange} />
       <div className="flex-1 overflow-y-auto">
-        <div className="w-full h-full p-8 lg:p-12">
+        <div className="w-full h-full p-8 lg:p-12 max-w-7xl mx-auto">
           {children}
         </div>
       </div>

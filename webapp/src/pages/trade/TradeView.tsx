@@ -19,8 +19,8 @@ export const TradeView = () => {
   };
 
   return (
-    <PageWrapper className="-mx-4 -mt-2">
-      <div className="grid grid-cols-2 gap-2 px-1 pt-0">
+    <PageWrapper className="-mx-4 md:mx-0 -mt-2 md:mt-0 flex justify-center">
+      <div className="grid grid-cols-2 gap-2 md:gap-6 px-1 pt-0 w-full max-w-3xl">
         {TILES.map((tile) => (
           <MarketTile
             key={tile.market}

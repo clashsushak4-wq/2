@@ -95,3 +95,4 @@
 └── requirements.txt                        # Зависимости Python
 ## Последние обновления
 - Обновлен дизайн Desktop версии WebApp (замена SideNav на TopNav).
+- Внедрен многоколоночный Grid-дизайн для всех страниц десктопной версии (Home, Wallet, Trade, Profile, Support).

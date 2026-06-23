@@ -31,7 +31,7 @@ export const NewsList = ({ category, onSelect, readIds }: NewsListProps) => {
   }
 
   return (
-    <>
+    <div className="flex flex-col md:grid md:grid-cols-2 gap-3 space-y-3 md:space-y-0">
       {items.map((article) => (
         <NewsItem
           key={article.id}
@@ -44,6 +44,6 @@ export const NewsList = ({ category, onSelect, readIds }: NewsListProps) => {
           onClick={() => onSelect(article)}
         />
       ))}
-    </>
+    </div>
   );
 };

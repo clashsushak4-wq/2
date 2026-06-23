@@ -22,7 +22,7 @@ export const HomeView = () => {
 
   return (
     <>
-      <PageWrapper className="space-y-6 pb-4 -mx-2">
+      <PageWrapper className="space-y-6 pb-4 -mx-2 md:mx-0">
         <NewsFilter activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
 
         <div className="relative">
@@ -33,7 +33,6 @@ export const HomeView = () => {
               initial="hidden"
               animate="visible"
               exit="hidden"
-              className="space-y-3"
             >
               {activeCategory === 0 && <DynamicTiles />}
               {activeCategory === 1 && (
