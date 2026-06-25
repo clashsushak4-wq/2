@@ -27,7 +27,7 @@ const OrderBookRow = ({ entry, maxQty, side, onClick }: RowProps) => {
   const priceColor = side === 'ask' ? 'text-violet-400' : 'text-white';
 
   return (
-    <div 
+    <div
       className="relative flex items-center justify-between h-[19px] cursor-pointer hover:bg-white/5 transition-colors"
       onClick={() => onClick(entry.price)}
     >
@@ -55,20 +55,23 @@ interface OrderBookProps {
 
 export const OrderBook = ({ base, quote, symbol, currentPrice, onPriceClick }: OrderBookProps) => {
   const { t } = useTranslation();
-  
+
   const liveOrderBook = useBinanceOrderBook(symbol);
-  
-  const asks = liveOrderBook?.asks.slice(0, 10).reverse() || [];
-  const bids = liveOrderBook?.bids.slice(0, 10) || [];
 
-  const maxAskQty = useMemo(() => asks.length > 0 ? Math.max(...asks.map((e) => e.quantity)) : 1, [asks]);
-  const maxBidQty = useMemo(() => bids.length > 0 ? Math.max(...bids.map((e) => e.quantity)) : 1, [bids]);
+  const asksData = liveOrderBook?.asks.slice(0, 6).reverse() || [];
+  const bidsData = liveOrderBook?.bids.slice(0, 6) || [];
 
-  const totalBidQty = bids.reduce((s, e) => s + e.quantity, 0);
-  const totalAskQty = asks.reduce((s, e) => s + e.quantity, 0);
-  const totalDepth = totalBidQty + totalAskQty || 1;
-  
-  const buyPercent = Math.round((totalBidQty / totalDepth) * 100);
+  // Pad arrays to exactly 6 elements so the height is always consistent
+  const asks = [...asksData, ...Array(Math.max(0, 6 - asksData.length)).fill(null)];
+  const bids = [...bidsData, ...Array(Math.max(0, 6 - bidsData.length)).fill(null)];
+
+  const maxAskQty = useMemo(() => asksData.length > 0 ? Math.max(...asksData.map((e) => e.quantity)) : 1, [asksData]);
+  const maxBidQty = useMemo(() => bidsData.length > 0 ? Math.max(...bidsData.map((e) => e.quantity)) : 1, [bidsData]);
+
+  const totalBidQty = bidsData.reduce((s, e) => s + e.quantity, 0);
+  const totalAskQty = asksData.reduce((s, e) => s + e.quantity, 0);
+
+  const buyPercent = totalBidQty + totalAskQty > 0 ? Math.round((totalBidQty / (totalBidQty + totalAskQty)) * 100) : 50;
   const sellPercent = 100 - buyPercent;
 
   return (
@@ -85,10 +88,11 @@ export const OrderBook = ({ base, quote, symbol, currentPrice, onPriceClick }: O
         </div>
       </div>
 
-      {/* Asks (sell side) — highest price at top, lowest near current price */}
-      <div className="flex flex-col flex-1 justify-end min-h-[190px]">
+      <div className="flex flex-col flex-1 justify-end min-h-[114px]">
         {asks.map((entry, i) => (
-          <OrderBookRow key={`ask-${i}`} entry={entry} maxQty={maxAskQty} side="ask" onClick={(p) => onPriceClick?.(p)} />
+          entry ?
+            <OrderBookRow key={`ask-${i}`} entry={entry} maxQty={maxAskQty} side="ask" onClick={(p) => onPriceClick?.(p)} />
+            : <div key={`empty-ask-${i}`} className="h-[19px]" />
         ))}
       </div>
 
@@ -105,10 +109,11 @@ export const OrderBook = ({ base, quote, symbol, currentPrice, onPriceClick }: O
         </span>
       </div>
 
-      {/* Bids (buy side) */}
-      <div className="flex flex-col flex-1 justify-start min-h-[190px]">
+      <div className="flex flex-col flex-1 justify-start min-h-[114px]">
         {bids.map((entry, i) => (
-          <OrderBookRow key={`bid-${i}`} entry={entry} maxQty={maxBidQty} side="bid" onClick={(p) => onPriceClick?.(p)} />
+          entry ?
+            <OrderBookRow key={`bid-${i}`} entry={entry} maxQty={maxBidQty} side="bid" onClick={(p) => onPriceClick?.(p)} />
+            : <div key={`empty-bid-${i}`} className="h-[19px]" />
         ))}
       </div>
 

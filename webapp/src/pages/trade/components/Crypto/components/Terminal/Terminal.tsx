@@ -21,15 +21,15 @@ export const Terminal = ({ symbol: _symbol, base, quote, currentPrice }: Termina
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto pb-[var(--safe-bottom,0px)]">
       {/* Leverage + Funding rate bar — full width */}
       <div className="flex items-start justify-between px-4 py-1 shrink-0 gap-2">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <button className="text-[11px] text-zinc-200 bg-[#1d1e23] border border-zinc-800 rounded-md px-2.5 py-1 font-semibold leading-none">
+        <div className="flex items-center gap-1 flex-wrap">
+          <button className="text-[11px] text-zinc-200 bg-[#17181c] rounded px-2.5 py-1 font-semibold leading-none">
             {t('trade.isolated')}
           </button>
-          <button className="text-[11px] text-white bg-[#1d1e23] border border-zinc-800 rounded-md px-2 py-1 font-bold flex items-center gap-1 leading-none">
-            10x
+          <button className="text-[11px] text-violet-400 bg-[#17181c] rounded px-2.5 py-1 font-bold flex items-center gap-1 leading-none">
+            10X 10X
           </button>
-          <button className="text-[11px] text-zinc-400 bg-[#1d1e23] border border-zinc-800 rounded-md px-2 py-1 font-semibold leading-none">
-            S
+          <button className="text-[11px] text-zinc-400 bg-[#17181c] rounded px-2 py-1 font-semibold leading-none">
+            0
           </button>
         </div>
         <div className="flex flex-col items-end shrink-0 max-w-[50%] text-right overflow-hidden">

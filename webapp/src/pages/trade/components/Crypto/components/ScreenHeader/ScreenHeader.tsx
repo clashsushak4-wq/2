@@ -46,9 +46,8 @@ export const ScreenHeader = ({ symbol, change24h, viewMode, onViewModeChange, on
             <button
               key={tab.key}
               onClick={() => handleTab(tab.key)}
-              className={`relative py-2 whitespace-nowrap text-[15px] font-bold transition-colors ${
-                activeTab === tab.key ? 'text-white' : 'text-zinc-500'
-              }`}
+              className={`relative py-1 whitespace-nowrap text-[14px] font-bold transition-colors ${activeTab === tab.key ? 'text-white' : 'text-zinc-500'
+                }`}
             >
               {t(tab.i18nKey)}
               {activeTab === tab.key && (
@@ -60,21 +59,20 @@ export const ScreenHeader = ({ symbol, change24h, viewMode, onViewModeChange, on
         <SlidersHorizontal size={18} className="text-white shrink-0" />
       </div>
 
-      <div className="flex items-center justify-between px-4 py-2 shrink-0">
+      <div className="flex items-center justify-between px-4 py-1 shrink-0">
         <div>
           <button
             onClick={() => { haptic.light(); onSymbolPress(); }}
             className="flex items-center gap-1 group"
           >
-            <span className="text-white text-[21px] leading-none font-bold">{symbol}</span>
+            <span className="text-white text-[19px] leading-none font-bold">{symbol}</span>
             <ChevronDown size={14} className="text-zinc-400" />
           </button>
-          <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="flex items-center gap-1 mt-0.5">
             <span className="text-zinc-500 text-[11px]">{t('trade.perpetual')}</span>
             <span
-              className={`text-[11px] font-bold tabular-nums ${
-                isPositive ? 'text-white' : 'text-violet-400'
-              }`}
+              className={`text-[11px] font-bold tabular-nums ${isPositive ? 'text-white' : 'text-violet-400'
+                }`}
             >
               {isPositive ? '+' : ''}{change24h.toFixed(2)}%
             </span>

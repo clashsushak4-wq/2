@@ -62,12 +62,11 @@ export const useBinanceOrderBook = (symbol: string) => {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.b && data.a) {
+      if (data.bids && data.asks) {
         setOrderBook({
           lastUpdateId: data.lastUpdateId,
-          bids: data.b.map((item: string[]) => ({ price: parseFloat(item[0]), quantity: parseFloat(item[1]) })),
-          // Asks come sorted lowest to highest. We might need them reversed in the UI, but we'll store them as-is.
-          asks: data.a.map((item: string[]) => ({ price: parseFloat(item[0]), quantity: parseFloat(item[1]) })),
+          bids: data.bids.map((item: string[]) => ({ price: parseFloat(item[0]), quantity: parseFloat(item[1]) })),
+          asks: data.asks.map((item: string[]) => ({ price: parseFloat(item[0]), quantity: parseFloat(item[1]) })),
         });
       }
     };
