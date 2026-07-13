@@ -1,2 +1,7 @@
-export * from './BalanceCard';
-export * from './TokenList';
+export { Onboarding } from './Onboarding';
+export { Dashboard } from './Dashboard';
+export { PinPad } from './PinPad';
+export { SeedBackup } from './SeedBackup';
+export { SeedImport } from './SeedImport';
+export { SendForm } from './SendForm';
+export { ReceiveSheet } from './ReceiveSheet';
