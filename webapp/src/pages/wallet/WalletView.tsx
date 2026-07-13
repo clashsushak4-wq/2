@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { Onboarding, Dashboard, PinPad, SeedBackup, SeedImport, SendForm, ReceiveSheet, SettingsSheet, TokenDetailSheet } from './components';
+import { Onboarding, Dashboard, PinPad, SeedBackup, SeedImport, SendForm, ReceiveSheet, SettingsScreen, TokenDetailScreen } from './components';
 import { BottomSheet } from '../../shared/ui';
 import { useWalletStore } from '../../store/walletStore';
 import { generateNewWallet, encryptMnemonic, decryptMnemonic } from '../../utils/crypto';
@@ -199,28 +199,26 @@ export const WalletView = () => {
         </div>
       </BottomSheet>
 
-      {/* 4. Settings Sheet */}
-      <BottomSheet
-        isOpen={step === 'settings_sheet'}
-        onClose={() => setStep('dashboard')}
-        title="Настройки"
-      >
-        <SettingsSheet />
-      </BottomSheet>
+      {/* 4. Settings Screen */}
+      <AnimatePresence>
+        {step === 'settings_sheet' && (
+          <SettingsScreen key="settings_screen" onClose={() => setStep('dashboard')} />
+        )}
+      </AnimatePresence>
 
-      {/* 5. Token Detail Sheet */}
-      <BottomSheet
-        isOpen={step === 'token_detail_sheet'}
-        onClose={() => setStep('dashboard')}
-        title={`Детали актива`}
-      >
-        <TokenDetailSheet 
-          currency={selectedAsset}
-          balance={selectedAsset === 'GRAM' ? balanceGRAM : balanceUSDT}
-          address={address || ''}
-          currentPrice={selectedAsset === 'GRAM' ? 6.5 : 1}
-        />
-      </BottomSheet>
+      {/* 5. Token Detail Screen */}
+      <AnimatePresence>
+        {step === 'token_detail_sheet' && (
+          <TokenDetailScreen 
+            key="token_detail_screen"
+            currency={selectedAsset}
+            balance={selectedAsset === 'GRAM' ? balanceGRAM : balanceUSDT}
+            address={address || ''}
+            currentPrice={selectedAsset === 'GRAM' ? 6.5 : 1}
+            onClose={() => setStep('dashboard')}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

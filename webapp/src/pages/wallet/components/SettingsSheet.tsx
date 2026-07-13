@@ -1,7 +1,16 @@
+import { motion } from 'framer-motion';
 import { LogOut } from 'lucide-react';
 import { useWalletStore } from '../../../store/walletStore';
+import { useBackButton } from '../../../hooks';
+import { slideFromRight } from '../../../shared/animations';
 
-export const SettingsSheet = () => {
+interface SettingsScreenProps {
+  onClose: () => void;
+}
+
+export const SettingsScreen = ({ onClose }: SettingsScreenProps) => {
+  useBackButton(onClose);
+
   const handleLogout = () => {
     if (window.confirm("Вы уверены, что хотите удалить кошелек с устройства? Без сид-фразы вы потеряете к нему доступ навсегда.")) {
       useWalletStore.getState().clearWallet();
@@ -10,21 +19,33 @@ export const SettingsSheet = () => {
   };
 
   return (
-    <div className="px-4 pb-8">
-      <div className="flex flex-col gap-2">
-        <button 
-          onClick={handleLogout}
-          className="flex items-center gap-3 p-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-2xl transition-colors border border-red-500/20 w-full"
-        >
-          <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
-            <LogOut size={20} />
-          </div>
-          <div className="text-left">
-            <p className="font-semibold text-sm">Выйти из кошелька</p>
-            <p className="text-xs text-red-500/70">Удалить данные с устройства</p>
-          </div>
-        </button>
-      </div>
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      <motion.div
+        variants={slideFromRight}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        className="absolute inset-0 bg-black flex flex-col"
+      >
+        <div className="bg-black px-4 pb-4" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
+          <h3 className="text-2xl font-bold text-white">Настройки</h3>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-2" style={{ paddingBottom: 'calc(80px + var(--safe-bottom, 0px))' }}>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-3 p-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-2xl transition-colors border border-red-500/20 w-full"
+          >
+            <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+              <LogOut size={20} />
+            </div>
+            <div className="text-left">
+              <p className="font-semibold text-sm">Выйти из кошелька</p>
+              <p className="text-xs text-red-500/70">Удалить данные с устройства</p>
+            </div>
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 };
