@@ -4,6 +4,7 @@ import { Onboarding, Dashboard, PinPad, SeedBackup, SeedImport, SendForm, Receiv
 import { BottomSheet } from '../../shared/ui';
 import { useWalletStore } from '../../store/walletStore';
 import { generateNewWallet, encryptMnemonic, decryptMnemonic } from '../../utils/crypto';
+import { useBinanceTicker } from '../../hooks/useBinanceMarket';
 import { sendTransaction } from '../../utils/transactions';
 
 type WalletStep = 'onboarding' | 'import_seed' | 'generating' | 'backup' | 'pin_setup' | 'pin_confirm' | 'dashboard' | 'send_form' | 'send_pin' | 'sending' | 'receive_sheet' | 'settings_sheet' | 'token_detail_sheet';
@@ -29,6 +30,10 @@ export const WalletView = () => {
   // States for sending & viewing
   const [sendData, setSendData] = useState<{address: string, amount: string, currency: 'GRAM' | 'USDT'} | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<'GRAM' | 'USDT'>('GRAM');
+
+  // Live TON price
+  const tonTicker = useBinanceTicker('TONUSDT');
+  const currentTonPrice = tonTicker ? parseFloat(tonTicker.lastPrice) : 7.3;
 
   const handleCreateNew = async () => {
     setStep('generating');
@@ -157,6 +162,7 @@ export const WalletView = () => {
             onReceiveClick={() => setStep('receive_sheet')}
             onSettingsClick={() => setStep('settings_sheet')}
             onAssetClick={handleAssetClick}
+            currentTonPrice={currentTonPrice}
           />
         )}
       </AnimatePresence>
@@ -214,7 +220,7 @@ export const WalletView = () => {
             currency={selectedAsset}
             balance={selectedAsset === 'GRAM' ? balanceGRAM : balanceUSDT}
             address={address || ''}
-            currentPrice={selectedAsset === 'GRAM' ? 6.5 : 1}
+            currentPrice={selectedAsset === 'GRAM' ? currentTonPrice : 1}
             onClose={() => setStep('dashboard')}
           />
         )}

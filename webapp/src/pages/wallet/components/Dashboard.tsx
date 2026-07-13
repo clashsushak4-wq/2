@@ -9,13 +9,13 @@ interface DashboardProps {
   onReceiveClick: () => void;
   onSettingsClick: () => void;
   onAssetClick: (currency: 'GRAM' | 'USDT') => void;
+  currentTonPrice: number;
 }
 
-export const Dashboard = ({ onSendClick, onReceiveClick, onSettingsClick, onAssetClick }: DashboardProps) => {
+export const Dashboard = ({ onSendClick, onReceiveClick, onSettingsClick, onAssetClick, currentTonPrice }: DashboardProps) => {
   const { address, balanceGRAM, balanceUSDT, setBalances } = useWalletStore();
   const [isLoading, setIsLoading] = useState(false);
 
-  const currentTonPrice = 6.5; 
   const totalBalanceUsd = (parseFloat(balanceUSDT) + parseFloat(balanceGRAM) * currentTonPrice).toFixed(2);
 
   useEffect(() => {
