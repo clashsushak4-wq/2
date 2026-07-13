@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, ArrowDownLeft, History, Copy, QrCode } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, History, Copy } from 'lucide-react';
 import { useWalletStore } from '../../../store/walletStore';
 import { fetchBalances, fetchHistory, TransactionEvent } from '../../../utils/tonapi';
 
@@ -162,7 +162,7 @@ export const Dashboard = ({ onSendClick, onReceiveClick }: DashboardProps) => {
       <div className="mt-8 flex justify-center">
         <button 
           onClick={() => {
-            if (confirm("Вы уверены, что хотите удалить кошелек с устройства? Без сид-фразы вы потеряете к нему доступ навсегда.")) {
+            if (window.confirm("Вы уверены, что хотите удалить кошелек с устройства? Без сид-фразы вы потеряете к нему доступ навсегда.")) {
               useWalletStore.getState().clearWallet();
               window.location.reload();
             }
