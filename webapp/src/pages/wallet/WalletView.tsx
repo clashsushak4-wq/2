@@ -32,8 +32,8 @@ export const WalletView = () => {
   const [selectedAsset, setSelectedAsset] = useState<'GRAM' | 'USDT'>('GRAM');
 
   // Live TON price
-  const tonTicker = useBinanceTicker('TONUSDT');
-  const currentTonPrice = tonTicker ? parseFloat(tonTicker.lastPrice) : 7.3;
+  const tonTicker = useBinanceTicker('GRAMUSDT');
+  const currentTonPrice = tonTicker ? parseFloat(tonTicker.lastPrice) : 1.58;
 
   const handleCreateNew = async () => {
     setStep('generating');

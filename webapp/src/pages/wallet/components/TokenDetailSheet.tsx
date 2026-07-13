@@ -21,15 +21,34 @@ export const TokenDetailScreen = ({ currency, balance, address, currentPrice, on
   useBackButton(onClose);
 
   useEffect(() => {
-    const loadData = async () => {
+    let isMounted = true;
+    
+    const loadData = async (showLoading = false) => {
       if (!address) return;
-      setIsLoading(true);
-      const allHistory = await fetchHistory(address);
-      const filtered = allHistory.filter(item => item.currency === currency);
-      setHistory(filtered);
-      setIsLoading(false);
+      if (showLoading) setIsLoading(true);
+      try {
+        const allHistory = await fetchHistory(address);
+        const filtered = allHistory.filter(item => item.currency === currency);
+        if (isMounted) {
+          setHistory(filtered);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (isMounted && showLoading) setIsLoading(false);
+      }
     };
-    loadData();
+    
+    loadData(true);
+
+    const interval = setInterval(() => {
+      loadData(false);
+    }, 10000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [address, currency]);
 
   const handleCopy = () => {

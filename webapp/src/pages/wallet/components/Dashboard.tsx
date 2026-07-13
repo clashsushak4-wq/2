@@ -19,15 +19,33 @@ export const Dashboard = ({ onSendClick, onReceiveClick, onSettingsClick, onAsse
   const totalBalanceUsd = (parseFloat(balanceUSDT) + parseFloat(balanceGRAM) * currentTonPrice).toFixed(2);
 
   useEffect(() => {
-    const loadData = async () => {
+    let isMounted = true;
+    
+    const loadData = async (showLoading = false) => {
       if (!address) return;
-      setIsLoading(true);
-      const newBalances = await fetchBalances(address);
-      setBalances(newBalances.ton, newBalances.usdt);
-      setIsLoading(false);
+      if (showLoading) setIsLoading(true);
+      try {
+        const newBalances = await fetchBalances(address);
+        if (isMounted) {
+          setBalances(newBalances.ton, newBalances.usdt);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (isMounted && showLoading) setIsLoading(false);
+      }
     };
 
-    loadData();
+    loadData(true);
+
+    const interval = setInterval(() => {
+      loadData(false);
+    }, 10000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [address, setBalances]);
 
   return (
