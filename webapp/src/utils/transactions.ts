@@ -5,13 +5,13 @@ import axios from 'axios';
 const BASE_URL = 'https://tonapi.io/v2';
 
 /**
- * Отправляет транзакцию в сеть TON.
+ * Отправляет транзакцию в сеть The Open Network (TON).
  */
 export async function sendTransaction(
   mnemonicStr: string,
   toAddress: string,
   amount: string,
-  currency: 'TON' | 'USDT'
+  currency: 'GRAM' | 'USDT'
 ) {
   const mnemonicArray = mnemonicStr.split(' ');
   const keyPair = await mnemonicToWalletKey(mnemonicArray);
@@ -24,11 +24,11 @@ export async function sendTransaction(
 
   let messageBody;
 
-  if (currency === 'TON') {
-    // Простой перевод TON
+  if (currency === 'GRAM') {
+    // Простой перевод GRAM
     messageBody = internal({
       to: toAddress,
-      value: amount, // в TON (например "0.5")
+      value: amount, // в GRAM (например "0.5")
       bounce: false,
       body: 'Transfer from Trading Bot Wallet'
     });
@@ -63,7 +63,7 @@ export async function sendTransaction(
     // 3. Упаковываем это во внутреннее сообщение к нашему Jetton-кошельку
     messageBody = internal({
       to: senderJettonWallet,
-      value: '0.05', // 0.05 TON на оплату газа для смарт-контракта жетона
+      value: '0.05', // 0.05 GRAM на оплату газа для смарт-контракта жетона
       bounce: true,
       body: body
     });

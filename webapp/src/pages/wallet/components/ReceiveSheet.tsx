@@ -29,7 +29,7 @@ export const ReceiveSheet = ({ address }: ReceiveSheetProps) => {
       </div>
 
       <div className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-4">
-        <p className="text-zinc-500 text-xs mb-1 text-center">Ваш адрес в сети TON</p>
+        <p className="text-zinc-500 text-xs mb-1 text-center">Ваш адрес в сети The Open Network</p>
         <p className="text-white font-mono text-center text-sm break-all mb-4">
           {address}
         </p>
@@ -46,7 +46,7 @@ export const ReceiveSheet = ({ address }: ReceiveSheetProps) => {
       <div className="flex items-start gap-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 w-full">
         <AlertTriangle size={20} className="text-yellow-500 shrink-0 mt-0.5" />
         <p className="text-xs text-yellow-500/90 leading-relaxed">
-          Отправляйте на этот адрес только <b>TON</b> или токены в сети The Open Network (например, <b>USDT TON</b>). Отправка других монет приведет к их безвозвратной потере.
+          Отправляйте на этот адрес только <b>GRAM</b> или токены в сети The Open Network (например, <b>USDT</b>). Отправка других монет приведет к их безвозвратной потере.
         </p>
       </div>
     </div>

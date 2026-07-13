@@ -11,14 +11,14 @@ export interface Balances {
 }
 
 /**
- * Получает баланс TON и USDT для указанного адреса.
+ * Получает баланс GRAM и USDT для указанного адреса.
  * Возвращает строковые значения, отформатированные для отображения.
  */
 export async function fetchBalances(address: string): Promise<Balances> {
   if (!address) return { ton: "0.0", usdt: "0.0" };
 
   try {
-    // 1. Получаем TON баланс
+    // 1. Получаем GRAM баланс
     const accountRes = await axios.get(`${BASE_URL}/accounts/${address}`);
     const tonBalanceNano = accountRes.data.balance || 0;
     const tonBalance = (tonBalanceNano / 1e9).toFixed(2);
@@ -46,7 +46,7 @@ export interface TransactionEvent {
   id: string;
   type: 'receive' | 'send';
   amount: string;
-  currency: 'TON' | 'USDT';
+  currency: 'GRAM' | 'USDT';
   timestamp: number;
 }
 
@@ -71,7 +71,7 @@ export async function fetchHistory(address: string): Promise<TransactionEvent[]>
             id: event.event_id,
             type: isSender ? 'send' : 'receive',
             amount: (action.TonTransfer?.amount / 1e9).toFixed(2),
-            currency: 'TON',
+            currency: 'GRAM',
             timestamp: event.timestamp
           });
         } else if (action.type === 'JettonTransfer') {

@@ -9,7 +9,7 @@ import { sendTransaction } from '../../utils/transactions';
 type WalletStep = 'onboarding' | 'import_seed' | 'generating' | 'backup' | 'pin_setup' | 'pin_confirm' | 'dashboard' | 'send_form' | 'send_pin' | 'sending' | 'receive_sheet';
 
 export const WalletView = () => {
-  const { hasWallet, address, encryptedMnemonic, balanceTON, balanceUSDT, setWallet } = useWalletStore();
+  const { hasWallet, address, encryptedMnemonic, balanceGRAM, balanceUSDT, setWallet } = useWalletStore();
   
   const [step, setStep] = useState<WalletStep>(hasWallet ? 'dashboard' : 'onboarding');
 
@@ -27,7 +27,7 @@ export const WalletView = () => {
   const [pinError, setPinError] = useState<string>('');
 
   // States for sending
-  const [sendData, setSendData] = useState<{address: string, amount: string, currency: 'TON' | 'USDT'} | null>(null);
+  const [sendData, setSendData] = useState<{address: string, amount: string, currency: 'GRAM' | 'USDT'} | null>(null);
 
   const handleCreateNew = async () => {
     setStep('generating');
@@ -77,7 +77,7 @@ export const WalletView = () => {
     }
   };
 
-  const handleSendInit = (address: string, amount: string, currency: 'TON' | 'USDT') => {
+  const handleSendInit = (address: string, amount: string, currency: 'GRAM' | 'USDT') => {
     setSendData({ address, amount, currency });
     setPinError('');
     setStep('send_pin');
@@ -128,7 +128,7 @@ export const WalletView = () => {
           <div key="sending" className="flex flex-col items-center justify-center min-h-[60vh]">
             <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
             <p className="text-zinc-400 font-medium">Отправляем транзакцию...</p>
-            <p className="text-xs text-zinc-600 mt-2">Связываемся с сетью TON</p>
+            <p className="text-xs text-zinc-600 mt-2">Связываемся с сетью The Open Network</p>
           </div>
         )}
 
@@ -169,7 +169,7 @@ export const WalletView = () => {
         onClose={() => setStep('dashboard')}
       >
         <SendForm 
-          balanceTON={balanceTON} 
+          balanceGRAM={balanceGRAM} 
           balanceUSDT={balanceUSDT} 
           onCancel={() => setStep('dashboard')}
           onSend={handleSendInit}

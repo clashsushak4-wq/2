@@ -56,7 +56,7 @@ interface WalletState {
   hasWallet: boolean;
   address: string | null;
   encryptedMnemonic: string | null; // Хранится только в зашифрованном виде
-  balanceTON: string;
+  balanceGRAM: string;
   balanceUSDT: string;
   
   setWallet: (address: string, encryptedMnemonic: string) => void;
@@ -70,17 +70,17 @@ export const useWalletStore = create<WalletState>()(
       hasWallet: false,
       address: null,
       encryptedMnemonic: null,
-      balanceTON: "0.0",
+      balanceGRAM: "0.0",
       balanceUSDT: "0.0",
 
       setWallet: (address, encryptedMnemonic) => 
         set({ hasWallet: true, address, encryptedMnemonic }),
         
-      setBalances: (ton, usdt) => 
-        set({ balanceTON: ton, balanceUSDT: usdt }),
+      setBalances: (gram, usdt) => 
+        set({ balanceGRAM: gram, balanceUSDT: usdt }),
         
       clearWallet: () => 
-        set({ hasWallet: false, address: null, encryptedMnemonic: null, balanceTON: "0.0", balanceUSDT: "0.0" }),
+        set({ hasWallet: false, address: null, encryptedMnemonic: null, balanceGRAM: "0.0", balanceUSDT: "0.0" }),
     }),
     {
       name: 'local-wallet-storage',

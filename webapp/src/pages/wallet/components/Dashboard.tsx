@@ -10,13 +10,13 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ onSendClick, onReceiveClick }: DashboardProps) => {
-  const { address, balanceTON, balanceUSDT, setBalances } = useWalletStore();
+  const { address, balanceGRAM, balanceUSDT, setBalances } = useWalletStore();
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState<TransactionEvent[]>([]);
 
   const shortAddress = address ? `${address.slice(0, 4)}...${address.slice(-4)}` : "UQ...----";
   const currentTonPrice = 6.5; 
-  const totalBalanceUsd = (parseFloat(balanceUSDT) + parseFloat(balanceTON) * currentTonPrice).toFixed(2);
+  const totalBalanceUsd = (parseFloat(balanceUSDT) + parseFloat(balanceGRAM) * currentTonPrice).toFixed(2);
 
   useEffect(() => {
     const loadData = async () => {
@@ -109,12 +109,12 @@ export const Dashboard = ({ onSendClick, onReceiveClick }: DashboardProps) => {
               </div>
               <div>
                 <p className="text-white font-medium">Toncoin</p>
-                <p className="text-xs text-zinc-500">TON (Gas)</p>
+                <p className="text-xs text-zinc-500">GRAM (Gas)</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-white font-medium">{isLoading ? "..." : balanceTON}</p>
-              <p className="text-xs text-zinc-500">~${isLoading ? "..." : (parseFloat(balanceTON) * currentTonPrice).toFixed(2)}</p>
+              <p className="text-white font-medium">{isLoading ? "..." : balanceGRAM}</p>
+              <p className="text-xs text-zinc-500">~${isLoading ? "..." : (parseFloat(balanceGRAM) * currentTonPrice).toFixed(2)}</p>
             </div>
           </div>
         </div>

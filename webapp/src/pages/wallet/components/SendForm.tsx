@@ -3,18 +3,18 @@ import { Send } from 'lucide-react';
 
 interface SendFormProps {
   onCancel: () => void;
-  onSend: (address: string, amount: string, currency: 'TON' | 'USDT') => void;
-  balanceTON: string;
+  onSend: (address: string, amount: string, currency: 'GRAM' | 'USDT') => void;
+  balanceGRAM: string;
   balanceUSDT: string;
 }
 
-export const SendForm = ({ onCancel, onSend, balanceTON, balanceUSDT }: SendFormProps) => {
+export const SendForm = ({ onCancel, onSend, balanceGRAM, balanceUSDT }: SendFormProps) => {
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState<'TON' | 'USDT'>('USDT');
+  const [currency, setCurrency] = useState<'GRAM' | 'USDT'>('USDT');
 
   const handleMax = () => {
-    setAmount(currency === 'TON' ? balanceTON : balanceUSDT);
+    setAmount(currency === 'GRAM' ? balanceGRAM : balanceUSDT);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -38,16 +38,16 @@ export const SendForm = ({ onCancel, onSend, balanceTON, balanceUSDT }: SendForm
           </button>
           <button
             type="button"
-            onClick={() => setCurrency('TON')}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${currency === 'TON' ? 'bg-zinc-800 text-white' : 'text-zinc-500'}`}
+            onClick={() => setCurrency('GRAM')}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${currency === 'GRAM' ? 'bg-zinc-800 text-white' : 'text-zinc-500'}`}
           >
-            TON (Баланс: {balanceTON})
+            GRAM (Баланс: {balanceGRAM})
           </button>
         </div>
 
         {/* Адрес */}
         <div className="mb-4">
-          <label className="block text-sm text-zinc-400 mb-2">Адрес получателя (TON)</label>
+          <label className="block text-sm text-zinc-400 mb-2">Адрес получателя (The Open Network)</label>
           <input
             type="text"
             value={address}
@@ -82,7 +82,7 @@ export const SendForm = ({ onCancel, onSend, balanceTON, balanceUSDT }: SendForm
           
           <div className="flex justify-between items-center mt-3 px-1">
             <span className="text-xs text-zinc-500">Комиссия сети</span>
-            <span className="text-xs text-zinc-400">~0.01 TON</span>
+            <span className="text-xs text-zinc-400">~0.01 GRAM</span>
           </div>
         </div>
 
