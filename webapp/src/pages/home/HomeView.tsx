@@ -3,7 +3,7 @@ import { PageWrapper } from '../../shared/ui';
 import { contentFade } from '../../shared/animations';
 import { NewsFilter, DynamicTiles, ArticleModal, NewsList } from './components';
 import { useState, useCallback } from 'react';
-import { useBackButton, useNews } from '../../hooks';
+import { useBackButton } from '../../hooks';
 import type { NewsArticle } from '../../hooks';
 import { useReadNews } from './hooks';
 

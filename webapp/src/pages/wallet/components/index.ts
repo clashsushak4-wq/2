@@ -5,3 +5,5 @@ export { SeedBackup } from './SeedBackup';
 export { SeedImport } from './SeedImport';
 export { SendForm } from './SendForm';
 export { ReceiveSheet } from './ReceiveSheet';
+export { SettingsSheet } from './SettingsSheet';
+export { TokenDetailSheet } from './TokenDetailSheet';

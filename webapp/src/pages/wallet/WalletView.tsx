@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { Onboarding, Dashboard, PinPad, SeedBackup, SeedImport, SendForm, ReceiveSheet } from './components';
+import { Onboarding, Dashboard, PinPad, SeedBackup, SeedImport, SendForm, ReceiveSheet, SettingsSheet, TokenDetailSheet } from './components';
 import { BottomSheet } from '../../shared/ui';
 import { useWalletStore } from '../../store/walletStore';
 import { generateNewWallet, encryptMnemonic, decryptMnemonic } from '../../utils/crypto';
 import { sendTransaction } from '../../utils/transactions';
 
-type WalletStep = 'onboarding' | 'import_seed' | 'generating' | 'backup' | 'pin_setup' | 'pin_confirm' | 'dashboard' | 'send_form' | 'send_pin' | 'sending' | 'receive_sheet';
+type WalletStep = 'onboarding' | 'import_seed' | 'generating' | 'backup' | 'pin_setup' | 'pin_confirm' | 'dashboard' | 'send_form' | 'send_pin' | 'sending' | 'receive_sheet' | 'settings_sheet' | 'token_detail_sheet';
 
 export const WalletView = () => {
   const { hasWallet, address, encryptedMnemonic, balanceGRAM, balanceUSDT, setWallet } = useWalletStore();
@@ -26,8 +26,9 @@ export const WalletView = () => {
   const [tempPin, setTempPin] = useState<string>('');
   const [pinError, setPinError] = useState<string>('');
 
-  // States for sending
+  // States for sending & viewing
   const [sendData, setSendData] = useState<{address: string, amount: string, currency: 'GRAM' | 'USDT'} | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<'GRAM' | 'USDT'>('GRAM');
 
   const handleCreateNew = async () => {
     setStep('generating');
@@ -105,6 +106,11 @@ export const WalletView = () => {
     }
   };
 
+  const handleAssetClick = (currency: 'GRAM' | 'USDT') => {
+    setSelectedAsset(currency);
+    setStep('token_detail_sheet');
+  };
+
   return (
     <div className="relative min-h-full">
       <AnimatePresence mode="wait">
@@ -144,11 +150,13 @@ export const WalletView = () => {
           <PinPad key="pin_confirm" title="Повторите PIN-код" subtitle="Убедитесь, что вы его запомнили" onComplete={handlePinConfirm} />
         )}
 
-        {['dashboard', 'send_form', 'send_pin', 'receive_sheet', 'sending'].includes(step) && (
+        {['dashboard', 'send_form', 'send_pin', 'receive_sheet', 'sending', 'settings_sheet', 'token_detail_sheet'].includes(step) && (
           <Dashboard 
             key="dashboard" 
             onSendClick={() => setStep('send_form')} 
             onReceiveClick={() => setStep('receive_sheet')}
+            onSettingsClick={() => setStep('settings_sheet')}
+            onAssetClick={handleAssetClick}
           />
         )}
       </AnimatePresence>
@@ -189,6 +197,29 @@ export const WalletView = () => {
             error={pinError}
           />
         </div>
+      </BottomSheet>
+
+      {/* 4. Settings Sheet */}
+      <BottomSheet
+        isOpen={step === 'settings_sheet'}
+        onClose={() => setStep('dashboard')}
+        title="Настройки"
+      >
+        <SettingsSheet />
+      </BottomSheet>
+
+      {/* 5. Token Detail Sheet */}
+      <BottomSheet
+        isOpen={step === 'token_detail_sheet'}
+        onClose={() => setStep('dashboard')}
+        title={`Детали актива`}
+      >
+        <TokenDetailSheet 
+          currency={selectedAsset}
+          balance={selectedAsset === 'GRAM' ? balanceGRAM : balanceUSDT}
+          address={address || ''}
+          currentPrice={selectedAsset === 'GRAM' ? 6.5 : 1}
+        />
       </BottomSheet>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 const BINANCE_WS_URL = 'wss://stream.binance.com:9443/ws';
 

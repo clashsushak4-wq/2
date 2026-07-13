@@ -8,7 +8,7 @@ interface SendFormProps {
   balanceUSDT: string;
 }
 
-export const SendForm = ({ onCancel, onSend, balanceGRAM, balanceUSDT }: SendFormProps) => {
+export const SendForm = ({ onSend, balanceGRAM, balanceUSDT }: SendFormProps) => {
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState<'GRAM' | 'USDT'>('USDT');
