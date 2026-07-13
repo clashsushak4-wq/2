@@ -6,12 +6,13 @@ interface SendFormProps {
   onSend: (address: string, amount: string, currency: 'GRAM' | 'USDT') => void;
   balanceGRAM: string;
   balanceUSDT: string;
+  initialCurrency?: 'GRAM' | 'USDT';
 }
 
-export const SendForm = ({ onSend, balanceGRAM, balanceUSDT }: SendFormProps) => {
+export const SendForm = ({ onSend, balanceGRAM, balanceUSDT, initialCurrency = 'USDT' }: SendFormProps) => {
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState<'GRAM' | 'USDT'>('USDT');
+  const [currency, setCurrency] = useState<'GRAM' | 'USDT'>(initialCurrency);
 
   const handleMax = () => {
     setAmount(currency === 'GRAM' ? balanceGRAM : balanceUSDT);

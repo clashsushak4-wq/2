@@ -7,3 +7,4 @@ export { SendForm } from './SendForm';
 export { ReceiveSheet } from './ReceiveSheet';
 export { SettingsScreen } from './SettingsSheet';
 export { TokenDetailScreen } from './TokenDetailSheet';
+export { TokenReceiveScreen } from './TokenReceiveScreen';
