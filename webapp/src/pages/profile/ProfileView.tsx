@@ -7,11 +7,11 @@ import {
 
 export const ProfileView = () => {
   return (
-    <PageWrapper className="pb-4 -mx-2 md:mx-0 flex flex-col md:grid md:grid-cols-[350px_1fr] gap-3 md:gap-8">
-      <div className="shrink-0">
+    <PageWrapper className="pb-4 px-4 md:mx-auto md:max-w-2xl md:mt-12 flex flex-col gap-4 md:gap-6">
+      <div className="shrink-0 w-full">
         <ProfileCard />
       </div>
-      <div className="flex-1 grid grid-cols-2 gap-3 items-start h-min">
+      <div className="w-full flex flex-col gap-3">
         <SettingsTile />
         <AboutTile />
       </div>

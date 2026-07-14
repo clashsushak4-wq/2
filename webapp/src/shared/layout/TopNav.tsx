@@ -21,10 +21,8 @@ export const TopNav = ({ activeTab, onTabChange }: TopNavProps) => {
   return (
     <div className="w-full h-16 border-b border-zinc-800 bg-zinc-950 px-6 shrink-0 flex justify-center">
       <div className="flex items-center justify-between w-full max-w-6xl h-full">
-        <div className="flex items-center h-full">
-          <div className="text-xl font-bold text-white mr-10 italic tracking-wide">TradingBot</div>
-          
-          <div className="flex items-center gap-2 h-full">
+        <div className="flex items-center justify-center h-full w-full">
+          <div className="flex items-center gap-6 h-full">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               

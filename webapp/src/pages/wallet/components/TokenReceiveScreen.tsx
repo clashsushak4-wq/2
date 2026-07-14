@@ -36,13 +36,13 @@ export const TokenReceiveScreen = ({ currency, address, onClose }: TokenReceiveS
   const isGram = currency === 'GRAM';
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden md:bg-black/60 md:backdrop-blur-sm bg-black">
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 flex flex-col"
+        className="absolute inset-0 md:relative md:inset-auto md:w-[480px] md:h-[85vh] md:rounded-3xl md:border md:border-zinc-800 md:shadow-2xl flex flex-col overflow-hidden bg-black md:bg-zinc-950"
       >
         {/* Header */}
         <div className="relative z-10 px-4 flex items-center justify-center pb-4 border-b border-white/10" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>

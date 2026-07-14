@@ -57,13 +57,13 @@ export const SupportChat = ({ onClose }: SupportChatProps) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center md:bg-black/60 md:backdrop-blur-sm overflow-hidden">
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 bg-black flex flex-col"
+        className="absolute inset-0 md:relative md:inset-auto md:w-[600px] md:h-[85vh] md:rounded-2xl md:border md:border-zinc-800 bg-black flex flex-col overflow-hidden md:shadow-2xl"
       >
         {/* Header */}
         <div className="bg-black px-4 pb-4 flex items-center justify-center border-b border-zinc-800" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>

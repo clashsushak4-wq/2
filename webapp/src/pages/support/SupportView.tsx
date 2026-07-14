@@ -8,7 +8,7 @@ export const SupportView = () => {
 
   return (
     <>
-      <PageWrapper className="pb-4 space-y-6 -mx-2 md:mx-0 md:space-y-0 md:flex md:flex-col lg:grid lg:grid-cols-[2fr_1fr] md:gap-6">
+      <PageWrapper className="pb-4 space-y-6 -mx-2 md:mx-auto md:max-w-5xl md:mt-8 md:space-y-0 md:flex md:flex-col lg:grid lg:grid-cols-[2fr_1fr] md:gap-6">
         <div className="lg:col-start-2 lg:row-start-1 h-min">
           <ChatTile onClick={() => setIsChatOpen(true)} />
         </div>

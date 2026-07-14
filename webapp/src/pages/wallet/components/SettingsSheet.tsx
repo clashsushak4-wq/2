@@ -19,13 +19,13 @@ export const SettingsScreen = ({ onClose }: SettingsScreenProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden md:bg-black/60 md:backdrop-blur-sm">
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 bg-black flex flex-col"
+        className="absolute inset-0 md:relative md:inset-auto md:w-[480px] md:h-[85vh] md:rounded-3xl md:border md:border-zinc-800 md:shadow-2xl flex flex-col overflow-hidden bg-black md:bg-zinc-950"
       >
         <div className="bg-black px-4 pb-4" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
           <h3 className="text-2xl font-bold text-white">Настройки</h3>

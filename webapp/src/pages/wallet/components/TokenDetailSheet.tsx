@@ -62,13 +62,13 @@ export const TokenDetailScreen = ({ currency, balance, address, currentPrice, on
   const themeColor = isGram ? 'from-[#0098EA]/30' : 'from-[#26A17B]/30';
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden md:bg-black/60 md:backdrop-blur-sm bg-black">
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 flex flex-col"
+        className="absolute inset-0 md:relative md:inset-auto md:w-[480px] md:h-[85vh] md:rounded-3xl md:border md:border-zinc-800 md:shadow-2xl flex flex-col overflow-hidden bg-black md:bg-zinc-950"
       >
         {/* Градиентный фон сверху */}
         <div className={`absolute top-0 left-0 right-0 h-96 bg-gradient-to-b ${themeColor} to-transparent pointer-events-none opacity-50`} />

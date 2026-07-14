@@ -117,7 +117,7 @@ export const WalletView = () => {
   };
 
   return (
-    <div className="relative min-h-full">
+    <div className="relative min-h-full md:max-w-5xl md:mx-auto md:mt-8 px-4 md:px-0">
       <AnimatePresence mode="wait">
         {step === 'onboarding' && (
           <Onboarding key="onboarding" onCreate={handleCreateNew} onImport={() => setStep('import_seed')} />
