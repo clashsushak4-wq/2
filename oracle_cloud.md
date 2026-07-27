@@ -7,7 +7,7 @@
 *   **IP-адрес:** `138.2.175.223`
 *   **Имя пользователя:** `ubuntu`
 *   **SSH Ключ:** `.secret/ssh-key-2026-05-22.key` (лежит в корне проекта локально)
-*   **Домен:** `sdtxtrx.duckdns.org`
+*   **Домен:** `rgegegreht4rh.duckdns.org`
 *   **Директория проекта на сервере:** `/home/ubuntu/bot`
 
 ## Архитектура деплоя
@@ -21,7 +21,7 @@
 5.  `trading_bot_redis` — Redis для кеширования и очередей.
 
 > [!IMPORTANT]
-> Фронтенд (WebApp и Admin Panel) **НЕ** хостится на Firebase! Файлы фронтенда компилируются локально, загружаются на сервер Oracle, и бэкенд (FastAPI) раздает их по путям `https://sdtxtrx.duckdns.org/webapp` и `https://sdtxtrx.duckdns.org/admin`.
+> Фронтенд (WebApp и Admin Panel) **НЕ** хостится на Firebase! Файлы фронтенда компилируются локально, загружаются на сервер Oracle, и бэкенд (FastAPI) раздает их по путям `https://rgegegreht4rh.duckdns.org/webapp` и `https://rgegegreht4rh.duckdns.org/admin`.
 
 ## Полезные команды
 
