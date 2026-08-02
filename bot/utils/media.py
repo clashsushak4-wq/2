@@ -28,19 +28,24 @@ from shared.config import config
 logger = logging.getLogger(__name__)
 
 def _get_full_url(file_url: Optional[str]) -> Optional[str]:
-    """Формирует полную ссылку на картинку для Link Preview."""
+    """Формирует полную ссылку на картинку для Link Preview.
+
+    Параметр ?v=... сбрасывает кэш Telegram Link Preview.
+    Если превью снова закэшируется неправильно — увеличить версию.
+    """
     if not file_url:
         return None
     if file_url.startswith("http"):
         return file_url
-        
+
     base_url = config.WEBAPP_BASE_URL or config.WEBHOOK_BASE_URL
     if not base_url:
         return None
     from urllib.parse import urlparse
     parsed = urlparse(base_url)
     root_url = f"{parsed.scheme}://{parsed.netloc}"
-    return root_url + file_url
+    return root_url + file_url + "?v=2"
+
 
 
 async def send_with_media(
