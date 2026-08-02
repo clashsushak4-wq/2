@@ -1,5 +1,5 @@
 {
-  "btn_profile": "👤 Кабінет",
+  "btn_profile": "Кабінет",
   "btn_info": "ℹ️ Інформація",
   "btn_admin_panel": "🛡 Адмін панель",
   "btn_back": "↩️ Назад",
@@ -47,7 +47,7 @@
   "start_welcome": "👋 Привіт, <b>{nickname}</b>! Реєстрація успішна.",
   "start_back": "🤝 З поверненням, <b>{nickname}</b>!",
   "main_menu": "🏠 Головне меню",
-  "profile_title": "👤 <b>Кабінет</b>",
+  "profile_title": "<blockquote><tg-emoji emoji-id=\"5974048815789903111\">👤</tg-emoji> <b>Кабінет</b></blockquote>",
   "settings_title": "⚙️ <b>Налаштування</b>",
   "language_title": "🌐 <b>Налаштування мови</b>\n\nПоточна мова: <b>{named_lang}</b>\n\nОберіть мову зі списку нижче:",
   "label_id": "ID:",

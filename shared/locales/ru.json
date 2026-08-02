@@ -1,5 +1,5 @@
 {
-  "btn_profile": "👤 Профиль",
+  "btn_profile": "Профиль",
   "btn_info": "ℹ️ Информация",
   "btn_admin_panel": "🛡 Админ панель",
   "btn_back": "↩️ Назад",
@@ -47,7 +47,7 @@
   "start_welcome": "👋 Привет, <b>{nickname}</b>! Регистрация успешна.",
   "start_back": "🤝 С возвращением, <b>{nickname}</b>!",
   "main_menu": "🏠 Вы в главном меню",
-  "profile_title": "👤 <b>Профиль</b>",
+  "profile_title": "<blockquote><tg-emoji emoji-id=\"5974048815789903111\">👤</tg-emoji> <b>Профиль</b></blockquote>",
   "settings_title": "⚙️ <b>Настройки</b>",
   "language_title": "🌐 <b>Настройки языка</b>\n\nТекущий язык: <b>{named_lang}</b>\n\nВыберите язык из списка ниже:",
   "label_id": "ID:",

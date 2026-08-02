@@ -1,5 +1,5 @@
 {
-  "btn_profile": "👤 Profil",
+  "btn_profile": "Profil",
   "btn_info": "ℹ️ Bilgi",
   "btn_admin_panel": "🛡 Yönetici Paneli",
   "btn_back": "↩️ Geri",
@@ -47,7 +47,7 @@
   "start_welcome": "👋 Merhaba, <b>{nickname}</b>! Kayıt başarılı.",
   "start_back": "🤝 Tekrar hoş geldin, <b>{nickname}</b>!",
   "main_menu": "🏠 Ana Menü",
-  "profile_title": "👤 <b>Profil</b>",
+  "profile_title": "<blockquote><tg-emoji emoji-id=\"5974048815789903111\">👤</tg-emoji> <b>Profil</b></blockquote>",
   "settings_title": "⚙️ <b>Ayarlar</b>",
   "language_title": "🌐 <b>Dil Ayarları</b>\n\nMevcut dil: <b>{named_lang}</b>\n\nAşağıdan bir dil seçin:",
   "label_id": "ID:",

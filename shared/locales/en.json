@@ -1,5 +1,5 @@
 {
-  "btn_profile": "👤 Profile",
+  "btn_profile": "Profile",
   "btn_info": "ℹ️ Information",
   "btn_admin_panel": "🛡 Admin Panel",
   "btn_back": "↩️ Back",
@@ -47,7 +47,7 @@
   "start_welcome": "👋 Hello, <b>{nickname}</b>! Registration successful.",
   "start_back": "🤝 Welcome back, <b>{nickname}</b>!",
   "main_menu": "🏠 Main Menu",
-  "profile_title": "👤 <b>Profile</b>",
+  "profile_title": "<blockquote><tg-emoji emoji-id=\"5974048815789903111\">👤</tg-emoji> <b>Profile</b></blockquote>",
   "settings_title": "⚙️ <b>Settings</b>",
   "language_title": "🌐 <b>Language Settings</b>\n\nCurrent language: <b>{named_lang}</b>\n\nChoose a language below:",
   "label_id": "ID:",

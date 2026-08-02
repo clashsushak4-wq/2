@@ -101,10 +101,10 @@ async def set_bot_media(
 ):
     if not any(s["key"] == key for s in BOT_MEDIA_SLOTS):
         raise HTTPException(status_code=404, detail=f"Unknown media slot: {key}")
-    if not data.file_url or not data.file_url.startswith("/uploads/"):
-        raise HTTPException(status_code=400, detail="file_url must start with /uploads/")
-    if data.thumb_url and not data.thumb_url.startswith("/uploads/"):
-        raise HTTPException(status_code=400, detail="thumb_url must start with /uploads/")
+    if not data.file_url or not (data.file_url.startswith("/uploads/") or data.file_url.startswith("http")):
+        raise HTTPException(status_code=400, detail="file_url must start with /uploads/ or http")
+    if data.thumb_url and not (data.thumb_url.startswith("/uploads/") or data.thumb_url.startswith("http")):
+        raise HTTPException(status_code=400, detail="thumb_url must start with /uploads/ or http")
 
     repo = BotMediaRepo(session)
     media = await repo.upsert(key=key, file_url=data.file_url, thumb_url=data.thumb_url)

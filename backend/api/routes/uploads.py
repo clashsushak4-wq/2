@@ -63,7 +63,7 @@ def _process_image_sync(raw: bytes, base_name: str) -> tuple[bytes, bytes]:
         save_mode = "RGBA" if main.mode in ("RGBA", "LA", "P") else "RGB"
         if main.mode != save_mode:
             main = main.convert(save_mode)
-        main.save(main_buf, format="WEBP", quality=WEBP_QUALITY, method=6)
+        main.save(main_buf, format="PNG")
 
         # Превью
         thumb = im.copy()
@@ -71,7 +71,7 @@ def _process_image_sync(raw: bytes, base_name: str) -> tuple[bytes, bytes]:
         thumb_buf = io.BytesIO()
         if thumb.mode != save_mode:
             thumb = thumb.convert(save_mode)
-        thumb.save(thumb_buf, format="WEBP", quality=THUMB_QUALITY, method=6)
+        thumb.save(thumb_buf, format="PNG")
 
         return main_buf.getvalue(), thumb_buf.getvalue()
 
@@ -128,8 +128,8 @@ async def upload_file(
         logger.exception("Image processing failed for %s: %s", file.filename, e)
         raise HTTPException(status_code=400, detail="Invalid or corrupted image") from e
 
-    main_name = f"{uid}.webp"
-    thumb_name = f"{uid}_thumb.webp"
+    main_name = f"{uid}.png"
+    thumb_name = f"{uid}_thumb.png"
     main_path = _safe_join(main_name)
     thumb_path = _safe_join(thumb_name)
 

@@ -18,7 +18,7 @@ def main_menu_kb(_: Callable, user_id: int, is_admin: bool | None = None) -> Rep
     :param is_admin: флаг администратора. Если True — добавляем кнопку админ-панели.
     """
     builder = ReplyKeyboardBuilder()
-    builder.button(text=_("btn_profile"))
+    builder.button(text=_("btn_profile"), icon_custom_emoji_id="5974048815789903111")
     builder.button(text=_("btn_education"))
     builder.button(text=_("btn_trading"))
     builder.button(text=_("btn_info"))

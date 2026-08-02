@@ -1,4 +1,4 @@
-﻿# handlers/profile/profile.py
+# handlers/profile/profile.py
 """Главный экран Профиля.
 
 Архитектура:

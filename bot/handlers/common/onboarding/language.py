@@ -1,4 +1,4 @@
-﻿# handlers/common/onboarding/language.py
+# handlers/common/onboarding/language.py
 from typing import Callable
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
@@ -34,10 +34,14 @@ async def language_selected(callback: types.CallbackQuery, session: AsyncSession
     
     # Переходим к вводу ника (с опциональным фото из админки)
     await state.set_state(OnboardingState.nickname_input)
-    await callback.message.delete()
-    await send_with_media(
-        callback.message,
+    
+    from bot.utils.media import edit_with_media
+    await edit_with_media(
+        callback,
         session,
         media_key="nickname_create",
         text=new_i18n("ask_nickname"),
     )
+    
+    # Сохраняем ID сообщения для редактирования при вводе ника
+    await state.update_data(onboarding_msg_id=callback.message.message_id)

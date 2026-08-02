@@ -48,6 +48,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /home/ubuntu/bot
+            grep -q '^BOT_TOKEN=' .env && sed -i 's/^BOT_TOKEN=.*/BOT_TOKEN=8988429879:AAGhO5-X0-j1BP0mYr7z__ALGwfL845XgyM/' .env || echo "BOT_TOKEN=8988429879:AAGhO5-X0-j1BP0mYr7z__ALGwfL845XgyM" >> .env
             git pull origin main
             cd docker
             docker-compose up -d --build
