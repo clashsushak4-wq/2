@@ -109,6 +109,11 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 
 
 # ── Static files ─────────────────────────────────────────────
+# Python mimetypes может не знать .webp — регистрируем явно,
+# иначе StaticFiles отдаёт application/octet-stream и браузер скачивает файл.
+import mimetypes
+mimetypes.add_type("image/webp", ".webp")
+
 uploads_dir = os.path.join(_BASE, "..", "uploads")
 os.makedirs(uploads_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
