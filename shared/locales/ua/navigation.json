@@ -1,7 +1,7 @@
 {
   "btn_profile": "Кабінет",
   "btn_info": "ℹ️ Інформація",
-  "btn_admin_panel": "🛡 Адмін панель",
+  "btn_admin_panel": "Адмін панель",
   "btn_settings": "⚙️ Налаштування",
   "start_welcome": "👋 Привіт, <b>{nickname}</b>! Реєстрація успішна.",
   "start_back": "🤝 З поверненням, <b>{nickname}</b>!",
@@ -9,6 +9,6 @@
   "start_main_text": "<blockquote><tg-emoji emoji-id=\"5974193375799152241\">ℹ️</tg-emoji> <b>Інформація</b></blockquote>\n\n╔ <b>Відкрилися:</b> 20.03.2025\n╠ <b>Версія:</b> 1.2.0 (Stable)\n╠ <b>Користувачів:</b> {users_count}\n╚ <b>Адміністратор:</b> @shadowqb\n<tg-emoji emoji-id=\"6021868195684552067\">📍</tg-emoji> <b>Навігація</b>",
   "chat_commands_text": "🤖 <b>Доступні команди в чаті:</b>\n\n/top - топ 10 за весь час\n/topm - топ 10 за місяць\n/topw - топ 10 за тиждень\n/topd - топ 10 за день\n/bio id - статистика профілю\n/smena - хто на зміні\n/referral - топ 10 рефералів",
   "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╠ Dil seçin\n╚ Выберите язык</pre>",
-  "btn_trading": "📈 Trading",
-  "btn_education": "📚 Навчання"
+  "btn_trading": "Trading",
+  "btn_education": "Навчання"
 }

@@ -1,7 +1,7 @@
 {
   "btn_profile": "Profile",
   "btn_info": "ℹ️ Information",
-  "btn_admin_panel": "🛡 Admin Panel",
+  "btn_admin_panel": "Admin Panel",
   "btn_settings": "⚙️ Settings",
   "start_welcome": "👋 Hello, <b>{nickname}</b>! Registration successful.",
   "start_back": "🤝 Welcome back, <b>{nickname}</b>!",
@@ -9,6 +9,6 @@
   "start_main_text": "<blockquote><tg-emoji emoji-id=\"5974193375799152241\">ℹ️</tg-emoji> <b>Information</b></blockquote>\n\n╔ <b>Opened:</b> 20.03.2025\n╠ <b>Version:</b> 1.2.0 (Stable)\n╠ <b>Users:</b> {users_count}\n╚ <b>Administrator:</b> @shadowqb\n<tg-emoji emoji-id=\"6021868195684552067\">📍</tg-emoji> <b>Navigation</b>",
   "chat_commands_text": "🤖 <b>Available chat commands:</b>\n\n/top - top 10 all time\n/topm - top 10 monthly\n/topw - top 10 weekly\n/topd - top 10 daily\n/bio id - profile statistics\n/smena - who is on shift\n/referral - top 10 referrals",
   "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╠ Dil seçin\n╚ Выберите язык</pre>",
-  "btn_trading": "📈 Trading",
-  "btn_education": "📚 Education"
+  "btn_trading": "Trading",
+  "btn_education": "Education"
 }
