@@ -1,6 +1,6 @@
 {
   "btn_profile": "Кабінет",
-  "btn_info": "ℹ️ Інформація",
+  "btn_info": "Інформація",
   "btn_admin_panel": "Адмін панель",
   "btn_settings": "⚙️ Налаштування",
   "start_welcome": "👋 Привіт, <b>{nickname}</b>! Реєстрація успішна.",

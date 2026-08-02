@@ -1,6 +1,6 @@
 {
   "btn_profile": "Профиль",
-  "btn_info": "ℹ️ Информация",
+  "btn_info": "Информация",
   "btn_admin_panel": "Админ панель",
   "btn_settings": "⚙️ Настройки",
   "start_welcome": "👋 Привет, <b>{nickname}</b>! Регистрация успешна.",

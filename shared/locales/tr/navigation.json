@@ -1,6 +1,6 @@
 {
   "btn_profile": "Profil",
-  "btn_info": "ℹ️ Bilgi",
+  "btn_info": "Bilgi",
   "btn_admin_panel": "Yönetici Paneli",
   "btn_settings": "⚙️ Ayarlar",
   "start_welcome": "👋 Merhaba, <b>{nickname}</b>! Kayıt başarılı.",
