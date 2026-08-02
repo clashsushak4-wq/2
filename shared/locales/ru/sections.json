@@ -1,9 +1,9 @@
 {
-  "admin_panel_title": "🛡 <b>Админ-панель</b>\n\nВыберите раздел:",
-  "btn_admin_web": "🌐 Веб-админка",
+  "admin_panel_title": "<tg-emoji emoji-id=\"5773798959206108871\">🛡</tg-emoji> <b>Админ-панель</b>\n\nВыберите раздел:",
+  "btn_admin_web": "Веб-админка",
   "admin_web_hint": "Откройте веб-админку для расширенного управления:",
-  "info_main_text": "ℹ️ <b>Информация</b>\n\nЗдесь будет информация о боте.",
-  "no_admin_access": "⛔️ У вас нет доступа к админ-панели.",
-  "trading_title": "📈 <b>Trading</b>\n\nРаздел в разработке.",
-  "education_title": "📚 <b>Обучение</b>\n\nРаздел в разработке."
+  "info_main_text": "<tg-emoji emoji-id=\"5974193375799152241\">ℹ️</tg-emoji> <b>Информация</b>\n\nЗдесь будет информация о боте.",
+  "no_admin_access": "<tg-emoji emoji-id=\"5780371577723948313\">⛔️</tg-emoji> У вас нет доступа к админ-панели.",
+  "trading_title": "<tg-emoji emoji-id=\"5974310710010711597\">📈</tg-emoji> <b>Trading</b>\n\nРаздел в разработке.",
+  "education_title": "<tg-emoji emoji-id=\"6007996353261603963\">📚</tg-emoji> <b>Обучение</b>\n\nРаздел в разработке."
 }

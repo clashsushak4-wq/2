@@ -6,8 +6,8 @@
   "time_days_ago": "{n} g önce",
   "btn_confirm": "Onayla",
   "btn_cancel": "İptal",
-  "error_technical": "⚠️ Teknik bir hata oluştu.",
-  "error_system": "⚠️ Sistem Hatası",
-  "auth_required": "⚠️ Kayıtlı değilsiniz. Lütfen /start komutunu gönderin",
-  "unknown_command": "⚠️ Bilinmeyen komut. /start tuşuna basın veya menüyü kullanın."
+  "error_technical": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Teknik bir hata oluştu.",
+  "error_system": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Sistem Hatası",
+  "auth_required": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Kayıtlı değilsiniz. Lütfen /start komutunu gönderin",
+  "unknown_command": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Bilinmeyen komut. /start tuşuna basın veya menüyü kullanın."
 }

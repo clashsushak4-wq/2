@@ -1,9 +1,9 @@
 {
-  "admin_panel_title": "🛡 <b>Yönetici Paneli</b>\n\nBir bölüm seçin:",
-  "btn_admin_web": "🌐 Web Yönetici",
+  "admin_panel_title": "<tg-emoji emoji-id=\"5773798959206108871\">🛡</tg-emoji> <b>Yönetici Paneli</b>\n\nBir bölüm seçin:",
+  "btn_admin_web": "Web Yönetici",
   "admin_web_hint": "Gelişmiş yönetim için web yönetici panelini açın:",
-  "info_main_text": "ℹ️ <b>Bilgi</b>\n\nBurada bot hakkında bilgi olacak.",
-  "no_admin_access": "⛔️ Yönetici paneline erişiminiz yok.",
-  "trading_title": "📈 <b>Trading</b>\n\nBölüm geliştirme aşamasında.",
-  "education_title": "📚 <b>Eğitim</b>\n\nBölüm geliştirme aşamasında."
+  "info_main_text": "<tg-emoji emoji-id=\"5974193375799152241\">ℹ️</tg-emoji> <b>Bilgi</b>\n\nBurada bot hakkında bilgi olacak.",
+  "no_admin_access": "<tg-emoji emoji-id=\"5780371577723948313\">⛔️</tg-emoji> Yönetici paneline erişiminiz yok.",
+  "trading_title": "<tg-emoji emoji-id=\"5974310710010711597\">📈</tg-emoji> <b>Trading</b>\n\nBölüm geliştirme aşamasında.",
+  "education_title": "<tg-emoji emoji-id=\"6007996353261603963\">📚</tg-emoji> <b>Eğitim</b>\n\nBölüm geliştirme aşamasında."
 }

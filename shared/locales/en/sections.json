@@ -1,9 +1,9 @@
 {
-  "admin_panel_title": "🛡 <b>Admin Panel</b>\n\nChoose a section:",
-  "btn_admin_web": "🌐 Web Admin",
+  "admin_panel_title": "<tg-emoji emoji-id=\"5773798959206108871\">🛡</tg-emoji> <b>Admin Panel</b>\n\nChoose a section:",
+  "btn_admin_web": "Web Admin",
   "admin_web_hint": "Open the web admin panel for advanced management:",
-  "info_main_text": "ℹ️ <b>Information</b>\n\nHere will be info about the bot.",
-  "no_admin_access": "⛔️ You do not have access to the admin panel.",
-  "trading_title": "📈 <b>Trading</b>\n\nSection under development.",
-  "education_title": "📚 <b>Education</b>\n\nSection under development."
+  "info_main_text": "<tg-emoji emoji-id=\"5974193375799152241\">ℹ️</tg-emoji> <b>Information</b>\n\nHere will be info about the bot.",
+  "no_admin_access": "<tg-emoji emoji-id=\"5780371577723948313\">⛔️</tg-emoji> You do not have access to the admin panel.",
+  "trading_title": "<tg-emoji emoji-id=\"5974310710010711597\">📈</tg-emoji> <b>Trading</b>\n\nSection under development.",
+  "education_title": "<tg-emoji emoji-id=\"6007996353261603963\">📚</tg-emoji> <b>Education</b>\n\nSection under development."
 }

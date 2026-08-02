@@ -6,8 +6,8 @@
   "time_days_ago": "{n} дн. назад",
   "btn_confirm": "Подтвердить",
   "btn_cancel": "Отменить",
-  "error_technical": "⚠️ Произошла техническая ошибка.",
-  "error_system": "⚠️ Ошибка системы",
-  "auth_required": "⚠️ Вы не зарегистрированы. Пожалуйста, отправьте команду /start",
-  "unknown_command": "⚠️ Неизвестная команда. Нажмите /start или воспользуйтесь меню."
+  "error_technical": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Произошла техническая ошибка.",
+  "error_system": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Ошибка системы",
+  "auth_required": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Вы не зарегистрированы. Пожалуйста, отправьте команду /start",
+  "unknown_command": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Неизвестная команда. Нажмите /start или воспользуйтесь меню."
 }

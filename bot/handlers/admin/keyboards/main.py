@@ -34,6 +34,7 @@ def admin_main_kb(_: Callable) -> InlineKeyboardMarkup | None:
         builder.button(
             text=_("btn_admin_web"),
             web_app=WebAppInfo(url=admin_url),
+            icon_custom_emoji_id="5974475701179387553"
         )
         
     builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id="5974120159491657171")

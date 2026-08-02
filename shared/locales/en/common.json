@@ -6,8 +6,8 @@
   "time_days_ago": "{n}d ago",
   "btn_confirm": "Confirm",
   "btn_cancel": "Cancel",
-  "error_technical": "⚠️ A technical error has occurred.",
-  "error_system": "⚠️ System Error",
-  "auth_required": "⚠️ You are not registered. Please send the /start command",
-  "unknown_command": "⚠️ Unknown command. Press /start or use the menu."
+  "error_technical": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> A technical error has occurred.",
+  "error_system": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> System Error",
+  "auth_required": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> You are not registered. Please send the /start command",
+  "unknown_command": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Unknown command. Press /start or use the menu."
 }

@@ -6,8 +6,8 @@
   "time_days_ago": "{n} дн. тому",
   "btn_confirm": "Підтвердити",
   "btn_cancel": "Скасувати",
-  "error_technical": "⚠️ Сталася технічна помилка.",
-  "error_system": "⚠️ Помилка системи",
-  "auth_required": "⚠️ Ви не зареєстровані. Будь ласка, надішліть команду /start",
-  "unknown_command": "⚠️ Невідома команда. Натисніть /start або скористайтесь меню."
+  "error_technical": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Сталася технічна помилка.",
+  "error_system": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Помилка системи",
+  "auth_required": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Ви не зареєстровані. Будь ласка, надішліть команду /start",
+  "unknown_command": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Невідома команда. Натисніть /start або скористайтесь меню."
 }
