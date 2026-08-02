@@ -25,27 +25,33 @@ class I18n:
             logging.warning(f"⚠️ Папка {locales_dir} не найдена. Пропускаем загрузку.")
             return
 
-        for filename in os.listdir(locales_dir):
-            if filename.endswith(".json"):
-                # Защита от path traversal
-                if ".." in filename or "/" in filename or "\\" in filename:
-                    logging.warning(f"⚠️ Подозрительное имя файла: {filename}. Пропускаем.")
-                    continue
+        for entry in os.listdir(locales_dir):
+            lang_dir = os.path.join(locales_dir, entry)
+            # Убедимся, что это директория языка (например 'ru')
+            if not os.path.isdir(lang_dir) or entry.startswith('.') or entry == '__pycache__':
+                continue
                 
-                lang_code = filename.split(".")[0]  # ru.json -> ru
-                filepath = os.path.join(locales_dir, filename)
-                
-                # Дополнительная проверка: файл должен быть внутри locales_dir
-                if not os.path.abspath(filepath).startswith(os.path.abspath(locales_dir)):
-                    logging.warning(f"⚠️ Попытка выхода за пределы папки: {filename}")
-                    continue
-                
-                try:
-                    with open(filepath, "r", encoding="utf-8") as f:
-                        self.locales[lang_code] = json.load(f)
-                        logging.info(f"✅ Локаль загружена: {lang_code}")
-                except Exception as e:
-                    logging.error(f"❌ Ошибка загрузки локали {filename}: {e}")
+            lang_code = entry
+            if lang_code not in self.locales:
+                self.locales[lang_code] = {}
+
+            # Ищем .json файлы внутри папки языка
+            for filename in os.listdir(lang_dir):
+                if filename.endswith(".json"):
+                    filepath = os.path.join(lang_dir, filename)
+                    
+                    try:
+                        with open(filepath, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                            # Сливаем данные, предупреждая о дубликатах ключей
+                            for key, value in data.items():
+                                if key in self.locales[lang_code]:
+                                    logging.warning(f"⚠️ Дублирование ключа '{key}' в {filename} для языка {lang_code}. Ключ будет перезаписан.")
+                                self.locales[lang_code][key] = value
+                    except Exception as e:
+                        logging.error(f"❌ Ошибка загрузки файла {filename} для {lang_code}: {e}")
+                        
+            logging.info(f"✅ Локаль загружена: {lang_code} ({len(self.locales[lang_code])} ключей)")
 
     def get(self, key: str, lang: str = "ru", **kwargs) -> str:
         """Возвращает текст по ключу."""

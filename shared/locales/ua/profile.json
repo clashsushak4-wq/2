@@ -1,0 +1,23 @@
+{
+  "btn_change_nick": "✏️ Змінити нік",
+  "profile_title": "<blockquote><tg-emoji emoji-id=\"5974048815789903111\">👤</tg-emoji> <b>Кабінет</b></blockquote>",
+  "label_id": "ID:",
+  "label_nik": "Нік:",
+  "label_username": "Нікнейм:",
+  "label_reg": "Реєстрація:",
+  "no_username": "Не вказано",
+  "ask_nickname": "<blockquote>👤 <b>Створіть унікальний ID</b></blockquote>\n\nВаш ID буде відображатися через символ #\nНаприклад: <code>#Shadow_1</code>\n\n<b>Дозволено:</b> • Латинські літери A-Z • Цифри 0-9 • Символ _\n\n<b>Обмеження:</b> • До 15 символів • Без пробілів і спецсимволів\n\n<b>Приклади:</b> <code>#TraderX</code> · <code>#Crypto_7</code> · <code>#NightWolf</code>\n\n⚠️ Цей ID не можна буде змінити протягом 30 днів",
+  "nick_invalid_format": "⚠️ <b>Невірний формат!</b>\nВикористовуйте тільки англійські літери та цифри. Без пробілів. Довжина 3-15 символів.",
+  "nick_taken": "⛔️ Позивний <b>{nickname}</b> вже зайнятий іншим трейдером.\nПридумайте інший.",
+  "nick_confirm_ask": "Ваш позивний: <b>{nickname}</b>\n\nПідтверджуємо?",
+  "nick_btn_confirm": "✅ Підтвердити",
+  "nick_btn_retry": "✏️ Змінити",
+  "nick_success": "✅ Реєстрація завершена! Ласкаво просимо, <b>{nickname}</b>.",
+  "nick_info_title": "👤 <b>Ваш позивний</b>\n\n╔ <b>Нік:</b> {nickname}\n╚ <b>Оновлено:</b> {date}\n\n⚠️ <i>Змінювати нік можна раз на 31 день.</i>",
+  "btn_change_nick_action": "🔄 Змінити зараз",
+  "nick_cooldown_error": "⏳ <b>Помилка!</b>\n\nВи нещодавно змінювали нік.\nНаступна зміна буде доступна через: <b>{days} дн.</b>",
+  "nick_change_ask": "✍️ <b>Введіть новий нік</b>\n\nДозволені: літери, цифри, «_».\nДовжина 3–15 символів.",
+  "nick_change_confirm": "Ви хочете змінити нік на <b>{nickname}</b>?\n\n⚠️ <i>Наступна зміна тільки через 31 день!</i>",
+  "nick_change_success": "✅ Нік успішно змінено на <b>{nickname}</b>",
+  "new_referral_notification": "🎉 <b>Новий реферал!</b>\nХтось зареєструвався за вашим посиланням."
+}

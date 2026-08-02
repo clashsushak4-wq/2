@@ -25,20 +25,20 @@ def admin_main_kb(_: Callable) -> InlineKeyboardMarkup | None:
     отклоняет `InlineKeyboardMarkup` с пустым `inline_keyboard`.
     """
     webapp_url = (config.WEBAPP_BASE_URL or "").rstrip("/")
-    if not webapp_url:
-        return None
-
     admin_url = (config.ADMIN_WEBAPP_URL or "").rstrip("/") + "/"
-    if not admin_url or admin_url == "/":
-        return None
+    
+    from aiogram.utils.keyboard import InlineKeyboardBuilder
+    builder = InlineKeyboardBuilder()
 
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(
-                text=_("btn_admin_web"),
-                web_app=WebAppInfo(url=admin_url),
-            ),
-        ],
-    ])
+    if webapp_url and admin_url and admin_url != "/":
+        builder.button(
+            text=_("btn_admin_web"),
+            web_app=WebAppInfo(url=admin_url),
+        )
+        
+    builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id="5974120159491657171")
+    builder.adjust(1)
+    
+    return builder.as_markup()
 
 

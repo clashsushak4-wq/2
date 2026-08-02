@@ -1,0 +1,13 @@
+{
+  "btn_back": "Geri",
+  "time_just_now": "az önce",
+  "time_min_ago": "{n} dk önce",
+  "time_hours_ago": "{n} sa önce",
+  "time_days_ago": "{n} g önce",
+  "btn_confirm": "Onayla",
+  "btn_cancel": "İptal",
+  "error_technical": "⚠️ Teknik bir hata oluştu.",
+  "error_system": "⚠️ Sistem Hatası",
+  "auth_required": "⚠️ Kayıtlı değilsiniz. Lütfen /start komutunu gönderin",
+  "unknown_command": "⚠️ Bilinmeyen komut. /start tuşuna basın veya menüyü kullanın."
+}

@@ -31,7 +31,7 @@ from shared.database.repo.users import UserRepo
 router = Router()
 
 
-def build_profile_text(message_or_callback_user_id: int, user, _: Callable) -> str:
+def build_profile_text(message_or_callback_user_id: int, user, _: Callable, title_key: str = 'profile_title') -> str:
     """Собирает текст карточки Профиля.
 
     Не зависит от того, пришёл ли user из `Message` или `CallbackQuery` —
@@ -47,7 +47,7 @@ def build_profile_text(message_or_callback_user_id: int, user, _: Callable) -> s
         reg_date = user.created_at.strftime('%Y-%m-%d')
 
     return (
-        f"{_('profile_title')}\n\n"
+        f"{_(title_key)}\n\n"
         f"╔ <b>{_('label_id')}</b> <code>{message_or_callback_user_id}</code>\n"
         f"╠ <b>{_('label_nik')}</b> <code>#{nickname}</code>\n"
         f"╠ <b>{_('label_username')}</b> <code>{username}</code>\n"
@@ -58,15 +58,13 @@ def build_profile_text(message_or_callback_user_id: int, user, _: Callable) -> s
 # --- ENTRY: reply-кнопка «Профиль» ---
 
 @router.message(LocalizedText("btn_profile"))
-async def show_profile(
+async def show_profile_msg(
     message: types.Message,
     session: AsyncSession,
     _: Callable,
     state: FSMContext,
 ):
-    """Открывает карточку профиля. Это ЕДИНСТВЕННЫЙ handler, который
-    отправляет НОВОЕ сообщение с медиа. Все следующие шаги навигации
-    редактируют это сообщение через callback'и."""
+    """Открывает карточку профиля (если кто-то нажмет старую кнопку или введет текст)."""
     await state.set_state(ProfileState.main)
 
     repo = UserRepo(session)
@@ -80,6 +78,29 @@ async def show_profile(
         text=text,
         reply_markup=profile_main_inline_kb(_),
     )
+
+@router.callback_query(F.data == "nav_profile")
+async def show_profile(
+    callback: types.CallbackQuery,
+    session: AsyncSession,
+    _: Callable,
+    state: FSMContext,
+):
+    """Открывает карточку профиля через инлайн-меню."""
+    await state.set_state(ProfileState.main)
+
+    repo = UserRepo(session)
+    user = await repo.get_user(callback.from_user.id)
+    text = build_profile_text(callback.from_user.id, user, _)
+
+    await edit_with_media(
+        callback,
+        session,
+        media_key="profile_main",
+        text=text,
+        reply_markup=profile_main_inline_kb(_),
+    )
+    await callback.answer()
 
 
 # --- BACK: возврат на карточку Профиля из Настроек ---

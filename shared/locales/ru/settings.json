@@ -1,0 +1,18 @@
+{
+  "btn_language": "🌐 Язык",
+  "btn_notifications": "🔔 Уведомления",
+  "lang_ru": "🇷🇺 Русский",
+  "lang_en": "🇺🇸 English",
+  "lang_ua": "🇺🇦 Українська",
+  "lang_tr": "🇹🇷 Türkçe",
+  "settings_title": "⚙️ <b>Настройки</b>",
+  "language_title": "🌐 <b>Настройки языка</b>\n\nТекущий язык: <b>{named_lang}</b>\n\nВыберите язык из списка ниже:",
+  "lang_selected": "✅ Язык изменен на: {named_lang}",
+  "ask_confirm_change": "Вы точно хотите сменить язык на {target_lang}?",
+  "lang_changed_success": "Язык успешно изменен на {named_lang}!",
+  "notif_title": "🔔 <b>Настройки уведомлений</b>\n\nСтатус: {status}\n\n<i>Если выключить звук, важные сообщения будут приходить тихо.</i>",
+  "notif_on": "✅ Включены (со звуком)",
+  "notif_off": "🔕 Без звука (тихо)",
+  "btn_toggle_on": "🔔 Включить звук",
+  "btn_toggle_off": "🔕 Выключить звук"
+}

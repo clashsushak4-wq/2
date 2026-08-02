@@ -36,6 +36,7 @@ def profile_main_inline_kb(_: Callable) -> InlineKeyboardMarkup:
     """Инлайн-клавиатура карточки профиля (фото + ID/ник/...)."""
     builder = InlineKeyboardBuilder()
     builder.button(text=_("btn_settings"), callback_data="profile:settings")
+    builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id="5974120159491657171")
     builder.adjust(1)
     return builder.as_markup()
 

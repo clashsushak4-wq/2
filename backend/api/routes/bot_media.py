@@ -22,6 +22,11 @@ router = APIRouter()
 # Менять только здесь — фронт получает этот список через GET.
 BOT_MEDIA_SLOTS: list[dict] = [
     {
+        "key": "start_main",
+        "title": "Главная страница",
+        "description": "Показывается на главной странице при команде /start или возврате в меню.",
+    },
+    {
         "key": "onboarding_welcome",
         "title": "Приветствие / выбор языка",
         "description": "Показывается при первом /start над текстом выбора языка.",

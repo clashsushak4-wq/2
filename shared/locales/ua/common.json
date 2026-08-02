@@ -1,0 +1,13 @@
+{
+  "btn_back": "Назад",
+  "time_just_now": "щойно",
+  "time_min_ago": "{n} хв. тому",
+  "time_hours_ago": "{n} год. тому",
+  "time_days_ago": "{n} дн. тому",
+  "btn_confirm": "Підтвердити",
+  "btn_cancel": "Скасувати",
+  "error_technical": "⚠️ Сталася технічна помилка.",
+  "error_system": "⚠️ Помилка системи",
+  "auth_required": "⚠️ Ви не зареєстровані. Будь ласка, надішліть команду /start",
+  "unknown_command": "⚠️ Невідома команда. Натисніть /start або скористайтесь меню."
+}

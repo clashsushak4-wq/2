@@ -1,4 +1,4 @@
-﻿# handlers/info/info.py
+# handlers/info/info.py
 """Раздел «Информация».
 
 Архитектура (минимальный каркас, аналог раздела Профиль):
@@ -16,17 +16,40 @@
 
 from typing import Callable
 
-from aiogram import Router, types
+from aiogram import Router, types, F
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.filters.localized_text import LocalizedText
-from bot.utils.media import send_with_media
+from bot.utils.media import send_with_media, edit_with_media
 
 
 router = Router()
 
 
 # --- ENTRY: reply-кнопка «Информация» ---
+
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+def info_main_inline_kb(_: Callable):
+    builder = InlineKeyboardBuilder()
+    builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id="5974120159491657171")
+    return builder.as_markup()
+
+@router.callback_query(F.data == "nav_info")
+async def show_info_cb(
+    callback: types.CallbackQuery,
+    session: AsyncSession,
+    _: Callable,
+):
+    """Открывает карточку раздела «Информация» через инлайн-меню."""
+    await edit_with_media(
+        callback,
+        session,
+        media_key="info_main",
+        text=_("info_main_text"),
+        reply_markup=info_main_inline_kb(_),
+    )
+    await callback.answer()
 
 @router.message(LocalizedText("btn_info"))
 async def show_info(
@@ -40,4 +63,5 @@ async def show_info(
         session,
         media_key="info_main",
         text=_("info_main_text"),
+        reply_markup=info_main_inline_kb(_),
     )

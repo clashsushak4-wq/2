@@ -1,33 +1,22 @@
 # handlers/keyboards/main_menu.py
 from typing import Callable
-from aiogram.types import ReplyKeyboardMarkup
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.types import InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-
-def main_menu_kb(_: Callable, user_id: int, is_admin: bool | None = None) -> ReplyKeyboardMarkup:
+def main_menu_kb(_: Callable, user_id: int, is_admin: bool | None = None) -> InlineKeyboardMarkup:
     """
-    Главное меню.
-
-    Раскладка:
-        [� Trading]  [📚 Обучение]
-        [�👤 Профиль]  [ℹ️ Информация]
-        [🛡 Админ панель]   ← только если is_admin
-
-    :param _: функция перевода
-    :param user_id: ID пользователя (на будущее, если понадобится)
-    :param is_admin: флаг администратора. Если True — добавляем кнопку админ-панели.
+    Главное меню в формате Inline.
     """
-    builder = ReplyKeyboardBuilder()
-    builder.button(text=_("btn_profile"), icon_custom_emoji_id="5974048815789903111")
-    builder.button(text=_("btn_education"))
-    builder.button(text=_("btn_trading"))
-    builder.button(text=_("btn_info"))
+    builder = InlineKeyboardBuilder()
+    builder.button(text=_("btn_profile"), callback_data="nav_profile", icon_custom_emoji_id="5974048815789903111")
+    builder.button(text=_("btn_education"), callback_data="nav_education")
+    builder.button(text=_("btn_trading"), callback_data="nav_trading")
+    builder.button(text=_("btn_info"), callback_data="nav_info")
 
-    # Кнопка "Админ панель" доступна только администраторам
     if is_admin:
-        builder.button(text=_("btn_admin_panel"))
+        builder.button(text=_("btn_admin_panel"), callback_data="nav_admin")
         builder.adjust(2, 2, 1)
     else:
         builder.adjust(2, 2)
 
-    return builder.as_markup(resize_keyboard=True)
+    return builder.as_markup()
