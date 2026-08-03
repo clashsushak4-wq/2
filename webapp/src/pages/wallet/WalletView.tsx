@@ -10,7 +10,7 @@ import { sendTransaction } from '../../utils/transactions';
 type WalletStep = 'onboarding' | 'import_seed' | 'generating' | 'backup' | 'pin_setup' | 'pin_confirm' | 'dashboard' | 'send_form' | 'send_pin' | 'sending' | 'receive_sheet' | 'settings_sheet' | 'token_detail_sheet' | 'token_receive_sheet';
 
 export const WalletView = () => {
-  const { hasWallet, address, encryptedMnemonic, balanceGRAM, balanceUSDT, setWallet } = useWalletStore();
+  const { hasWallet, address, encryptedMnemonic, balanceGRAM, balanceUSDT, tonPrice, setWallet } = useWalletStore();
   
   const [step, setStep] = useState<WalletStep>(hasWallet ? 'dashboard' : 'onboarding');
 
@@ -31,9 +31,8 @@ export const WalletView = () => {
   const [sendData, setSendData] = useState<{address: string, amount: string, currency: 'GRAM' | 'USDT'} | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<'GRAM' | 'USDT'>('GRAM');
 
-  // Live TON price
-  const tonTicker = useBinanceTicker('GRAMUSDT');
-  const currentTonPrice = tonTicker ? parseFloat(tonTicker.lastPrice) : 1.58;
+  // Live TON price (fetched via TonAPI inside Dashboard interval)
+  const currentTonPrice = tonPrice || 1.58;
 
   const handleCreateNew = async () => {
     setStep('generating');

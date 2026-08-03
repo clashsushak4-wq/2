@@ -66,9 +66,9 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
 
     dp.update.middleware(LoggingMiddleware())
     dp.update.middleware(DbSessionMiddleware(session_pool=session_maker))
+    dp.update.middleware(I18nMiddleware(storage=storage))
     dp.update.middleware(AuthMiddleware())
     dp.update.middleware(AdminCheckMiddleware())
-    dp.update.middleware(I18nMiddleware(storage=storage))
     dp.update.middleware(ThrottlingMiddleware(storage=storage, rate_limit=0.5, critical_rate_limit=3.0))
 
     dp.include_router(root_router)

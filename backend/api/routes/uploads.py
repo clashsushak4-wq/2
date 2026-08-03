@@ -108,18 +108,30 @@ async def upload_file(
     if ext in VIDEO_EXTENSIONS:
         filename = f"{uid}{ext}"
         filepath = _safe_join(filename)
-        async with upload_semaphore:
-            async with aiofiles.open(filepath, "wb") as f:
-                while chunk := await file.read(1024 * 1024):
-                    await f.write(chunk)
+        try:
+            async with upload_semaphore:
+                async with aiofiles.open(filepath, "wb") as f:
+                    written = 0
+                    while chunk := await file.read(1024 * 1024):
+                        written += len(chunk)
+                        if written > MAX_FILE_SIZE:
+                            raise HTTPException(status_code=400, detail="File too large (max 10 MB)")
+                        await f.write(chunk)
+        except Exception:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            raise
         return UploadResponse(url=f"/uploads/{filename}")
 
     # Картинка: ресайз + WebP + thumbnail. PIL — CPU-bound, в thread.
     try:
         async with upload_semaphore:
-            contents = await file.read()
-            if len(contents) > MAX_FILE_SIZE:
-                raise HTTPException(status_code=400, detail="File too large (max 10 MB)")
+            contents_arr = bytearray()
+            while chunk := await file.read(1024 * 1024):
+                contents_arr.extend(chunk)
+                if len(contents_arr) > MAX_FILE_SIZE:
+                    raise HTTPException(status_code=400, detail="File too large (max 10 MB)")
+            contents = bytes(contents_arr)
 
             main_bytes, thumb_bytes = await asyncio.to_thread(
                 _process_image_sync, contents, uid

@@ -27,7 +27,7 @@ export const Dashboard = ({ onSendClick, onReceiveClick, onSettingsClick, onAsse
       try {
         const newBalances = await fetchBalances(address);
         if (isMounted) {
-          setBalances(newBalances.ton, newBalances.usdt);
+          setBalances(newBalances.ton, newBalances.usdt, newBalances.price);
         }
       } catch (e) {
         console.error(e);

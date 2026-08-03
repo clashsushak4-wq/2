@@ -14,7 +14,8 @@ interface AdminState {
 
   setTelegramAuth: () => void;
   login: (telegramId: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: (failed?: boolean) => void;
+  hasFailedAuth: boolean;
 }
 
 const STORAGE_KEY = 'admin_token';
@@ -25,6 +26,7 @@ export const useAdminStore = create<AdminState>((set) => ({
 
   // Auth
   isAuthenticated: false,
+  hasFailedAuth: false,
   authMode: 'none',
   adminToken: localStorage.getItem(STORAGE_KEY),
 
@@ -47,8 +49,8 @@ export const useAdminStore = create<AdminState>((set) => ({
     }
   },
 
-  logout: () => {
+  logout: (failed = false) => {
     localStorage.removeItem(STORAGE_KEY);
-    set({ isAuthenticated: false, authMode: 'none', adminToken: null });
+    set({ isAuthenticated: false, authMode: 'none', adminToken: null, hasFailedAuth: failed });
   },
 }));

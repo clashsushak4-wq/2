@@ -87,7 +87,10 @@ export const LoginView = () => {
               inputMode="numeric"
               placeholder="Telegram ID"
               value={telegramId}
-              onChange={(e) => { setTelegramId(e.target.value); setError(''); }}
+              onChange={(e) => { 
+                setTelegramId(e.target.value.replace(/\D/g, '')); 
+                setError(''); 
+              }}
               className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-11 pr-4 py-3.5 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
               autoComplete="off"
             />

@@ -24,24 +24,20 @@ from shared.config import config
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("wipe_db")
 
-# Порядок неважен — TRUNCATE ... CASCADE сам разрешит FK-зависимости.
-TABLES = [
-    "ticket_messages",
-    "tickets",
-    "user_sessions",
-    "home_tiles",
-    "exchanges",
-    "users",
-]
+from shared.database.models.base import Base
 
 
 async def wipe_postgres() -> None:
     engine = create_async_engine(config.DB_URL)
+    tables = [t for t in Base.metadata.tables.keys() if t != "alembic_version"]
+    if not tables:
+        logger.info("Нет таблиц для очистки.")
+        return
     try:
         async with engine.begin() as conn:
-            tables_sql = ", ".join(TABLES)
+            tables_sql = ", ".join(tables)
             await conn.execute(text(f"TRUNCATE TABLE {tables_sql} RESTART IDENTITY CASCADE"))
-        logger.info("PostgreSQL: TRUNCATE выполнен для %d таблиц", len(TABLES))
+        logger.info("PostgreSQL: TRUNCATE выполнен для %d таблиц", len(tables))
     finally:
         await engine.dispose()
 
@@ -66,7 +62,6 @@ async def wipe_redis() -> None:
 async def main(confirm: bool) -> int:
     logger.info("Цель PG:    %s", _mask_db_url(config.DB_URL))
     logger.info("Цель Redis: %s", config.REDIS_URL)
-    logger.info("Таблицы PG к очистке: %s", ", ".join(TABLES))
 
     if config.TRADING_MODE != "DEMO":
         logger.error("\n[CRITICAL] ОШИБКА: Запрещено выполнять очистку БД в режиме TRADING_MODE='%s'! Только для DEMO.", config.TRADING_MODE)

@@ -1,4 +1,4 @@
-﻿# middlewares/auth.py
+# middlewares/auth.py
 """
 Мидлварь для защиты бота от действий незарегистрированных пользователей.
 Если пользователя нет в БД, блокирует любые действия (кроме /start и callback-ов онбординга).
@@ -34,6 +34,10 @@ class AuthMiddleware(BaseMiddleware):
         if not db_user:
             # Пользователя нет в базе. Проверим, разрешено ли действие.
             
+            # Разрешаем системные апдейты (например, блокировка бота)
+            if getattr(event, "my_chat_member", None) or getattr(event, "chat_member", None):
+                return await handler(event, data)
+
             # Разрешаем /start
             if msg and msg.text and msg.text.startswith("/start"):
                 return await handler(event, data)

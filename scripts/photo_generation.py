@@ -2,20 +2,26 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import random
 
-# Используем постоянный фон из папки pictures
-bg_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pictures", "blank_bg.png")
-if not os.path.exists(bg_path):
-    print(f"Background not found at {bg_path}")
-    exit(1)
+pictures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pictures")
+os.makedirs(pictures_dir, exist_ok=True)
 
-# Базовый фон
-img_bg = Image.open(bg_path)
-width, height = img_bg.size
-new_height = 576
-top = (height - new_height) // 2
-bottom = top + new_height
-img_bg = img_bg.crop((0, top, width, bottom))
-img_bg = img_bg.resize((1280, 720), Image.Resampling.LANCZOS)
+# Используем постоянный фон из папки pictures
+bg_path = os.path.join(pictures_dir, "blank_bg.png")
+if not os.path.exists(bg_path):
+    print(f"Background not found at {bg_path}. Please create a 1280x720 blank_bg.png first.")
+    # Fallback if background not found
+    img_bg = Image.new("RGBA", (1280, 720), (30, 30, 30, 255))
+else:
+    # Базовый фон
+    img_bg = Image.open(bg_path)
+    width, height = img_bg.size
+    new_height = 576
+    top = (height - new_height) // 2
+    bottom = top + new_height
+    img_bg = img_bg.crop((0, top, width, bottom))
+    img_bg = img_bg.resize((1280, 720), Image.Resampling.LANCZOS)
+
+
 
 # Словарь: Название меню -> Иконка Unicode
 # Используем Segoe MDL2 Assets (стандартный иконочный шрифт Windows)
@@ -30,25 +36,21 @@ menus = {
 # Корректируем иконку админки на более подходящую
 menus["admin panel"] = "\uE8EF" # \uE8EF is often a wrench or gear-like, but \uE8D7 is crown. Let's use \uE7E3 (CommandPrompt) or \uE773 (Server)
 
-try:
-    font_main = ImageFont.truetype("georgiai.ttf", 160)
-except IOError:
-    try:
-        font_main = ImageFont.truetype("timesi.ttf", 160)
-    except IOError:
-        font_main = ImageFont.load_default()
+def get_font(names, size):
+    for name in names:
+        try:
+            return ImageFont.truetype(name, size)
+        except IOError:
+            pass
+    return ImageFont.load_default()
 
-# Загружаем шрифт с иконками (встроен в Windows)
-try:
-    font_icon = ImageFont.truetype("segmdl2.ttf", 450)
-except IOError:
-    print("Warning: Icon font 'segmdl2.ttf' not found, using default.")
-    font_icon = ImageFont.load_default()
+font_main_names = ["georgiai.ttf", "timesi.ttf", "DejaVuSerif-Italic.ttf", "FreeSerifItalic.ttf"]
+font_icon_names = ["segmdl2.ttf", "symbola.ttf", "DejaVuSans.ttf"]
+font_watermark_names = ["arial.ttf", "DejaVuSans.ttf", "FreeSans.ttf"]
 
-try:
-    font_watermark = ImageFont.truetype("arial.ttf", 24)
-except IOError:
-    font_watermark = ImageFont.load_default()
+font_main = get_font(font_main_names, 160)
+font_icon = get_font(font_icon_names, 450)
+font_watermark = get_font(font_watermark_names, 24)
 
 watermark_text = "https://t.me/dt_shadowbot"
 
@@ -61,10 +63,7 @@ for menu, icon_char in menus.items():
     
     for _ in range(35):
         size = random.randint(30, 200)
-        try:
-            fnt = ImageFont.truetype("segmdl2.ttf", size)
-        except:
-            fnt = ImageFont.load_default()
+        fnt = get_font(font_icon_names, size)
             
         txt_img = Image.new('RGBA', (size*2, size*2), (255, 255, 255, 0))
         txt_draw = ImageDraw.Draw(txt_img)
@@ -94,10 +93,7 @@ for menu, icon_char in menus.items():
     current_font = font_main
     if text_w > 1200:
         scaled_size = int(160 * (1150 / text_w))
-        try:
-            current_font = ImageFont.truetype("georgiai.ttf", scaled_size)
-        except:
-            current_font = ImageFont.truetype("timesi.ttf", scaled_size)
+        current_font = get_font(font_main_names, scaled_size)
         bbox = draw.textbbox((0, 0), text_main, font=current_font)
         text_w = bbox[2] - bbox[0]
         text_h = bbox[3] - bbox[1]
@@ -119,6 +115,6 @@ for menu, icon_char in menus.items():
     
     # Сохраняем результат
     img = img.convert("RGB")
-    filename = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pictures", f"{menu.replace(' ', '_')}.png")
+    filename = os.path.join(pictures_dir, f"{menu.replace(' ', '_')}.png")
     img.save(filename)
     print(f"Saved {filename}")

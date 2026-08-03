@@ -8,12 +8,12 @@ import { ConstructorView, StatsView, SupportView, ExchangesView, MediaView } fro
 import { LoginView } from './pages/login/LoginView';
 
 export default function App() {
-  const { activeTab, isAuthenticated, setTelegramAuth, adminToken } = useAdminStore();
+  const { activeTab, isAuthenticated, setTelegramAuth, adminToken, hasFailedAuth, logout } = useAdminStore();
   const { isTelegram, isLoading } = useWebApp();
 
   useEffect(() => {
     const handleUnauthorized = () => {
-      useAdminStore.setState({ isAuthenticated: false, authMode: 'none', adminToken: null });
+      useAdminStore.getState().logout(true);
     };
     window.addEventListener('admin:unauthorized', handleUnauthorized);
     return () => window.removeEventListener('admin:unauthorized', handleUnauthorized);
@@ -22,15 +22,15 @@ export default function App() {
   useEffect(() => {
     if (isLoading) return;
     // Авто-авторизация через Telegram initData
-    if (isTelegram && !isAuthenticated) {
+    if (isTelegram && !isAuthenticated && !hasFailedAuth) {
       setTelegramAuth();
       return;
     }
     // Авто-авторизация через сохранённый токен
-    if (!isAuthenticated && adminToken) {
+    if (!isAuthenticated && adminToken && !hasFailedAuth) {
       useAdminStore.setState({ isAuthenticated: true, authMode: 'token' });
     }
-  }, [isLoading, isTelegram, isAuthenticated, adminToken, setTelegramAuth]);
+  }, [isLoading, isTelegram, isAuthenticated, adminToken, setTelegramAuth, hasFailedAuth]);
 
   if (isLoading) {
     return (

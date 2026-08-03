@@ -1,45 +1,72 @@
 import axios from 'axios';
+import { Address } from '@ton/core';
 
 // Используем публичный эндпоинт TonAPI
 // В будущем для продакшена желательно получить свой ключ на tonconsole.com
 const BASE_URL = 'https://tonapi.io/v2';
 const USDT_MASTER = 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs'; // USDT on TON
+const usdtMasterAddress = Address.parse(USDT_MASTER);
 
 export interface Balances {
   ton: string;
   usdt: string;
+  price: number;
 }
 
 /**
- * Получает баланс GRAM и USDT для указанного адреса.
+ * Получает баланс GRAM и USDT для указанного адреса, а также текущую цену TON.
  * Возвращает строковые значения, отформатированные для отображения.
  */
 export async function fetchBalances(address: string): Promise<Balances> {
-  if (!address) return { ton: "0.0", usdt: "0.0" };
+  if (!address) return { ton: "0.0", usdt: "0.0", price: 1.58 };
+
+  let tonBalance = "0.00";
+  let usdtBalance = "0.00";
+  let currentPrice = 1.58;
 
   try {
     // 1. Получаем GRAM баланс
     const accountRes = await axios.get(`${BASE_URL}/accounts/${address}`);
     const tonBalanceNano = accountRes.data.balance || 0;
-    const tonBalance = (tonBalanceNano / 1e9).toFixed(2);
+    tonBalance = (tonBalanceNano / 1e9).toFixed(2);
+  } catch (error) {
+    console.error("Failed to fetch TON balance:", error);
+    throw new Error("Failed to fetch primary balance");
+  }
 
-    // 2. Получаем балансы всех Jettons (ищем USDT)
+  try {
+    // 2. Получаем цену TON в USD через TonAPI
+    const ratesRes = await axios.get(`${BASE_URL}/rates?tokens=ton&currencies=usd`);
+    if (ratesRes.data?.rates?.TON?.prices?.USD) {
+      currentPrice = ratesRes.data.rates.TON.prices.USD;
+    }
+  } catch (error) {
+    console.error("Failed to fetch TON price:", error);
+  }
+
+  try {
+    // 3. Получаем балансы всех Jettons (ищем USDT)
     const jettonsRes = await axios.get(`${BASE_URL}/accounts/${address}/jettons`);
     const jettons = jettonsRes.data.balances || [];
     
-    let usdtBalance = "0.00";
-    const usdtJetton = jettons.find((j: any) => j.jetton.address === USDT_MASTER);
+    const usdtJetton = jettons.find((j: any) => {
+      try {
+        return Address.parse(j.jetton.address).equals(usdtMasterAddress);
+      } catch (e) {
+        return false;
+      }
+    });
     
     if (usdtJetton) {
       // У USDT decimals = 6
       usdtBalance = (usdtJetton.balance / 1e6).toFixed(2);
     }
-
-    return { ton: tonBalance, usdt: usdtBalance };
   } catch (error) {
-    console.error("Failed to fetch balances:", error);
-    return { ton: "0.0", usdt: "0.0" };
+    console.error("Failed to fetch Jettons (maybe rate limited):", error);
+    // Игнорируем ошибку джеттонов, чтобы не стереть уже полученный TON баланс!
   }
+
+  return { ton: tonBalance, usdt: usdtBalance, price: currentPrice };
 }
 
 export interface TransactionEvent {
@@ -75,15 +102,19 @@ export async function fetchHistory(address: string): Promise<TransactionEvent[]>
             timestamp: event.timestamp
           });
         } else if (action.type === 'JettonTransfer') {
-          if (action.JettonTransfer?.jetton?.address === USDT_MASTER) {
-            const isSender = action.JettonTransfer?.sender?.address === address;
-            history.push({
-              id: event.event_id,
-              type: isSender ? 'send' : 'receive',
-              amount: (action.JettonTransfer?.amount / 1e6).toFixed(2),
-              currency: 'USDT',
-              timestamp: event.timestamp
-            });
+          try {
+            if (Address.parse(action.JettonTransfer?.jetton?.address).equals(usdtMasterAddress)) {
+              const isSender = Address.parse(action.JettonTransfer?.sender?.address).equals(Address.parse(address));
+              history.push({
+                id: event.event_id,
+                type: isSender ? 'send' : 'receive',
+                amount: (action.JettonTransfer?.amount / 1e6).toFixed(2),
+                currency: 'USDT',
+                timestamp: event.timestamp
+              });
+            }
+          } catch (e) {
+            // Ignored, bad address
           }
         }
       });

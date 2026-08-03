@@ -132,7 +132,7 @@ export const useConstructorData = () => {
         size: tile.size,
         order: tiles.length,
         is_active: false,
-        content: { ...tile.content, title: (tile.content?.title || '') + ' (копия)' },
+        content: { ...tile.content, ...(tile.content?.title ? { title: tile.content.title + ' (копия)' } : {}) },
       });
       toast('Тайл дублирован', 'info');
       await loadTiles();

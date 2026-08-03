@@ -52,12 +52,8 @@ async def create_my_ticket(
     user_repo = UserRepo(session)
     user = await user_repo.get_user(user_id)
     
-    # Если юзера нет в БД, попробуем его создать (чтобы не было ошибки Foreign Key)
     if not user:
-        try:
-            user = await user_repo.create_user(tg_id=user_id, username="User", language="ru")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail="Could not create user for ticket")
+        raise HTTPException(status_code=403, detail="User not found. Please start the bot first.")
 
     user_nick = getattr(user, 'nickname', getattr(user, 'username', 'User')) if user else 'User'
     
@@ -163,6 +159,9 @@ async def admin_send_message(
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
         
+    if ticket.status == 'closed':
+        raise HTTPException(status_code=400, detail="Cannot send message to a closed ticket")
+        
     await support_repo.add_message(ticket_id, sender='admin', text=message.text)
     
     messages = await support_repo.get_ticket_history(ticket_id)
@@ -179,6 +178,9 @@ async def admin_accept_ticket(
     ticket = await support_repo.get_ticket_by_id(ticket_id)
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
+        
+    if ticket.status == 'closed':
+        raise HTTPException(status_code=400, detail="Cannot accept a closed ticket")
         
     await support_repo.accept_ticket(ticket_id)
     return SuccessResponse()
