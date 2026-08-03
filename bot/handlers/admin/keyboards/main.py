@@ -1,3 +1,4 @@
+from shared.utils.i18n import safe_emoji
 # handlers/admin/keyboards/main.py
 
 # IMPORTS
@@ -34,10 +35,10 @@ def admin_main_kb(_: Callable) -> InlineKeyboardMarkup | None:
         builder.button(
             text=_("btn_admin_web"),
             web_app=WebAppInfo(url=admin_url),
-            icon_custom_emoji_id="5974475701179387553"
+            icon_custom_emoji_id=safe_emoji(_("btn_admin_web_emoji"))
         )
         
-    builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id="5974120159491657171")
+    builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id=safe_emoji(_("btn_back_emoji")))
     builder.adjust(1)
     
     return builder.as_markup()

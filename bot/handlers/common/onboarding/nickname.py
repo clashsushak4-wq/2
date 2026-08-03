@@ -1,3 +1,4 @@
+from shared.utils.i18n import safe_emoji
 # handlers/common/onboarding/nickname.py
 import re
 from typing import Callable
@@ -54,8 +55,8 @@ async def process_nickname(message: types.Message, session: AsyncSession, _: Cal
     await state.set_state(OnboardingState.nickname_confirm)
 
     builder = InlineKeyboardBuilder()
-    builder.button(text=_("nick_btn_confirm"), callback_data="nick_ok", icon_custom_emoji_id="6008275560495582704")
-    builder.button(text=_("nick_btn_retry"), callback_data="nick_retry", icon_custom_emoji_id="6010457897803189771")
+    builder.button(text=_("nick_btn_confirm"), callback_data="nick_ok", icon_custom_emoji_id=safe_emoji(_("nick_btn_confirm_emoji")))
+    builder.button(text=_("nick_btn_retry"), callback_data="nick_retry", icon_custom_emoji_id=safe_emoji(_("nick_btn_retry_emoji")))
     builder.adjust(1)
 
     await update_bot_msg(

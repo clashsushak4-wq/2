@@ -67,3 +67,11 @@ class I18n:
 
 # Создаем один экземпляр на весь проект
 i18n = I18n()
+
+def safe_emoji(emoji_str: str) -> str | None:
+    """Безопасно извлекает ID эмодзи. 
+    Если ключ перевода не найден (возвращается само имя ключа с буквами), возвращает None.
+    """
+    if emoji_str and emoji_str.isdigit():
+        return emoji_str
+    return None

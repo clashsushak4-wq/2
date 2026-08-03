@@ -1,3 +1,4 @@
+from shared.utils.i18n import safe_emoji
 # handlers/keyboards/education.py
 
 from typing import Callable
@@ -9,6 +10,6 @@ def education_main_inline_kb(_: Callable) -> InlineKeyboardMarkup:
     """Inline-клавиатура главного экрана Обучения.
     """
     builder = InlineKeyboardBuilder()
-    builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id="5974120159491657171")
+    builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id=safe_emoji(_("btn_back_emoji")))
     builder.adjust(1)
     return builder.as_markup()
