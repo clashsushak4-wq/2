@@ -206,6 +206,7 @@ export const WalletView = () => {
         </div>
       ) : (
         <>
+          <div className="h-[calc(100vh-120px)] lg:h-[700px] max-h-[85vh] overflow-y-auto overflow-x-hidden custom-scrollbar pb-24 relative z-10">
           <AnimatePresence mode="wait">
             {step === 'onboarding' && (
               <Onboarding key="onboarding" onCreate={handleCreateNew} onImport={() => setStep('import_seed')} />
@@ -254,6 +255,7 @@ export const WalletView = () => {
               />
             )}
           </AnimatePresence>
+        </div>
 
           {/* BOTTOM SHEETS FOR MOBILE */}
           {!isDesktop && (
