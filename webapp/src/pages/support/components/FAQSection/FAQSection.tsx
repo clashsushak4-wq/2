@@ -24,7 +24,7 @@ export const FAQSection = () => {
         {faqData.map((item, index) => (
           <div 
             key={index}
-            className="bg-zinc-900 border-2 border-zinc-700 rounded-2xl overflow-hidden relative"
+            className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 hover:border-white/10 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 rounded-2xl overflow-hidden relative"
           >
             <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent rounded-br-full pointer-events-none" />
             

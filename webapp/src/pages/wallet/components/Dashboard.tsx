@@ -40,7 +40,7 @@ export const Dashboard = ({ onSendClick, onReceiveClick, onSettingsClick, onAsse
 
     const interval = setInterval(() => {
       loadData(false);
-    }, 10000);
+    }, 30000);
 
     return () => {
       isMounted = false;
@@ -71,16 +71,16 @@ export const Dashboard = ({ onSendClick, onReceiveClick, onSettingsClick, onAsse
 
       <div className="flex items-center justify-center gap-4 mt-2">
         <button onClick={onReceiveClick} className="flex flex-col items-center gap-2 group">
-          <div className="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-all">
-            <ArrowDownLeft size={24} />
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 group-hover:scale-105 active:scale-95 transition-all shadow-lg shadow-blue-500/10">
+            <ArrowDownLeft size={28} />
           </div>
-          <span className="text-xs font-medium text-zinc-400 group-hover:text-zinc-300">Получить</span>
+          <span className="text-xs md:text-sm font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Получить</span>
         </button>
         <button onClick={onSendClick} className="flex flex-col items-center gap-2 group">
-          <div className="w-14 h-14 rounded-2xl bg-zinc-900 text-zinc-100 flex items-center justify-center border border-zinc-800 group-hover:bg-zinc-800 transition-all">
-            <ArrowUpRight size={24} />
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-white/5 text-zinc-100 flex items-center justify-center border border-white/10 group-hover:bg-white/10 group-hover:scale-105 active:scale-95 transition-all shadow-lg backdrop-blur-md">
+            <ArrowUpRight size={28} />
           </div>
-          <span className="text-xs font-medium text-zinc-400 group-hover:text-zinc-300">Отправить</span>
+          <span className="text-xs md:text-sm font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Отправить</span>
         </button>
       </div>
 
@@ -89,11 +89,11 @@ export const Dashboard = ({ onSendClick, onReceiveClick, onSettingsClick, onAsse
         <div className="flex flex-col gap-3">
           <div 
             onClick={() => onAssetClick('USDT')}
-            className="flex items-center justify-between bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800/50 backdrop-blur-sm cursor-pointer hover:bg-zinc-900 transition-colors"
+            className="flex items-center justify-between bg-zinc-900/50 p-4 md:p-5 rounded-2xl md:rounded-3xl border border-white/5 backdrop-blur-xl cursor-pointer hover:bg-zinc-800/80 hover:border-white/10 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all group"
           >
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-[#26A17B] flex items-center justify-center">
-                <span className="text-white font-bold text-sm">₮</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg" alt="USDT" className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="text-white font-medium">Tether</p>
@@ -108,16 +108,14 @@ export const Dashboard = ({ onSendClick, onReceiveClick, onSettingsClick, onAsse
 
           <div 
             onClick={() => onAssetClick('GRAM')}
-            className="flex items-center justify-between bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800/50 backdrop-blur-sm cursor-pointer hover:bg-zinc-900 transition-colors"
+            className="flex items-center justify-between bg-zinc-900/50 p-4 md:p-5 rounded-2xl md:rounded-3xl border border-white/5 backdrop-blur-xl cursor-pointer hover:bg-zinc-800/80 hover:border-white/10 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all group"
           >
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-[#0098EA] flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2L2 12l10 10 10-10L12 2zm0 2.83L19.17 12 12 19.17 4.83 12 12 4.83z"/>
-                </svg>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg" alt="GRAM" className="w-full h-full object-cover" />
               </div>
               <div>
-                <p className="text-white font-medium">Toncoin</p>
+                <p className="text-white font-medium">Gram</p>
                 <p className="text-xs text-zinc-500">GRAM (Gas)</p>
               </div>
             </div>

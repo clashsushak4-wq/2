@@ -5,6 +5,7 @@ import { BottomSheet } from '../../shared/ui';
 import { useWalletStore } from '../../store/walletStore';
 import { generateNewWallet, encryptMnemonic, decryptMnemonic } from '../../utils/crypto';
 import { useBinanceTicker } from '../../hooks/useBinanceMarket';
+import { useMediaQuery } from '../../hooks';
 import { sendTransaction } from '../../utils/transactions';
 
 type WalletStep = 'onboarding' | 'import_seed' | 'generating' | 'backup' | 'pin_setup' | 'pin_confirm' | 'dashboard' | 'send_form' | 'send_pin' | 'sending' | 'receive_sheet' | 'settings_sheet' | 'token_detail_sheet' | 'token_receive_sheet';
@@ -115,106 +116,16 @@ export const WalletView = () => {
     setStep('token_detail_sheet');
   };
 
-  return (
-    <div className="relative min-h-full md:max-w-5xl md:mx-auto md:mt-8 px-4 md:px-0">
-      <AnimatePresence mode="wait">
-        {step === 'onboarding' && (
-          <Onboarding key="onboarding" onCreate={handleCreateNew} onImport={() => setStep('import_seed')} />
-        )}
-        
-        {step === 'import_seed' && (
-          <SeedImport key="import_seed" onBack={() => setStep('onboarding')} onSuccess={handleImportSuccess} />
-        )}
-        
-        {step === 'generating' && (
-          <div key="generating" className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-zinc-400 font-medium">Создаем безопасный кошелек...</p>
-            <p className="text-xs text-zinc-600 mt-2">Генерация ключей на устройстве</p>
-          </div>
-        )}
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const isDesktopSplit = isDesktop && ['dashboard', 'send_form', 'send_pin', 'receive_sheet', 'sending', 'settings_sheet', 'token_detail_sheet', 'token_receive_sheet'].includes(step);
 
-        {step === 'sending' && (
-          <div key="sending" className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-zinc-400 font-medium">Отправляем транзакцию...</p>
-            <p className="text-xs text-zinc-600 mt-2">Связываемся с сетью The Open Network</p>
-          </div>
-        )}
-
-        {step === 'backup' && (
-          <SeedBackup key="backup" mnemonic={tempMnemonic} onConfirm={() => setStep('pin_setup')} />
-        )}
-
-        {step === 'pin_setup' && (
-          <PinPad key="pin_setup" title="Придумайте PIN-код" subtitle="Он потребуется для подтверждения транзакций" onComplete={handlePinSetup} error={pinError} />
-        )}
-
-        {step === 'pin_confirm' && (
-          <PinPad key="pin_confirm" title="Повторите PIN-код" subtitle="Убедитесь, что вы его запомнили" onComplete={handlePinConfirm} />
-        )}
-
-        {['dashboard', 'send_form', 'send_pin', 'receive_sheet', 'sending', 'settings_sheet', 'token_detail_sheet', 'token_receive_sheet'].includes(step) && (
-          <Dashboard 
-            key="dashboard" 
-            onSendClick={() => setStep('send_form')} 
-            onReceiveClick={() => setStep('receive_sheet')}
-            onSettingsClick={() => setStep('settings_sheet')}
-            onAssetClick={handleAssetClick}
-            currentTonPrice={currentTonPrice}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* BOTTOM SHEETS */}
-      {/* 1. Receive Sheet */}
-      <BottomSheet 
-        isOpen={step === 'receive_sheet'} 
-        onClose={() => setStep('dashboard')}
-        title="Получить средства"
-      >
-        <ReceiveSheet address={address || ''} />
-      </BottomSheet>
-
-      {/* 2. Send Form Sheet */}
-      <BottomSheet
-        isOpen={step === 'send_form'}
-        onClose={() => setStep('dashboard')}
-      >
-        <SendForm 
-          balanceGRAM={balanceGRAM} 
-          balanceUSDT={balanceUSDT} 
-          onCancel={() => setStep('dashboard')}
-          onSend={handleSendInit}
-          initialCurrency={selectedAsset}
-        />
-      </BottomSheet>
-
-      {/* 3. Send PIN Confirm Sheet */}
-      <BottomSheet
-        isOpen={step === 'send_pin'}
-        onClose={() => setStep('dashboard')}
-      >
-        <div className="pt-4">
-          <PinPad 
-            title="Подтвердите транзакцию" 
-            subtitle={`Отправка ${sendData?.amount} ${sendData?.currency} на ${sendData?.address?.slice(0, 6)}...`}
-            onComplete={handleSendConfirm} 
-            error={pinError}
-          />
-        </div>
-      </BottomSheet>
-
-      {/* 4. Settings Screen */}
-      <AnimatePresence>
-        {step === 'settings_sheet' && (
-          <SettingsScreen key="settings_screen" onClose={() => setStep('dashboard')} />
-        )}
-      </AnimatePresence>
-
-      {/* 5. Token Detail Screen */}
-      <AnimatePresence>
-        {step === 'token_detail_sheet' && (
+  const renderRightPane = () => {
+    switch (step) {
+      case 'settings_sheet':
+        return <SettingsScreen key="settings_screen" onClose={() => setStep('dashboard')} isDesktopInline />;
+      case 'token_detail_sheet':
+      case 'dashboard': // По умолчанию на десктопе показываем детали токена
+        return (
           <TokenDetailScreen 
             key="token_detail_screen"
             currency={selectedAsset}
@@ -223,24 +134,151 @@ export const WalletView = () => {
             currentPrice={selectedAsset === 'GRAM' ? currentTonPrice : 1}
             onClose={() => setStep('dashboard')}
             onReceive={() => setStep('token_receive_sheet')}
-            onSend={() => {
-              setStep('send_form');
-            }}
+            onSend={() => setStep('send_form')}
+            isDesktopInline
           />
-        )}
-      </AnimatePresence>
-
-      {/* 6. Token Receive Screen */}
-      <AnimatePresence>
-        {step === 'token_receive_sheet' && (
+        );
+      case 'token_receive_sheet':
+        return (
           <TokenReceiveScreen 
             key="token_receive_screen"
             currency={selectedAsset}
             address={address || ''}
             onClose={() => setStep('token_detail_sheet')}
+            isDesktopInline
           />
-        )}
-      </AnimatePresence>
+        );
+      case 'receive_sheet':
+        return (
+          <div className="w-full h-full rounded-3xl border border-white/5 bg-zinc-950 shadow-2xl flex flex-col">
+            <div className="p-6 border-b border-white/10"><h2 className="text-xl font-bold">Получить средства</h2></div>
+            <div className="flex-1 overflow-y-auto"><ReceiveSheet address={address || ''} /></div>
+          </div>
+        );
+      case 'send_form':
+        return (
+          <div className="w-full h-full rounded-3xl border border-white/5 bg-zinc-950 shadow-2xl flex flex-col">
+            <div className="flex-1 overflow-y-auto"><SendForm balanceGRAM={balanceGRAM} balanceUSDT={balanceUSDT} onCancel={() => setStep('dashboard')} onSend={handleSendInit} initialCurrency={selectedAsset} /></div>
+          </div>
+        );
+      case 'send_pin':
+        return (
+          <div className="w-full h-full rounded-3xl border border-white/5 bg-zinc-950 shadow-2xl flex flex-col justify-center">
+            <PinPad title="Подтвердите транзакцию" subtitle={`Отправка ${sendData?.amount} ${sendData?.currency} на ${sendData?.address?.slice(0, 6)}...`} onComplete={handleSendConfirm} error={pinError} />
+          </div>
+        );
+      case 'sending':
+        return (
+          <div className="w-full h-full rounded-3xl border border-white/5 bg-zinc-950 shadow-2xl flex flex-col items-center justify-center">
+            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-zinc-400 font-medium">Отправляем транзакцию...</p>
+            <p className="text-xs text-zinc-600 mt-2">Связываемся с сетью The Open Network</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={`relative w-full ${isDesktopSplit ? 'h-[calc(100vh-120px)] min-h-[500px]' : 'min-h-[100dvh] md:max-w-md md:mx-auto md:mt-8 px-4 md:px-0 overflow-hidden'}`}>
+      {isDesktopSplit ? (
+        <div className="w-full h-full grid grid-cols-12 gap-6">
+          <div className="col-span-5 flex flex-col h-full bg-black/40 backdrop-blur-3xl rounded-3xl border border-white/10 shadow-2xl overflow-y-auto custom-scrollbar relative">
+             <div className="p-2 h-full flex flex-col relative z-10">
+               <Dashboard 
+                 key="dashboard_desktop" 
+                 onSendClick={() => setStep('send_form')} 
+                 onReceiveClick={() => setStep('receive_sheet')}
+                 onSettingsClick={() => setStep('settings_sheet')}
+                 onAssetClick={handleAssetClick}
+                 currentTonPrice={currentTonPrice}
+               />
+             </div>
+             {/* Красивый glow эффект под дашбордом */}
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-blue-500/20 blur-[100px] pointer-events-none rounded-full" />
+          </div>
+          <div className="col-span-7 flex flex-col h-full">
+            <AnimatePresence mode="wait">
+              {renderRightPane()}
+            </AnimatePresence>
+          </div>
+        </div>
+      ) : (
+        <>
+          <AnimatePresence mode="wait">
+            {step === 'onboarding' && (
+              <Onboarding key="onboarding" onCreate={handleCreateNew} onImport={() => setStep('import_seed')} />
+            )}
+            
+            {step === 'import_seed' && (
+              <SeedImport key="import_seed" onBack={() => setStep('onboarding')} onSuccess={handleImportSuccess} />
+            )}
+            
+            {step === 'generating' && (
+              <div key="generating" className="flex flex-col items-center justify-center min-h-[60vh]">
+                <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-zinc-400 font-medium">Создаем безопасный кошелек...</p>
+                <p className="text-xs text-zinc-600 mt-2">Генерация ключей на устройстве</p>
+              </div>
+            )}
+
+            {step === 'sending' && (
+              <div key="sending" className="flex flex-col items-center justify-center min-h-[60vh]">
+                <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-zinc-400 font-medium">Отправляем транзакцию...</p>
+                <p className="text-xs text-zinc-600 mt-2">Связываемся с сетью The Open Network</p>
+              </div>
+            )}
+
+            {step === 'backup' && (
+              <SeedBackup key="backup" mnemonic={tempMnemonic} onConfirm={() => setStep('pin_setup')} />
+            )}
+
+            {step === 'pin_setup' && (
+              <PinPad key="pin_setup" title="Придумайте PIN-код" subtitle="Он потребуется для подтверждения транзакций" onComplete={handlePinSetup} error={pinError} />
+            )}
+
+            {step === 'pin_confirm' && (
+              <PinPad key="pin_confirm" title="Повторите PIN-код" subtitle="Убедитесь, что вы его запомнили" onComplete={handlePinConfirm} />
+            )}
+
+            {['dashboard', 'send_form', 'send_pin', 'receive_sheet', 'settings_sheet', 'token_detail_sheet', 'token_receive_sheet'].includes(step) && (
+              <Dashboard 
+                key="dashboard" 
+                onSendClick={() => setStep('send_form')} 
+                onReceiveClick={() => setStep('receive_sheet')}
+                onSettingsClick={() => setStep('settings_sheet')}
+                onAssetClick={handleAssetClick}
+                currentTonPrice={currentTonPrice}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* BOTTOM SHEETS FOR MOBILE */}
+          {!isDesktop && (
+            <>
+              <BottomSheet isOpen={step === 'receive_sheet'} onClose={() => setStep('dashboard')} title="Получить средства">
+                <ReceiveSheet address={address || ''} />
+              </BottomSheet>
+
+              <BottomSheet isOpen={step === 'send_form'} onClose={() => setStep('dashboard')}>
+                <SendForm balanceGRAM={balanceGRAM} balanceUSDT={balanceUSDT} onCancel={() => setStep('dashboard')} onSend={handleSendInit} initialCurrency={selectedAsset} />
+              </BottomSheet>
+
+              <BottomSheet isOpen={step === 'send_pin'} onClose={() => setStep('dashboard')}>
+                <div className="pt-4"><PinPad title="Подтвердите транзакцию" subtitle={`Отправка ${sendData?.amount} ${sendData?.currency} на ${sendData?.address?.slice(0, 6)}...`} onComplete={handleSendConfirm} error={pinError} /></div>
+              </BottomSheet>
+
+              <AnimatePresence>
+                {step === 'settings_sheet' && <SettingsScreen key="settings_screen" onClose={() => setStep('dashboard')} />}
+                {step === 'token_detail_sheet' && <TokenDetailScreen key="token_detail_screen" currency={selectedAsset} balance={selectedAsset === 'GRAM' ? balanceGRAM : balanceUSDT} address={address || ''} currentPrice={selectedAsset === 'GRAM' ? currentTonPrice : 1} onClose={() => setStep('dashboard')} onReceive={() => setStep('token_receive_sheet')} onSend={() => setStep('send_form')} />}
+                {step === 'token_receive_sheet' && <TokenReceiveScreen key="token_receive_screen" currency={selectedAsset} address={address || ''} onClose={() => setStep('token_detail_sheet')} />}
+              </AnimatePresence>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 };

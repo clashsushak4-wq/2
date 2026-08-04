@@ -37,11 +37,13 @@ export async function fetchBalances(address: string): Promise<Balances> {
   try {
     // 2. Получаем цену TON в USD через TonAPI
     const ratesRes = await axios.get(`${BASE_URL}/rates?tokens=ton&currencies=usd`);
-    if (ratesRes.data?.rates?.TON?.prices?.USD) {
-      currentPrice = ratesRes.data.rates.TON.prices.USD;
+    const rates = ratesRes.data?.rates;
+    if (rates) {
+      currentPrice = rates.TON?.prices?.USD || rates.ton?.prices?.USD || rates.toncoin?.prices?.USD || currentPrice;
     }
   } catch (error) {
     console.error("Failed to fetch TON price:", error);
+    throw new Error("Failed to fetch price");
   }
 
   try {
@@ -63,7 +65,7 @@ export async function fetchBalances(address: string): Promise<Balances> {
     }
   } catch (error) {
     console.error("Failed to fetch Jettons (maybe rate limited):", error);
-    // Игнорируем ошибку джеттонов, чтобы не стереть уже полученный TON баланс!
+    throw new Error("Failed to fetch jettons");
   }
 
   return { ton: tonBalance, usdt: usdtBalance, price: currentPrice };
@@ -123,6 +125,6 @@ export async function fetchHistory(address: string): Promise<TransactionEvent[]>
     return history;
   } catch (error) {
     console.error("Failed to fetch history:", error);
-    return [];
+    throw error;
   }
 }

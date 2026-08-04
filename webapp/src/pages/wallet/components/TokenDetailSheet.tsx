@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { History, ArrowDownLeft, ArrowUpRight, Plus, ArrowLeftRight, ChevronRight, ArrowUpFromLine, HeadphonesIcon } from 'lucide-react';
+import { History, ArrowDownLeft, ArrowUpRight, Plus, ArrowLeftRight, ChevronRight, ArrowUpFromLine } from 'lucide-react';
 import { fetchHistory, TransactionEvent } from '../../../utils/tonapi';
 import { useBackButton } from '../../../hooks';
 import { slideFromRight } from '../../../shared/animations';
@@ -13,9 +13,10 @@ interface TokenDetailScreenProps {
   onClose: () => void;
   onReceive: () => void;
   onSend: () => void;
+  isDesktopInline?: boolean;
 }
 
-export const TokenDetailScreen = ({ currency, balance, address, currentPrice, onClose, onReceive, onSend }: TokenDetailScreenProps) => {
+export const TokenDetailScreen = ({ currency, balance, address, currentPrice, onClose, onReceive, onSend, isDesktopInline }: TokenDetailScreenProps) => {
   const [history, setHistory] = useState<TransactionEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,7 +45,7 @@ export const TokenDetailScreen = ({ currency, balance, address, currentPrice, on
 
     const interval = setInterval(() => {
       loadData(false);
-    }, 10000);
+    }, 30000);
 
     return () => {
       isMounted = false;
@@ -61,36 +62,29 @@ export const TokenDetailScreen = ({ currency, balance, address, currentPrice, on
   const isGram = currency === 'GRAM';
   const themeColor = isGram ? 'from-[#0098EA]/30' : 'from-[#26A17B]/30';
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden md:bg-black/60 md:backdrop-blur-sm bg-black">
+  const content = (
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 md:relative md:inset-auto md:w-[480px] md:h-[85vh] md:rounded-3xl md:border md:border-zinc-800 md:shadow-2xl flex flex-col overflow-hidden bg-black md:bg-zinc-950"
+        className={isDesktopInline ? "w-full h-full rounded-3xl border border-white/5 bg-zinc-950 shadow-2xl flex flex-col overflow-hidden relative" : "absolute inset-0 md:relative md:inset-auto md:w-[480px] md:h-[85vh] md:rounded-3xl md:border md:border-zinc-800 md:shadow-2xl flex flex-col overflow-hidden bg-black md:bg-zinc-950"}
       >
-        {/* Градиентный фон сверху */}
-        <div className={`absolute top-0 left-0 right-0 h-96 bg-gradient-to-b ${themeColor} to-transparent pointer-events-none opacity-50`} />
 
         {/* Header */}
         <div className="relative z-10 px-4 flex items-center justify-between" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
           <div className="w-10" /> {/* Spacer for centering since back button is native */}
           <div className="flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full backdrop-blur-md">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${isGram ? 'bg-[#0098EA]' : 'bg-[#26A17B]'}`}>
+            <div className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden">
               {isGram ? (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2L2 12l10 10 10-10L12 2zm0 2.83L19.17 12 12 19.17 4.83 12 12 4.83z"/>
-                </svg>
+                <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg" alt="GRAM" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-white font-bold text-[10px]">₮</span>
+                <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg" alt="USDT" className="w-full h-full object-cover" />
               )}
             </div>
-            <span className="text-white font-medium">{currency === 'GRAM' ? 'Toncoin' : 'Tether'}</span>
+            <span className="text-white font-medium">{currency === 'GRAM' ? 'Gram' : 'Tether'}</span>
           </div>
-          <button className="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white">
-            <HeadphonesIcon size={22} />
-          </button>
+          <div className="w-10 h-10" /> {/* Spacer */}
         </div>
 
         {/* Balance */}
@@ -124,7 +118,7 @@ export const TokenDetailScreen = ({ currency, balance, address, currentPrice, on
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-4" style={{ paddingBottom: 'calc(80px + var(--safe-bottom, 0px))' }}>
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-8 space-y-4 custom-scrollbar" style={{ paddingBottom: 'calc(80px + var(--safe-bottom, 0px))' }}>
           
           {/* Chart Widget */}
           <div className="bg-[#1C1C1E] rounded-2xl p-4 flex items-center justify-between border border-white/5 relative overflow-hidden group cursor-pointer hover:bg-[#2C2C2E] transition-colors">
@@ -185,6 +179,15 @@ export const TokenDetailScreen = ({ currency, balance, address, currentPrice, on
           </div>
         </div>
       </motion.div>
+  );
+
+  if (isDesktopInline) {
+    return content;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden md:bg-black/60 md:backdrop-blur-sm bg-black">
+      {content}
     </div>
   );
 };

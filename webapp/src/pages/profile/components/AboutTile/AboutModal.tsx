@@ -6,26 +6,26 @@ import { useTranslation } from '../../../../i18n';
 
 interface AboutModalProps {
   onClose: () => void;
+  isDesktopInline?: boolean;
 }
 
-export const AboutModal = ({ onClose }: AboutModalProps) => {
+export const AboutModal = ({ onClose, isDesktopInline }: AboutModalProps) => {
   const { t } = useTranslation();
   useBackButton(onClose);
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+  const content = (
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 bg-black flex flex-col"
+        className={isDesktopInline ? "w-full h-full flex flex-col relative" : "absolute inset-0 bg-black flex flex-col"}
       >
-        <div className="bg-black px-4 pb-4" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
+        <div className="bg-transparent px-4 pb-4" style={{ paddingTop: isDesktopInline ? '24px' : 'calc(16px + var(--safe-top, 0px))' }}>
           <h3 className="text-2xl font-bold text-white">{t('profile.aboutModal.title')}</h3>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ paddingBottom: 'calc(80px + var(--safe-bottom, 0px))' }}>
+        <div className="flex-1 overflow-y-auto px-4 space-y-4" style={{ paddingBottom: isDesktopInline ? '24px' : 'calc(80px + var(--safe-bottom, 0px))' }}>
           {/* App Info */}
           <div className="bg-zinc-900 border-2 border-zinc-700 rounded-2xl p-5 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-white/5 to-transparent rounded-br-full pointer-events-none" />
@@ -89,6 +89,15 @@ export const AboutModal = ({ onClose }: AboutModalProps) => {
           </div>
         </div>
       </motion.div>
-    </div>
+  );
+
+  return (
+    <>
+      {isDesktopInline ? content : (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          {content}
+        </div>
+      )}
+    </>
   );
 };

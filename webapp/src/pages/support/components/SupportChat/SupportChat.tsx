@@ -8,9 +8,10 @@ import { useSupportTicket } from '../../hooks';
 
 interface SupportChatProps {
   onClose: () => void;
+  isDesktopInline?: boolean;
 }
 
-export const SupportChat = ({ onClose }: SupportChatProps) => {
+export const SupportChat = ({ onClose, isDesktopInline }: SupportChatProps) => {
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -56,18 +57,27 @@ export const SupportChat = ({ onClose }: SupportChatProps) => {
     { icon: File, label: t('support.file'), color: 'bg-white/90' },
   ];
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center md:bg-black/60 md:backdrop-blur-sm overflow-hidden">
+  const content = (
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 md:relative md:inset-auto md:w-[600px] md:h-[85vh] md:rounded-2xl md:border md:border-zinc-800 bg-black flex flex-col overflow-hidden md:shadow-2xl"
+        className={isDesktopInline ? "w-full h-full flex flex-col overflow-hidden relative" : "absolute inset-0 md:relative md:inset-auto md:w-[600px] md:h-[85vh] md:rounded-2xl md:border md:border-zinc-800 bg-black flex flex-col overflow-hidden md:shadow-2xl"}
       >
         {/* Header */}
-        <div className="bg-black px-4 pb-4 flex items-center justify-center border-b border-zinc-800" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
-          {!showCloseConfirm ? (
+        <div className={isDesktopInline ? "bg-transparent px-4 pb-4 pt-6 flex items-center justify-between border-b border-white/5" : "bg-black px-4 pb-4 flex items-center justify-center border-b border-zinc-800"} style={!isDesktopInline ? { paddingTop: 'calc(16px + var(--safe-top, 0px))' } : {}}>
+          {isDesktopInline ? (
+            <>
+              <div>
+                <h3 className="text-xl font-bold text-white">Чат с поддержкой</h3>
+                <p className="text-xs text-zinc-500 mt-1">Обычно отвечаем за 5 минут</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center animate-pulse">
+                <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+              </div>
+            </>
+          ) : !showCloseConfirm ? (
             <button
               onClick={() => setShowCloseConfirm(true)}
               className={`h-9 px-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/20 transition-colors ${TAP_BUTTON}`}
@@ -134,7 +144,7 @@ export const SupportChat = ({ onClose }: SupportChatProps) => {
         </div>
 
         {/* Input */}
-        <div className="bg-black px-4 pt-4 relative border-t border-zinc-800" style={{ paddingBottom: 'calc(16px + var(--safe-bottom, 0px))' }}>
+        <div className={isDesktopInline ? "bg-transparent px-4 pt-4 pb-4 relative border-t border-white/5" : "bg-black px-4 pt-4 relative border-t border-zinc-800"} style={!isDesktopInline ? { paddingBottom: 'calc(16px + var(--safe-bottom, 0px))' } : {}}>
           {/* Attach Menu */}
           <AnimatePresence>
             {showAttachMenu && (
@@ -191,6 +201,15 @@ export const SupportChat = ({ onClose }: SupportChatProps) => {
           </div>
         </div>
       </motion.div>
-    </div>
+  );
+
+  return (
+    <>
+      {isDesktopInline ? content : (
+        <div className="fixed inset-0 z-50 flex items-center justify-center md:bg-black/60 md:backdrop-blur-sm overflow-hidden">
+          {content}
+        </div>
+      )}
+    </>
   );
 };

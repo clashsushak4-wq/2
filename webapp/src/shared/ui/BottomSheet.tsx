@@ -68,7 +68,7 @@ export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetPro
             )}
 
             {/* Контент с прокруткой */}
-            <div className={`overflow-y-auto px-6 pb-8 custom-scrollbar ${isDesktop && !title ? 'pt-6' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto px-6 pb-8 custom-scrollbar ${isDesktop && !title ? 'pt-6' : ''}`}>
               {children}
             </div>
           </motion.div>

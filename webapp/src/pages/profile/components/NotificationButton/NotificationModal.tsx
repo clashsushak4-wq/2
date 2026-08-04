@@ -7,22 +7,22 @@ import { useTranslation } from '../../../../i18n';
 
 interface NotificationModalProps {
   onClose: () => void;
+  isDesktopInline?: boolean;
 }
 
-export const NotificationModal = ({ onClose }: NotificationModalProps) => {
+export const NotificationModal = ({ onClose, isDesktopInline }: NotificationModalProps) => {
   const { t } = useTranslation();
   useBackButton(onClose);
 
-  const modalContent = (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+  const content = (
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 bg-black flex flex-col"
+        className={isDesktopInline ? "w-full h-full flex flex-col relative" : "absolute inset-0 bg-black flex flex-col"}
       >
-        <div className="bg-black px-4 pb-4 flex justify-between items-center" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
+        <div className="bg-transparent px-4 pb-4 flex justify-between items-center border-b border-white/5" style={{ paddingTop: isDesktopInline ? '24px' : 'calc(16px + var(--safe-top, 0px))' }}>
           <h3 className="text-2xl font-bold text-white">{t('profile.notifications.title')}</h3>
           <button className="text-xs text-zinc-400 hover:text-white transition-colors">
             {t('profile.notifications.readAll')}
@@ -36,9 +36,16 @@ export const NotificationModal = ({ onClose }: NotificationModalProps) => {
           </div>
         </div>
       </motion.div>
-    </div>
   );
 
+  if (isDesktopInline) {
+    return <>{content}</>;
+  }
+
   const portalRoot = document.getElementById('modal-root') ?? document.body;
-  return createPortal(modalContent, portalRoot);
+  return createPortal(
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {content}
+    </div>
+  , portalRoot);
 };

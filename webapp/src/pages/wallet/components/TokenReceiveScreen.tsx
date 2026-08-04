@@ -9,9 +9,10 @@ interface TokenReceiveScreenProps {
   currency: 'GRAM' | 'USDT';
   address: string;
   onClose: () => void;
+  isDesktopInline?: boolean;
 }
 
-export const TokenReceiveScreen = ({ currency, address, onClose }: TokenReceiveScreenProps) => {
+export const TokenReceiveScreen = ({ currency, address, onClose, isDesktopInline }: TokenReceiveScreenProps) => {
   const [copied, setCopied] = useState(false);
   useBackButton(onClose);
 
@@ -35,32 +36,29 @@ export const TokenReceiveScreen = ({ currency, address, onClose }: TokenReceiveS
 
   const isGram = currency === 'GRAM';
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden md:bg-black/60 md:backdrop-blur-sm bg-black">
+  const content = (
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 md:relative md:inset-auto md:w-[480px] md:h-[85vh] md:rounded-3xl md:border md:border-zinc-800 md:shadow-2xl flex flex-col overflow-hidden bg-black md:bg-zinc-950"
+        className={isDesktopInline ? "w-full h-full rounded-3xl border border-white/5 bg-zinc-950 shadow-2xl flex flex-col overflow-hidden relative" : "absolute inset-0 md:relative md:inset-auto md:w-[480px] md:h-[85vh] md:rounded-3xl md:border md:border-zinc-800 md:shadow-2xl flex flex-col overflow-hidden bg-black md:bg-zinc-950"}
       >
         {/* Header */}
         <div className="relative z-10 px-4 flex items-center justify-center pb-4 border-b border-white/10" style={{ paddingTop: 'calc(16px + var(--safe-top, 0px))' }}>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isGram ? 'bg-[#0098EA]' : 'bg-[#26A17B]'}`}>
+          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            Пополнить {currency === 'GRAM' ? 'Gram' : 'Tether'}
+            <div className="w-6 h-6 rounded-full flex items-center justify-center overflow-hidden">
               {isGram ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2L2 12l10 10 10-10L12 2zm0 2.83L19.17 12 12 19.17 4.83 12 12 4.83z"/>
-                </svg>
+                <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg" alt="GRAM" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-white font-bold text-sm">₮</span>
+                <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg" alt="USDT" className="w-full h-full object-cover" />
               )}
             </div>
-            Получить
           </h1>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col items-center" style={{ paddingBottom: 'calc(80px + var(--safe-bottom, 0px))' }}>
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 py-6 flex flex-col items-center custom-scrollbar" style={{ paddingBottom: 'calc(80px + var(--safe-bottom, 0px))' }}>
           
           {/* Main Card */}
           <div className="bg-[#1C1C1E] w-full rounded-3xl p-6 flex flex-col items-center border border-white/5 relative overflow-hidden">
@@ -127,6 +125,15 @@ export const TokenReceiveScreen = ({ currency, address, onClose }: TokenReceiveS
           </button>
         </div>
       </motion.div>
+  );
+
+  if (isDesktopInline) {
+    return content;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden md:bg-black/60 md:backdrop-blur-sm bg-black">
+      {content}
     </div>
   );
 };
