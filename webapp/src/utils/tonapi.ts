@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { Address } from '@ton/core';
 
 // Используем публичный эндпоинт TonAPI
@@ -11,6 +10,23 @@ export interface Balances {
   ton: string;
   usdt: string;
   price: number;
+}
+
+// Вспомогательная функция для native fetch, так как axios может нестабильно работать в WebView TMA
+async function fetchApi(url: string) {
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    return await response.json();
+  } catch (err) {
+    console.error(`Fetch API Error for ${url}:`, err);
+    throw err;
+  }
 }
 
 /**
@@ -26,30 +42,28 @@ export async function fetchBalances(address: string): Promise<Balances> {
 
   try {
     // 1. Получаем GRAM баланс
-    const accountRes = await axios.get(`${BASE_URL}/accounts/${address}`);
-    const tonBalanceNano = accountRes.data.balance || 0;
+    const accountData = await fetchApi(`${BASE_URL}/accounts/${address}`);
+    const tonBalanceNano = accountData.balance || 0;
     tonBalance = (tonBalanceNano / 1e9).toFixed(2);
   } catch (error) {
     console.error("Failed to fetch TON balance:", error);
-    throw new Error("Failed to fetch primary balance");
   }
 
   try {
     // 2. Получаем цену TON в USD через TonAPI
-    const ratesRes = await axios.get(`${BASE_URL}/rates?tokens=ton&currencies=usd`);
-    const rates = ratesRes.data?.rates;
+    const ratesData = await fetchApi(`${BASE_URL}/rates?tokens=ton&currencies=usd`);
+    const rates = ratesData?.rates;
     if (rates) {
       currentPrice = rates.TON?.prices?.USD || rates.ton?.prices?.USD || rates.toncoin?.prices?.USD || currentPrice;
     }
   } catch (error) {
     console.error("Failed to fetch TON price:", error);
-    throw new Error("Failed to fetch price");
   }
 
   try {
     // 3. Получаем балансы всех Jettons (ищем USDT)
-    const jettonsRes = await axios.get(`${BASE_URL}/accounts/${address}/jettons`);
-    const jettons = jettonsRes.data.balances || [];
+    const jettonsData = await fetchApi(`${BASE_URL}/accounts/${address}/jettons`);
+    const jettons = jettonsData.balances || [];
     
     const usdtJetton = jettons.find((j: any) => {
       try {
@@ -65,7 +79,6 @@ export async function fetchBalances(address: string): Promise<Balances> {
     }
   } catch (error) {
     console.error("Failed to fetch Jettons (maybe rate limited):", error);
-    throw new Error("Failed to fetch jettons");
   }
 
   return { ton: tonBalance, usdt: usdtBalance, price: currentPrice };
@@ -87,15 +100,33 @@ export async function fetchHistory(address: string): Promise<TransactionEvent[]>
 
   try {
     // Получаем последние 20 событий
-    const res = await axios.get(`${BASE_URL}/accounts/${address}/events?limit=20`);
-    const events = res.data.events || [];
+    const data = await fetchApi(`${BASE_URL}/accounts/${address}/events?limit=20`);
+    const events = data.events || [];
 
     const history: TransactionEvent[] = [];
+    let myAddressParsed: Address | null = null;
+    
+    try {
+      myAddressParsed = Address.parse(address);
+    } catch (e) {
+      console.error("Invalid local address format", e);
+    }
 
     events.forEach((event: any) => {
       event.actions.forEach((action: any) => {
         if (action.type === 'TonTransfer') {
-          const isSender = action.TonTransfer?.sender?.address === address;
+          let isSender = false;
+          try {
+            if (myAddressParsed && action.TonTransfer?.sender?.address) {
+              const senderAddr = Address.parse(action.TonTransfer.sender.address);
+              isSender = senderAddr.equals(myAddressParsed);
+            } else {
+               isSender = action.TonTransfer?.sender?.address === address;
+            }
+          } catch(e) {
+            isSender = action.TonTransfer?.sender?.address === address;
+          }
+
           history.push({
             id: event.event_id,
             type: isSender ? 'send' : 'receive',
@@ -106,7 +137,16 @@ export async function fetchHistory(address: string): Promise<TransactionEvent[]>
         } else if (action.type === 'JettonTransfer') {
           try {
             if (Address.parse(action.JettonTransfer?.jetton?.address).equals(usdtMasterAddress)) {
-              const isSender = Address.parse(action.JettonTransfer?.sender?.address).equals(Address.parse(address));
+              let isSender = false;
+              try {
+                if (myAddressParsed && action.JettonTransfer?.sender?.address) {
+                  const senderAddr = Address.parse(action.JettonTransfer.sender.address);
+                  isSender = senderAddr.equals(myAddressParsed);
+                }
+              } catch(e) {
+                isSender = action.JettonTransfer?.sender?.address === address;
+              }
+              
               history.push({
                 id: event.event_id,
                 type: isSender ? 'send' : 'receive',
