@@ -4,7 +4,7 @@
   "btn_change_password": "Змінити пароль",
   "btn_logout_all": "Завершити всі сесії",
   "btn_sessions": "Активні сесії",
-  "security_title_empty": "<tg-emoji emoji-id=\"6048537430036844009\">🔐</tg-emoji> <b>Безпека WebApp</b>\n\nПароль ще не встановлено.\nСтворіть його, щоб увійти у Mini App.\n\n<i>Довжина: 4–64 символи.</i>",
+  "security_title_empty": "<blockquote><tg-emoji emoji-id=\"6048537430036844009\">🔐</tg-emoji> <b>Безпека WebApp</b></blockquote>\n\nПароль ще не встановлено.\nСтворіть його, щоб увійти у Mini App.\n\n<i>Довжина: 4–64 символи.</i>",
   "security_title_set": "🔐 <b>Безпека WebApp</b>\n\nПароль встановлено <tg-emoji emoji-id=\"6008275560495582704\">✅</tg-emoji>\nВи можете змінити його або завершити всі активні сесії.",
   "security_set_ask": "<tg-emoji emoji-id=\"6010457897803189771\">✍️</tg-emoji> Введіть новий пароль (4–64 символи).\n\n<i>Повідомлення буде видалено автоматично.</i>",
   "security_set_confirm_ask": "<tg-emoji emoji-id=\"6012661228910939253\">🔁</tg-emoji> Повторіть пароль для підтвердження.",
@@ -23,9 +23,9 @@
   "security_no_password_yet": "Спочатку створіть пароль.",
   "security_session_expired": "<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> Сесія введення завершилася. Почніть знову.",
   "security_cancelled": "<tg-emoji emoji-id=\"5972201876773408053\">❎</tg-emoji> Дію скасовано.",
-  "security_logout_all_confirm": "<tg-emoji emoji-id=\"5971808079811972376\">🚪</tg-emoji> <b>Завершити усі WebApp сесії?</b>\n\nНа всіх пристроях доведеться увійти знову.",
+  "security_logout_all_confirm": "<blockquote><tg-emoji emoji-id=\"5971808079811972376\">🚪</tg-emoji> <b>Завершити усі WebApp сесії?</b></blockquote>\n\nНа всіх пристроях доведеться увійти знову.",
   "security_logout_all_done": "Усі WebApp сесії завершено.",
-  "security_sessions_title": "<tg-emoji emoji-id=\"5974054936118300076\">📋</tg-emoji> <b>Активні сесії WebApp</b>",
+  "security_sessions_title": "<blockquote><tg-emoji emoji-id=\"5974054936118300076\">📋</tg-emoji> <b>Активні сесії WebApp</b></blockquote>",
   "security_sessions_empty": "У вас немає активних сесій.",
   "security_sessions_item": "{icon} <b>{device}</b>\n   └ {time}"
 }

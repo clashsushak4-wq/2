@@ -21,26 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    with op.batch_alter_table("user_sessions") as batch_op:
-        batch_op.add_column(
-            sa.Column(
-                "created_at",
-                sa.DateTime(timezone=True),
-                server_default=sa.text("now()"),
-                nullable=False,
-            )
-        )
-        batch_op.add_column(
-            sa.Column(
-                "updated_at",
-                sa.DateTime(timezone=True),
-                server_default=sa.text("now()"),
-                nullable=False,
-            )
-        )
-
+    pass
 
 def downgrade() -> None:
-    with op.batch_alter_table("user_sessions") as batch_op:
-        batch_op.drop_column("updated_at")
-        batch_op.drop_column("created_at")
+    pass

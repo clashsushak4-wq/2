@@ -2,9 +2,9 @@
 
 from aiogram import Router
 
-from .panel import router as panel_router
+from .main import router as admin_main_router
 
 router = Router()
-router.include_router(panel_router)
+router.include_router(admin_main_router)
 
 __all__ = ["router"]

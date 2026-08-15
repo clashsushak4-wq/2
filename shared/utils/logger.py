@@ -48,15 +48,7 @@ def setup_logger(level: str = "INFO"):
         level=level,
     )
 
-    # Лог в файл
-    logger.add(
-        "logs/bot.log",
-        rotation="10 MB",
-        retention="1 week",
-        level="WARNING",
-        compression="zip",
-    )
-
+    # Лог в файл отключен (используются логи хостинга)
     # Bridge stdlib logging → loguru (единый вывод для всех зависимостей)
     logging.basicConfig(handlers=[_InterceptHandler()], level=0, force=True)
     for name in ("uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "aiogram", "aiohttp"):
