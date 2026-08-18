@@ -36,7 +36,7 @@ async def language_selected(callback: types.CallbackQuery, session: AsyncSession
     await state.set_state(OnboardingState.nickname_input)
     
     from bot.utils.media import edit_with_media
-    await edit_with_media(
+    msg = await edit_with_media(
         callback,
         session,
         media_key="nickname_create",
@@ -44,4 +44,7 @@ async def language_selected(callback: types.CallbackQuery, session: AsyncSession
     )
     
     # Сохраняем ID сообщения для редактирования при вводе ника
-    await state.update_data(onboarding_msg_id=callback.message.message_id)
+    if msg:
+        await state.update_data(onboarding_msg_id=msg.message_id)
+    else:
+        await state.update_data(onboarding_msg_id=callback.message.message_id)

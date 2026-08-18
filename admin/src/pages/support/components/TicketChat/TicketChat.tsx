@@ -5,6 +5,7 @@ import type { SupportTicketDetail, TicketMessage } from '../../../../api/client'
 import { useToastStore } from '../../../../shared/ui';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
+import { getApiError } from '../../../../shared/utils';
 
 interface TicketChatProps {
   ticketId: number;
@@ -30,7 +31,7 @@ export const TicketChat = ({ ticketId, onTicketUpdated }: TicketChatProps) => {
       setTicket(data);
     } catch (e: any) {
       if (signal?.aborted) return;
-      toast(e?.message || 'Ошибка загрузки тикета', 'error');
+      toast(getApiError(e, 'Ошибка загрузки тикета'), 'error');
     } finally {
       if (!signal?.aborted) setIsLoading(false);
     }
@@ -56,13 +57,15 @@ export const TicketChat = ({ ticketId, onTicketUpdated }: TicketChatProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [ticket?.messages?.length]);
 
-  const handleSend = async (text: string) => {
+  const handleSend = async (text: string): Promise<boolean> => {
     try {
       const newMsg: TicketMessage = await api.support.sendMessage(ticketId, text);
       setTicket((prev) => (prev ? { ...prev, messages: [...prev.messages, newMsg] } : prev));
       onTicketUpdated();
+      return true;
     } catch (e: any) {
-      toast(e?.message || 'Не удалось отправить', 'error');
+      toast(getApiError(e, 'Не удалось отправить'), 'error');
+      return false;
     }
   };
 
@@ -75,7 +78,7 @@ export const TicketChat = ({ ticketId, onTicketUpdated }: TicketChatProps) => {
       onTicketUpdated();
       await fetchTicket();
     } catch (e: any) {
-      toast(e?.message || 'Не удалось принять тикет', 'error');
+      toast(getApiError(e, 'Не удалось принять тикет'), 'error');
     } finally {
       setIsAccepting(false);
     }
@@ -90,7 +93,7 @@ export const TicketChat = ({ ticketId, onTicketUpdated }: TicketChatProps) => {
       onTicketUpdated();
       await fetchTicket();
     } catch (e: any) {
-      toast(e?.message || 'Не удалось закрыть тикет', 'error');
+      toast(getApiError(e, 'Не удалось закрыть тикет'), 'error');
     } finally {
       setIsClosing(false);
     }

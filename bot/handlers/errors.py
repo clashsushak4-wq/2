@@ -48,6 +48,8 @@ def register_error_handler(dp: Dispatcher, bot: Bot) -> None:
             tg_user = event.update.callback_query.from_user
         if tg_user and tg_user.language_code:
             code = tg_user.language_code[:2]
+            if code == "uk":
+                code = "ua"
             if code in ("ru", "en", "ua", "tr"):
                 user_lang = code
 

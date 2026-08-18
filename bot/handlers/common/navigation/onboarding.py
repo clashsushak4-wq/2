@@ -15,6 +15,6 @@ async def _route_to_onboarding(message: types.Message, session: AsyncSession, _:
         message,
         session,
         media_key="onboarding_welcome",
-        text=i18n.get("welcome_select_language", lang="ru"),
+        text=f'{i18n.get("welcome_select_language", lang="ru")}\n\n{i18n.get("welcome_select_language", lang="en")}',
         reply_markup=language_inline_kb(_, show_back=False),
     )

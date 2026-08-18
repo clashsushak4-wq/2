@@ -1,4 +1,4 @@
-﻿# handlers/profile/settings/language/change.py
+# handlers/profile/settings/language/change.py
 from typing import Callable
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
@@ -10,7 +10,8 @@ from bot.states import ProfileState
 from shared.database.repo.users import UserRepo
 from shared.utils.cache import set_user_lang
 from shared.utils.i18n import i18n
-from .helpers import get_lang_name, _edit_message
+from bot.utils.media import edit_with_media
+from .helpers import get_lang_name
 
 router = Router()
 
@@ -25,10 +26,12 @@ async def ask_confirm(callback: types.CallbackQuery, session: AsyncSession, _: C
         return
         
     target_lang_name = get_lang_name(target_lang_code, _)
-    await _edit_message(
+    await edit_with_media(
         callback,
-        _("ask_confirm_change", target_lang=target_lang_name),
-        language_confirm_kb(_, target_lang_code),
+        session,
+        media_key="settings_main",
+        text=_("ask_confirm_change", target_lang=target_lang_name),
+        reply_markup=language_confirm_kb(_, target_lang_code),
     )
     await callback.answer()
 
@@ -42,10 +45,12 @@ async def cancel_change(
     user = await repo.get_user(callback.from_user.id)
     current_lang = user.language if user else "ru"
 
-    await _edit_message(
+    await edit_with_media(
         callback,
-        _("language_title", named_lang=get_lang_name(current_lang, _)),
-        language_inline_kb(_),
+        session,
+        media_key="settings_main",
+        text=_("language_title", named_lang=get_lang_name(current_lang, _)),
+        reply_markup=language_inline_kb(_),
     )
     await callback.answer(_("btn_back"))
 
@@ -72,12 +77,10 @@ async def confirm_change(
     await callback.answer(new_i18n("lang_selected", named_lang=target_lang_name))
 
     await state.set_state(ProfileState.settings)
-    await _edit_message(
+    await edit_with_media(
         callback,
-        new_i18n("settings_title"),
-        settings_inline_kb(new_i18n),
-    )
-    await callback.message.answer(
-        new_i18n("lang_changed_success", named_lang=target_lang_name),
-        reply_markup=main_menu_kb(new_i18n, callback.from_user.id, is_admin=is_admin),
+        session,
+        media_key="settings_main",
+        text=new_i18n("settings_title"),
+        reply_markup=settings_inline_kb(new_i18n),
     )

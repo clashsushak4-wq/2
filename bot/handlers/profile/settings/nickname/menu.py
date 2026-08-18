@@ -1,4 +1,4 @@
-﻿# handlers/profile/settings/nickname/menu.py
+# handlers/profile/settings/nickname/menu.py
 import logging
 from datetime import datetime, timezone
 from typing import Callable
@@ -8,6 +8,7 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.keyboards.profile import change_nick_start_kb, cancel_nick_change_kb
+from bot.utils.media import edit_with_media
 from bot.states import ProfileState
 from shared.constants import NICKNAME_CHANGE_COOLDOWN_DAYS
 from shared.database.repo.users import UserRepo
@@ -15,11 +16,6 @@ from shared.database.repo.users import UserRepo
 logger = logging.getLogger(__name__)
 router = Router()
 
-async def _edit_message(callback: types.CallbackQuery, text: str, kb) -> None:
-    if callback.message.photo:
-        await callback.message.edit_caption(caption=text, reply_markup=kb)
-    else:
-        await callback.message.edit_text(text=text, reply_markup=kb)
 
 @router.callback_query(F.data == "profile:nickname")
 async def show_nick_info(
@@ -41,10 +37,12 @@ async def show_nick_info(
 
     nickname = user.nickname if user else "—"
 
-    await _edit_message(
+    await edit_with_media(
         callback,
-        _("nick_info_title", nickname=nickname, date=date_str),
-        change_nick_start_kb(_),
+        session,
+        media_key="settings_main",
+        text=_("nick_info_title", nickname=nickname, date=date_str),
+        reply_markup=change_nick_start_kb(_),
     )
     await callback.answer()
 
@@ -75,6 +73,12 @@ async def start_change_nick(
             return
 
     await state.set_state(ProfileState.nick_change_input)
-    await callback.message.delete()
-    await callback.message.answer(_("nick_change_ask"), reply_markup=cancel_nick_change_kb(_))
+    await state.update_data(settings_msg_id=callback.message.message_id)
+    await edit_with_media(
+        callback,
+        session,
+        media_key="settings_main",
+        text=_("nick_change_ask"),
+        reply_markup=cancel_nick_change_kb(_),
+    )
     await callback.answer()

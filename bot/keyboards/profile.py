@@ -177,11 +177,11 @@ def notifications_kb(_: Callable, is_enabled: bool) -> InlineKeyboardMarkup:
     if is_enabled:
         text = _("btn_toggle_off")
         data = "notif_disable"
-        emoji_id = "5974565736578813237"
+        emoji_id = safe_emoji(_("btn_toggle_off_emoji"))
     else:
         text = _("btn_toggle_on")
         data = "notif_enable"
-        emoji_id = "5974076810386738645"
+        emoji_id = safe_emoji(_("btn_toggle_on_emoji"))
     builder.button(text=text, callback_data=data, icon_custom_emoji_id=emoji_id)
     builder.button(text=_("btn_back"), callback_data="profile:back_to_settings", icon_custom_emoji_id=safe_emoji(_("btn_back_emoji")))
     builder.adjust(1)

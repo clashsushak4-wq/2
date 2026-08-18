@@ -1,4 +1,4 @@
-﻿# handlers/profile/settings/nickname/change.py
+# handlers/profile/settings/nickname/change.py
 import logging
 import re
 from typing import Callable
@@ -7,10 +7,12 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.profile import confirm_nick_kb, settings_inline_kb
+from bot.keyboards.profile import confirm_nick_kb, settings_inline_kb, cancel_nick_change_kb
 from bot.states import ProfileState
 from shared.constants import NICKNAME_PATTERN
 from shared.database.repo.users import UserRepo
+from bot.utils.media import edit_message_with_media, edit_with_media
+from bot.handlers.profile.settings.security.helpers import safe_delete
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -24,23 +26,42 @@ async def process_new_nick(
     state: FSMContext,
 ):
     nickname = message.text.strip() if message.text else ""
+    await safe_delete(message)
+    
+    data = await state.get_data()
+    settings_msg_id = data.get("settings_msg_id")
+
     if not NICK_REGEX.match(nickname):
-        await message.answer(_("nick_invalid_format"))
+        if settings_msg_id:
+            await edit_message_with_media(
+                bot=message.bot, chat_id=message.chat.id, message_id=settings_msg_id,
+                session=session, media_key="settings_main",
+                text=_("nick_invalid_format"), reply_markup=cancel_nick_change_kb(_)
+            )
         return
 
     repo = UserRepo(session)
     is_taken = await repo.is_nickname_taken(nickname)
     if is_taken:
-        await message.answer(_("nick_taken", nickname=nickname))
+        if settings_msg_id:
+            await edit_message_with_media(
+                bot=message.bot, chat_id=message.chat.id, message_id=settings_msg_id,
+                session=session, media_key="settings_main",
+                text=_("nick_taken", nickname=nickname), reply_markup=cancel_nick_change_kb(_)
+            )
         return
 
     await state.update_data(new_nick=nickname)
     await state.set_state(ProfileState.nick_change_confirm)
 
-    await message.answer(
-        text=_("nick_change_confirm", nickname=nickname),
-        reply_markup=confirm_nick_kb(_),
-    )
+    if settings_msg_id:
+        await edit_message_with_media(
+            bot=message.bot, chat_id=message.chat.id, message_id=settings_msg_id,
+            session=session, media_key="settings_main",
+            text=_("nick_change_confirm", nickname=nickname),
+            reply_markup=confirm_nick_kb(_),
+        )
+
 
 @router.callback_query(F.data == "confirm_new_nick", ProfileState.nick_change_confirm)
 async def confirm_change(
@@ -61,26 +82,27 @@ async def confirm_change(
         f"old_nick={old_nick}, new_nick={new_nick}"
     )
 
-    await callback.message.edit_text(
+    await edit_with_media(
+        callback, session,
+        media_key="settings_main",
         text=_("nick_change_success", nickname=new_nick),
         reply_markup=settings_inline_kb(_),
     )
     await state.set_state(ProfileState.settings)
     await callback.answer()
 
+
 @router.callback_query(F.data == "cancel_change_nick")
 async def cancel_change(
     callback: types.CallbackQuery,
+    session: AsyncSession,
     _: Callable,
     state: FSMContext,
 ):
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
-        
     await state.set_state(ProfileState.settings)
-    await callback.message.answer(
+    await edit_with_media(
+        callback, session,
+        media_key="settings_main",
         text=_("settings_title"),
         reply_markup=settings_inline_kb(_),
     )

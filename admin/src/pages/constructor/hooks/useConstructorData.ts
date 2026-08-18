@@ -3,6 +3,7 @@ import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { api } from '../../../api/client';
 import type { HomeTile, HomeTileCreate, HomeTileUpdate } from '../../../api/client';
 import { useToastStore } from '../../../shared/ui';
+import { getApiError } from '../../../shared/utils';
 
 export const useConstructorData = () => {
   const [tiles, setTiles] = useState<HomeTile[]>([]);
@@ -28,7 +29,7 @@ export const useConstructorData = () => {
       setTiles(data);
       serverTiles.current = data;
     } catch (e: any) {
-      toast(e?.message || 'Ошибка загрузки', 'error');
+      toast(getApiError(e, 'Ошибка загрузки'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +79,7 @@ export const useConstructorData = () => {
       toast('Все изменения сохранены');
       await loadTiles();
     } catch (e: any) {
-      toast(e?.message || 'Ошибка сохранения', 'error');
+      toast(getApiError(e, 'Ошибка сохранения'), 'error');
     } finally {
       setIsSaving(false);
     }
@@ -96,7 +97,7 @@ export const useConstructorData = () => {
       await loadTiles();
       return true;
     } catch (e: any) {
-      toast(e?.message || 'Ошибка создания', 'error');
+      toast(getApiError(e, 'Ошибка создания'), 'error');
       return false;
     }
   };
@@ -108,7 +109,7 @@ export const useConstructorData = () => {
       await loadTiles();
       return true;
     } catch (e: any) {
-      toast(e?.message || 'Ошибка обновления', 'error');
+      toast(getApiError(e, 'Ошибка обновления'), 'error');
       return false;
     }
   };
@@ -120,7 +121,7 @@ export const useConstructorData = () => {
       await loadTiles();
       return true;
     } catch (e: any) {
-      toast(e?.message || 'Ошибка удаления', 'error');
+      toast(getApiError(e, 'Ошибка удаления'), 'error');
       return false;
     }
   };
@@ -137,7 +138,7 @@ export const useConstructorData = () => {
       toast('Тайл дублирован', 'info');
       await loadTiles();
     } catch (e: any) {
-      toast(e?.message || 'Ошибка дублирования', 'error');
+      toast(getApiError(e, 'Ошибка дублирования'), 'error');
     }
   };
 

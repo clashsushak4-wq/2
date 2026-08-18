@@ -4,6 +4,7 @@ import type { Area } from 'react-easy-crop';
 import { motion } from 'framer-motion';
 import { X, Upload, Loader2, Image as ImageIcon, Film } from 'lucide-react';
 import { api } from '../../../../api/client';
+import { getApiError } from '../../../../shared/utils';
 
 interface ImageCropModalProps {
   aspect: number;
@@ -69,7 +70,7 @@ export const ImageCropModal = ({ aspect, onComplete, onClose }: ImageCropModalPr
       const { url } = await api.uploads.upload(file, file.name);
       onComplete(url);
     } catch (e: any) {
-      setError(e?.message || 'Ошибка загрузки');
+      setError(getApiError(e, 'Ошибка загрузки'));
     } finally {
       setIsUploading(false);
     }
@@ -88,7 +89,7 @@ export const ImageCropModal = ({ aspect, onComplete, onClose }: ImageCropModalPr
       const { url } = await api.uploads.upload(blob, 'tile-bg.webp');
       onComplete(url);
     } catch (e: any) {
-      setError(e?.message || 'Ошибка загрузки');
+      setError(getApiError(e, 'Ошибка загрузки'));
     } finally {
       setIsUploading(false);
     }

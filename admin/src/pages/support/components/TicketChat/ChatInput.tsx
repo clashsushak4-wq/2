@@ -3,7 +3,7 @@ import { Send, Loader2 } from 'lucide-react';
 
 interface ChatInputProps {
   disabled?: boolean;
-  onSend: (text: string) => Promise<void>;
+  onSend: (text: string) => Promise<boolean>;
 }
 
 export const ChatInput = ({ disabled, onSend }: ChatInputProps) => {
@@ -15,8 +15,10 @@ export const ChatInput = ({ disabled, onSend }: ChatInputProps) => {
     if (!text || disabled || isSending) return;
     setIsSending(true);
     try {
-      await onSend(text);
-      setValue('');
+      const success = await onSend(text);
+      if (success) {
+        setValue('');
+      }
     } finally {
       setIsSending(false);
     }

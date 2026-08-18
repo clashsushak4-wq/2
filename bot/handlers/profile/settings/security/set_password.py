@@ -1,4 +1,4 @@
-﻿# handlers/profile/settings/security/set_password.py
+# handlers/profile/settings/security/set_password.py
 """Создание пароля WebApp (когда у пользователя его ещё нет).
 
 Поток FSM:
@@ -21,7 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.keyboards.profile import security_cancel_kb, security_inline_kb
 from bot.states import ProfileState
-from bot.utils.media import edit_with_media
+from bot.utils.media import edit_with_media, edit_message_with_media
 from shared.database.repo.sessions import SessionRepo
 from shared.database.repo.users import UserRepo
 from shared.utils.passwords import validate_password_format
@@ -45,6 +45,7 @@ async def start_set_password(
         return
 
     await state.set_state(ProfileState.security_password_set_input)
+    await state.update_data(settings_msg_id=callback.message.message_id)
     await edit_with_media(
         callback,
         session,
@@ -58,23 +59,34 @@ async def start_set_password(
 @router.message(ProfileState.security_password_set_input)
 async def process_set_password_first(
     message: types.Message,
+    session: AsyncSession,
     _: Callable,
     state: FSMContext,
 ):
     password = message.text or ""
     await safe_delete(message)
+    settings_msg_id = (await state.get_data()).get("settings_msg_id")
 
     ok, error = validate_password_format(password)
     if not ok:
-        await message.answer(
-            password_invalid_text(_, error),
-            reply_markup=security_cancel_kb(_),
-        )
+        if settings_msg_id:
+            await edit_message_with_media(
+                bot=message.bot, chat_id=message.chat.id, message_id=settings_msg_id,
+                session=session, media_key="settings_main",
+                text=password_invalid_text(_, error),
+                reply_markup=security_cancel_kb(_),
+            )
         return
 
     await state.update_data(pending_password=password)
     await state.set_state(ProfileState.security_password_set_confirm)
-    await message.answer(_("security_set_confirm_ask"), reply_markup=security_cancel_kb(_))
+    if settings_msg_id:
+        await edit_message_with_media(
+            bot=message.bot, chat_id=message.chat.id, message_id=settings_msg_id,
+            session=session, media_key="settings_main",
+            text=_("security_set_confirm_ask"),
+            reply_markup=security_cancel_kb(_),
+        )
 
 
 @router.message(ProfileState.security_password_set_confirm)
@@ -86,19 +98,29 @@ async def process_set_password_confirm(
 ):
     confirm_password = message.text or ""
     await safe_delete(message)
+    settings_msg_id = (await state.get_data()).get("settings_msg_id")
 
     data = await state.get_data()
     pending = data.get("pending_password")
     if not pending:
         await state.set_state(ProfileState.security)
-        await message.answer(_("security_session_expired"))
+        if settings_msg_id:
+            await edit_message_with_media(
+                bot=message.bot, chat_id=message.chat.id, message_id=settings_msg_id,
+                session=session, media_key="settings_main",
+                text=_("security_session_expired"),
+                reply_markup=security_inline_kb(_, has_password=False),
+            )
         return
 
     if confirm_password != pending:
-        await message.answer(
-            _("security_password_mismatch"),
-            reply_markup=security_cancel_kb(_),
-        )
+        if settings_msg_id:
+            await edit_message_with_media(
+                bot=message.bot, chat_id=message.chat.id, message_id=settings_msg_id,
+                session=session, media_key="settings_main",
+                text=_("security_password_mismatch"),
+                reply_markup=security_cancel_kb(_),
+            )
         return
 
     repo = UserRepo(session)
@@ -110,7 +132,10 @@ async def process_set_password_confirm(
     await state.set_state(ProfileState.security)
     logger.info(f"[SECURITY_SET] tg_id={message.from_user.id}")
 
-    await message.answer(
-        _("security_set_success"),
-        reply_markup=security_inline_kb(_, has_password=True),
-    )
+    if settings_msg_id:
+        await edit_message_with_media(
+            bot=message.bot, chat_id=message.chat.id, message_id=settings_msg_id,
+            session=session, media_key="settings_main",
+            text=_("security_set_success"),
+            reply_markup=security_inline_kb(_, has_password=True),
+        )

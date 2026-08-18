@@ -13,7 +13,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from aiogram import types
+from aiogram import types, Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import (
     InlineKeyboardMarkup,
@@ -47,7 +47,6 @@ def _get_full_url(file_url: Optional[str]) -> Optional[str]:
     return root_url + file_url + "?v=2"
 
 
-
 async def send_with_media(
     message: types.Message,
     session: AsyncSession,
@@ -55,7 +54,7 @@ async def send_with_media(
     media_key: str,
     text: str,
     reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | None = None,
-) -> None:
+) -> Optional[types.Message]:
     """Отправить text+kb. Если для `media_key` настроено фото — через Link Preview поверх текста."""
     repo = BotMediaRepo(session)
     media = await repo.get_by_key(media_key)
@@ -72,7 +71,7 @@ async def send_with_media(
         link_options = LinkPreviewOptions(is_disabled=True)
 
     try:
-        await message.answer(
+        return await message.answer(
             text, 
             reply_markup=reply_markup,
             link_preview_options=link_options,
@@ -82,18 +81,20 @@ async def send_with_media(
             "send_with_media(%s): отправка с link_preview упала, fallback to text: %s",
             media_key, e,
         )
-        await message.answer(text, reply_markup=reply_markup)
+        return await message.answer(text, reply_markup=reply_markup)
 
 
-async def edit_with_media(
-    callback: types.CallbackQuery,
+async def edit_message_with_media(
+    bot: Bot,
+    chat_id: int | str,
+    message_id: int,
     session: AsyncSession,
     *,
     media_key: str,
     text: str,
     reply_markup: InlineKeyboardMarkup | None = None,
-) -> None:
-    """Редактирует текущее сообщение (всегда текстовое с Link Preview)."""
+) -> Optional[types.Message]:
+    """Редактирует сообщение по chat_id и message_id (всегда текстовое с Link Preview)."""
     repo = BotMediaRepo(session)
     media = await repo.get_by_key(media_key)
 
@@ -108,6 +109,31 @@ async def edit_with_media(
     else:
         link_options = LinkPreviewOptions(is_disabled=True)
 
+    try:
+        msg = await bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=text, 
+            reply_markup=reply_markup,
+            link_preview_options=link_options,
+        )
+        if isinstance(msg, types.Message):
+            return msg
+        return None
+    except TelegramBadRequest as e:
+        logger.info("edit_message_with_media(%s): edit_text fail: %s", media_key, e)
+        return None
+
+
+async def edit_with_media(
+    callback: types.CallbackQuery,
+    session: AsyncSession,
+    *,
+    media_key: str,
+    text: str,
+    reply_markup: InlineKeyboardMarkup | None = None,
+) -> Optional[types.Message]:
+    """Редактирует текущее сообщение (всегда текстовое с Link Preview)."""
     msg = callback.message
     
     # Если старое сообщение почему-то было отправлено с реальным фото (остаток от старой логики),
@@ -118,18 +144,18 @@ async def edit_with_media(
         except TelegramBadRequest:
             pass
         
-        await send_with_media(
+        return await send_with_media(
             msg, session,
             media_key=media_key, text=text, reply_markup=reply_markup,
         )
-        return
 
-    # Если сообщение текстовое, просто меняем его
-    try:
-        await msg.edit_text(
-            text=text, 
-            reply_markup=reply_markup,
-            link_preview_options=link_options,
-        )
-    except TelegramBadRequest as e:
-        logger.info("edit_with_media(%s): edit_text fail: %s", media_key, e)
+    # Если сообщение текстовое, просто меняем его через общий хелпер
+    return await edit_message_with_media(
+        bot=msg.bot,
+        chat_id=msg.chat.id,
+        message_id=msg.message_id,
+        session=session,
+        media_key=media_key,
+        text=text,
+        reply_markup=reply_markup,
+    )

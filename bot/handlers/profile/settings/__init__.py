@@ -2,9 +2,9 @@
 from aiogram import Router
 
 from .settings import router as settings_main_router
-from .language.router import router as language_router
-from .nickname.router import router as nickname_router
-from .notifications.notifications import router as notifications_router
+from .language import router as language_router
+from .nickname import router as nickname_router
+from .notifications import router as notifications_router
 from .security import router as security_router
 
 router = Router()

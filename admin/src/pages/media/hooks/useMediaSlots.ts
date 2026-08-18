@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api } from '../../../api/client';
 import type { BotMediaItem, BotMediaSlot } from '../../../api/client';
 import { useToastStore } from '../../../shared/ui';
+import { getApiError } from '../../../shared/utils';
 
 export const useMediaSlots = () => {
   const [slots, setSlots] = useState<BotMediaSlot[]>([]);
@@ -19,7 +20,7 @@ export const useMediaSlots = () => {
       setSlots(slotsData);
       setItems(itemsData);
     } catch (e: any) {
-      toast(e?.message || 'Ошибка загрузки', 'error');
+      toast(getApiError(e, 'Ошибка загрузки'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -41,7 +42,7 @@ export const useMediaSlots = () => {
         });
         toast('Фото обновлено');
       } catch (e: any) {
-        toast(e?.message || 'Ошибка сохранения', 'error');
+        toast(getApiError(e, 'Ошибка сохранения'), 'error');
       }
     },
     [toast],
@@ -60,7 +61,7 @@ export const useMediaSlots = () => {
         );
         toast('Фото удалено');
       } catch (e: any) {
-        toast(e?.message || 'Ошибка удаления', 'error');
+        toast(getApiError(e, 'Ошибка удаления'), 'error');
       }
     },
     [toast],

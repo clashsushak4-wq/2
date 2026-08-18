@@ -3,6 +3,7 @@ import { Image as ImageIcon, Loader2, Trash2, Upload } from 'lucide-react';
 import { api } from '../../../../api/client';
 import type { BotMediaItem, BotMediaSlot } from '../../../../api/client';
 import { useToastStore } from '../../../../shared/ui';
+import { getApiError } from '../../../../shared/utils';
 
 interface Props {
   index: number;
@@ -54,7 +55,7 @@ export const MediaSlotCard = ({ index, slot, item, onSet, onDelete }: Props) => 
       const { url, thumb_url } = await api.uploads.upload(file, file.name);
       await onSet(slot.key, url, thumb_url);
     } catch (err: any) {
-      toast(err?.message || 'Ошибка загрузки', 'error');
+      toast(getApiError(err, 'Ошибка загрузки'), 'error');
     } finally {
       setIsUploading(false);
     }

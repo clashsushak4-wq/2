@@ -1,4 +1,4 @@
-﻿# handlers/profile/settings/notifications/notifications.py
+# handlers/profile/settings/notifications/router.py
 """Экран уведомлений. Открывается callback'ом `profile:notifications`
 из меню Настроек, всё работает через редактирование того же сообщения.
 """
@@ -12,17 +12,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.keyboards.profile import notifications_kb
 from bot.states import ProfileState
 from shared.database.repo.users import UserRepo
+from bot.utils.media import edit_with_media
 
 
 router = Router()
 
 
-async def _edit_message(callback: types.CallbackQuery, text: str, kb) -> None:
-    """Редактирует caption если фото есть, иначе обычный text."""
-    if callback.message.photo:
-        await callback.message.edit_caption(caption=text, reply_markup=kb)
-    else:
-        await callback.message.edit_text(text=text, reply_markup=kb)
 
 
 @router.callback_query(F.data == "profile:notifications")
@@ -43,10 +38,11 @@ async def show_notifications(
         return
 
     status_text = _("notif_on") if user.notifications_enabled else _("notif_off")
-    await _edit_message(
-        callback,
-        _("notif_title", status=status_text),
-        notifications_kb(_, user.notifications_enabled),
+    await edit_with_media(
+        callback, session,
+        media_key="settings_main",
+        text=_("notif_title", status=status_text),
+        reply_markup=notifications_kb(_, user.notifications_enabled),
     )
     await callback.answer()
 
@@ -60,10 +56,11 @@ async def disable_notif(
     repo = UserRepo(session)
     await repo.toggle_notifications(callback.from_user.id, False)
 
-    await _edit_message(
-        callback,
-        _("notif_title", status=_("notif_off")),
-        notifications_kb(_, False),
+    await edit_with_media(
+        callback, session,
+        media_key="settings_main",
+        text=_("notif_title", status=_("notif_off")),
+        reply_markup=notifications_kb(_, False),
     )
     await callback.answer(_("notif_off"))
 
@@ -77,9 +74,10 @@ async def enable_notif(
     repo = UserRepo(session)
     await repo.toggle_notifications(callback.from_user.id, True)
 
-    await _edit_message(
-        callback,
-        _("notif_title", status=_("notif_on")),
-        notifications_kb(_, True),
+    await edit_with_media(
+        callback, session,
+        media_key="settings_main",
+        text=_("notif_title", status=_("notif_on")),
+        reply_markup=notifications_kb(_, True),
     )
     await callback.answer(_("notif_on"))

@@ -26,10 +26,10 @@ export const TilePreview = ({ isCube, title, description, imageUrl, bgImage, bgI
         >
           <div className="absolute inset-0 rounded-[14px]" style={{ backgroundColor: previewBg, opacity }} />
           {bgImage && (
-            <div className="absolute inset-0 rounded-[14px] bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})`, opacity }} />
+            <div className="absolute inset-0 rounded-[14px] bg-cover bg-center" style={{ backgroundImage: `url("${bgImage.replace(/"/g, '\\"')}")`, opacity }} />
           )}
           {isCube && bgImages.length > 0 ? (
-            <div className="absolute inset-0 rounded-[14px] bg-cover bg-center" style={{ backgroundImage: `url(${bgImages[0]})` }} />
+            <div className="absolute inset-0 rounded-[14px] bg-cover bg-center" style={{ backgroundImage: `url("${bgImages[0].replace(/"/g, '\\"')}")` }} />
           ) : null}
           <div className="relative z-10 p-3 flex flex-col h-full">
             {!isCube && (

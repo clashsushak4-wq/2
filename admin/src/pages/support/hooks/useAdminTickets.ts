@@ -26,8 +26,10 @@ export const useAdminTickets = (initialStatus: TicketStatus = 'new') => {
       const data = await api.support.getTickets(st);
       if (signal?.aborted) return;
       setTickets(data);
-    } catch {
-      if (!signal?.aborted) setTickets([]);
+    } catch (e: any) {
+      // При ошибке во время фонового поллинга мы НЕ очищаем список тикетов,
+      // чтобы избежать "мерцания" интерфейса при кратковременных проблемах с сетью.
+      // Глобальная авторизация все равно отловит 401/403.
     } finally {
       if (!signal?.aborted) setIsLoading(false);
     }

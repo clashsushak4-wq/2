@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
 
 interface AddExchangeFormProps {
-  onAdd: (name: string, apiKey: string, apiSecret: string) => Promise<void>;
+  onAdd: (name: string, apiKey: string, apiSecret: string) => Promise<boolean>;
 }
 
 const EXCHANGE_OPTIONS = ['Binance', 'Bybit', 'OKX', 'Kraken', 'KuCoin', 'Gate.io', 'MEXC', 'Bitget'];
@@ -24,10 +24,12 @@ export const AddExchangeForm = ({ onAdd }: AddExchangeFormProps) => {
     if (!canSubmit) return;
     setIsSaving(true);
     try {
-      await onAdd(name, apiKey.trim(), apiSecret.trim());
-      setApiKey('');
-      setApiSecret('');
-      setIsOpen(false);
+      const success = await onAdd(name, apiKey.trim(), apiSecret.trim());
+      if (success) {
+        setApiKey('');
+        setApiSecret('');
+        setIsOpen(false);
+      }
     } finally {
       setIsSaving(false);
     }

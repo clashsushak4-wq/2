@@ -5,8 +5,10 @@ from aiogram.filters import Command
 router = Router()
 
 @router.message(Command("topic"))
-async def get_topic_id(message: types.Message):
+async def get_topic_id(message: types.Message, is_admin: bool = False):
     """Служебная команда для узнавания ID текущего топика"""
+    if not is_admin:
+        return
     if message.message_thread_id:
         await message.answer(f"ID этой темы: <code>{message.message_thread_id}</code>")
     else:
