@@ -19,5 +19,7 @@
   "nick_change_ask": "<blockquote><tg-emoji emoji-id=\"6010457897803189771\">✍️</tg-emoji> <b>Enter new Nik</b></blockquote>\n\nAllowed: letters, numbers, «_».\nLength 3-15 chars.",
   "nick_change_confirm": "Do you want to change Nik to <b>{nickname}</b>?\n\n<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> <i>Next change only after 31 days!</i>",
   "nick_change_success": "<tg-emoji emoji-id=\"6008275560495582704\">✅</tg-emoji> Nik successfully changed to <b>{nickname}</b>",
-  "new_referral_notification": "<blockquote><tg-emoji emoji-id=\"6001526766714227911\">🎉</tg-emoji> <b>New Referral!</b></blockquote>\nSomeone registered using your link."
+  "new_referral_notification": "<blockquote><tg-emoji emoji-id=\"6001526766714227911\">🎉</tg-emoji> <b>New Referral!</b></blockquote>\nSomeone registered using your link.",
+  "btn_referral": "Referral Program",
+  "referral_title": "<blockquote><tg-emoji emoji-id=\"6001526766714227911\">🤝</tg-emoji> <b>Referral Program</b></blockquote>\n\n╔ <b>Referrals count:</b> {ref_count}\n╠ <b>Earned:</b> {ref_earned} $\n╚ <b>Active referrals:</b> {ref_active}\n\n<blockquote><tg-emoji emoji-id=\"5974492756494519709\">🔗</tg-emoji> <b>Invitation link:</b></blockquote>\n\n<code>{ref_link}</code>"
 }

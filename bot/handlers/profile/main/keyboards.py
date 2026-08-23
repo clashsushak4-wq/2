@@ -6,6 +6,7 @@ from shared.utils.i18n import safe_emoji
 def profile_main_inline_kb(_: Callable) -> InlineKeyboardMarkup:
     """Инлайн-клавиатура карточки профиля (фото + ID/ник/...)."""
     builder = InlineKeyboardBuilder()
+    builder.button(text=_("btn_referral"), callback_data="profile:referral", icon_custom_emoji_id=safe_emoji(_("btn_referral_emoji")))
     builder.button(text=_("btn_settings"), callback_data="profile:settings", icon_custom_emoji_id=safe_emoji(_("btn_settings_emoji")))
     builder.button(text=_("btn_back"), callback_data="nav_main_menu", icon_custom_emoji_id=safe_emoji(_("btn_back_emoji")))
     builder.adjust(1)

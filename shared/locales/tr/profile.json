@@ -19,5 +19,7 @@
   "nick_change_ask": "<blockquote><tg-emoji emoji-id=\"6010457897803189771\">✍️</tg-emoji> <b>Yeni Takma Ad girin</b></blockquote>\n\nİzin verilen: harfler, rakamlar, «_».\nUzunluk 3-15 karakter.",
   "nick_change_confirm": "Takma adı <b>{nickname}</b> olarak değiştirmek istiyor musunuz?\n\n<tg-emoji emoji-id=\"5780371577723948313\">⚠️</tg-emoji> <i>Sonraki değişiklik 31 gün sonra!</i>",
   "nick_change_success": "<tg-emoji emoji-id=\"6008275560495582704\">✅</tg-emoji> Takma ad başarıyla <b>{nickname}</b> olarak değiştirildi",
-  "new_referral_notification": "<blockquote><tg-emoji emoji-id=\"6001526766714227911\">🎉</tg-emoji> <b>Yeni Davetli!</b></blockquote>\nBiri linkinizi kullanarak kayıt oldu."
+  "new_referral_notification": "<blockquote><tg-emoji emoji-id=\"6001526766714227911\">🎉</tg-emoji> <b>Yeni Davetli!</b></blockquote>\nBiri linkinizi kullanarak kayıt oldu.",
+  "btn_referral": "Tavsiye Programı",
+  "referral_title": "<blockquote><tg-emoji emoji-id=\"6001526766714227911\">🤝</tg-emoji> <b>Tavsiye Programı</b></blockquote>\n\n╔ <b>Davetli sayısı:</b> {ref_count}\n╠ <b>Kazanılan:</b> {ref_earned} $\n╚ <b>Aktif davetliler:</b> {ref_active}\n\n<blockquote><tg-emoji emoji-id=\"5974492756494519709\">🔗</tg-emoji> <b>Davet bağlantısı:</b></blockquote>\n\n<code>{ref_link}</code>"
 }
