@@ -7,7 +7,8 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.profile import confirm_nick_kb, settings_inline_kb, cancel_nick_change_kb
+from bot.handlers.profile.settings.nickname.keyboards import confirm_nick_kb, cancel_nick_change_kb
+from bot.handlers.profile.main.keyboards import settings_inline_kb
 from bot.states import ProfileState
 from shared.constants import NICKNAME_PATTERN
 from shared.database.repo.users import UserRepo
@@ -76,7 +77,22 @@ async def confirm_change(
     user = await repo.get_user(callback.from_user.id)
     old_nick = user.nickname if user else "Unknown"
 
-    await repo.update_nickname(callback.from_user.id, new_nick)
+    from sqlalchemy.exc import IntegrityError
+    try:
+        await repo.update_nickname(callback.from_user.id, new_nick)
+        await session.flush()
+    except IntegrityError:
+        await session.rollback()
+        await state.set_state(ProfileState.nick_change_input)
+        await edit_with_media(
+            callback, session,
+            media_key="settings_main",
+            text=_("nick_taken", nickname=new_nick),
+            reply_markup=cancel_nick_change_kb(_)
+        )
+        await callback.answer()
+        return
+
     logger.info(
         f"[NICK_CHANGE] tg_id={callback.from_user.id}, "
         f"old_nick={old_nick}, new_nick={new_nick}"

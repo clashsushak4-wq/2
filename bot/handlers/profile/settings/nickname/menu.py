@@ -7,7 +7,7 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.profile import change_nick_start_kb, cancel_nick_change_kb
+from bot.handlers.profile.settings.nickname.keyboards import change_nick_start_kb, cancel_nick_change_kb
 from bot.utils.media import edit_with_media
 from bot.states import ProfileState
 from shared.constants import NICKNAME_CHANGE_COOLDOWN_DAYS

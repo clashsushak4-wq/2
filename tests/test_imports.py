@@ -40,7 +40,7 @@ _CORE_MODULES = [
 
 _BOT_MODULES = [
     "bot.main",
-    "bot.setup",
+    "bot.core.factory",
     "bot.states",
     "bot.middlewares.db",
     "bot.middlewares.i18n",

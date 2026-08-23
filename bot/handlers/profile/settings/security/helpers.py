@@ -15,7 +15,7 @@ from typing import Callable
 from aiogram import types
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.profile import security_inline_kb
+from bot.handlers.profile.settings.security.keyboards import security_inline_kb
 from bot.utils.media import edit_with_media
 from shared.database.repo.users import UserRepo
 

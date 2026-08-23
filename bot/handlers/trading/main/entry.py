@@ -4,7 +4,7 @@ from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.trading import trading_main_inline_kb
+from bot.handlers.trading.keyboards import trading_main_inline_kb
 from bot.states import TradingState
 from bot.utils.media import edit_with_media
 from bot.handlers.trading.main.router import router

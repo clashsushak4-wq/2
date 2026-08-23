@@ -9,7 +9,7 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.profile import notifications_kb
+from bot.handlers.profile.settings.notifications.keyboards import notifications_kb
 from bot.states import ProfileState
 from shared.database.repo.users import UserRepo
 from bot.utils.media import edit_with_media

@@ -4,7 +4,7 @@ from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.education import education_main_inline_kb
+from bot.handlers.education.keyboards import education_main_inline_kb
 from bot.states import EducationState
 from bot.utils.media import edit_with_media
 from bot.handlers.education.main.router import router

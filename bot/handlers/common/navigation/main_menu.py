@@ -3,7 +3,7 @@ from aiogram import types
 from typing import Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.main_menu import main_menu_kb
+from bot.handlers.common.navigation.keyboards import main_menu_kb
 from bot.utils.media import send_with_media, edit_with_media
 
 async def _route_to_main_menu(message: types.Message, session: AsyncSession, _: Callable, is_admin: bool | None) -> None:

@@ -8,7 +8,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.states import OnboardingState
-from bot.keyboards.main_menu import main_menu_kb
+from bot.handlers.common.navigation.keyboards import main_menu_kb
 from .service import set_nickname
 from shared.constants import NICKNAME_PATTERN
 
@@ -102,9 +102,24 @@ async def confirm_nickname(callback: types.CallbackQuery, session: AsyncSession,
         await state.set_state(OnboardingState.nickname_input)
         return
 
-    await set_nickname(session, callback.from_user.id, nickname)
-    await session.flush()
-    
+    from sqlalchemy.exc import IntegrityError
+    try:
+        await set_nickname(session, callback.from_user.id, nickname)
+        await session.flush()
+    except IntegrityError:
+        await session.rollback()
+        from aiogram.exceptions import TelegramBadRequest
+        text_error = _("nick_taken", nickname=nickname) + "\n\n" + _("ask_nickname")
+        try:
+            await callback.message.edit_caption(caption=text_error)
+        except TelegramBadRequest as e:
+            if "not modified" not in str(e).lower():
+                try:
+                    await callback.message.edit_text(text=text_error)
+                except TelegramBadRequest:
+                    pass
+        await state.set_state(OnboardingState.nickname_input)
+        return
     await callback.message.delete()
     await state.clear()
     

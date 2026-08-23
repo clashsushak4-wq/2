@@ -41,6 +41,9 @@ async def get_or_create_user(
     # 1. Пробуем найти пользователя
     user = await repo.get_user(tg_id)
     if user:
+        if user.username != username:
+            await repo._update_user(tg_id, username=username)
+            user.username = username
         return user, False
 
     # 2. Обработка рефералки

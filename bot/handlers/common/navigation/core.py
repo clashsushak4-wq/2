@@ -59,6 +59,11 @@ async def nav_start_cb(
     if is_new or user.nickname is None:
         if is_new and user.referrer_id:
             await _notify_referrer(session, callback.bot, user.referrer_id)
-        await _route_to_main_menu_cb(callback, session, _, is_admin)
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
+        from bot.handlers.common.navigation.onboarding import _route_to_onboarding
+        await _route_to_onboarding(callback.message, session, _, state)
     else:
         await _route_to_main_menu_cb(callback, session, _, is_admin)

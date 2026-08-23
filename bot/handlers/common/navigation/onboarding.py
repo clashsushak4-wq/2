@@ -5,7 +5,7 @@ from typing import Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.states import OnboardingState
-from bot.keyboards.profile import language_inline_kb
+from bot.handlers.profile.settings.language.keyboards import language_inline_kb
 from bot.utils.media import send_with_media
 from shared.utils.i18n import i18n
 

@@ -10,7 +10,8 @@ from aiogram.types import Update
 from fastapi import APIRouter, Header, HTTPException, Request
 
 from bot.handlers.errors import register_error_handler
-from bot.setup import build_bot, build_dispatcher, build_storage, setup_bot_commands
+from bot.core.factory import build_bot, build_dispatcher, build_storage
+from bot.core.commands import setup_bot_commands
 from shared.utils.i18n import i18n
 from shared.config import config
 from shared.lifecycle import shutdown_shared_resources

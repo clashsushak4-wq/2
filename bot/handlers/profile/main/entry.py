@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Callable
 
-from bot.keyboards.profile import profile_main_inline_kb
+from bot.handlers.profile.main.keyboards import profile_main_inline_kb
 from bot.states import ProfileState
 from bot.utils.media import edit_with_media
 from shared.database.repo.users import UserRepo

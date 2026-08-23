@@ -21,7 +21,7 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.profile import security_sessions_back_kb
+from bot.handlers.profile.settings.security.keyboards import security_sessions_back_kb
 from bot.states import ProfileState
 from bot.utils.media import edit_with_media
 from shared.database.models import UserSession

@@ -4,8 +4,9 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.keyboards.profile import language_confirm_kb, language_inline_kb, settings_inline_kb
-from bot.keyboards.main_menu import main_menu_kb
+from bot.handlers.profile.settings.language.keyboards import language_confirm_kb, language_inline_kb
+from bot.handlers.profile.main.keyboards import settings_inline_kb
+from bot.handlers.common.navigation.keyboards import main_menu_kb
 from bot.states import ProfileState
 from shared.database.repo.users import UserRepo
 from shared.utils.cache import set_user_lang
