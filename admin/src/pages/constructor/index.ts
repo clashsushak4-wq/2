@@ -1,1 +1,0 @@
-export { ConstructorView } from './ConstructorView';

@@ -134,7 +134,4 @@ if os.path.exists(webapp_dist):
             return FileResponse(file_path)
         return FileResponse(os.path.join(webapp_dist, "index.html"))
 
-admin_dist = os.path.join(_BASE, "..", "admin", "dist")
-if os.path.exists(admin_dist):
-    app.mount("/admin", StaticFiles(directory=admin_dist, html=True), name="admin")
 

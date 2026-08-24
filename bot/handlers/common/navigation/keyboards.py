@@ -23,10 +23,6 @@ def main_menu_kb(_: Callable, user_id: int, is_admin: bool | None = None) -> Inl
     builder.button(text=_("btn_trading"), callback_data="nav_trading", icon_custom_emoji_id=safe_emoji(_("btn_trading_emoji")))
     builder.button(text=_("btn_info"), callback_data="nav_info", icon_custom_emoji_id=safe_emoji(_("btn_info_emoji")))
 
-    if is_admin:
-        builder.button(text=_("btn_admin_panel"), callback_data="nav_admin", icon_custom_emoji_id=safe_emoji(_("btn_admin_panel_emoji")))
-        builder.adjust(1, 2, 2, 1)
-    else:
-        builder.adjust(1, 2, 2)
+    builder.adjust(1, 2, 2)
 
     return builder.as_markup()

@@ -1,1 +1,0 @@
-export { ExchangeCard } from './ExchangeCard';
