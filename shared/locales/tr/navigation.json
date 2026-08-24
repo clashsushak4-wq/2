@@ -10,5 +10,7 @@
   "chat_commands_text": "<blockquote><tg-emoji emoji-id=\"6010457897803189771\">🤖</tg-emoji> <b>Kullanılabilir sohbet komutları:</b></blockquote>\n\n/top - tüm zamanların ilk 10'u\n/topm - aylık ilk 10\n/topw - haftalık ilk 10\n/topd - günlük ilk 10\n/bio id - profil istatistikleri\n/smena - vardiyada kim var\n/referral - ilk 10 referans",
   "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╠ Dil seçin\n╚ Выберите язык</pre>",
   "btn_trading": "Trading",
-  "btn_education": "Eğitim"
+  "btn_education": "Eğitim",
+  "btn_webapp": "WebApp'i Başlat",
+  "btn_webapp_emoji": "5974166407699501213"
 }

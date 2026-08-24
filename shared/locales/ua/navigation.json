@@ -10,5 +10,7 @@
   "chat_commands_text": "<blockquote><tg-emoji emoji-id=\"6010457897803189771\">🤖</tg-emoji> <b>Доступні команди в чаті:</b></blockquote>\n\n/top - топ 10 за весь час\n/topm - топ 10 за місяць\n/topw - топ 10 за тиждень\n/topd - топ 10 за день\n/bio id - статистика профілю\n/smena - хто на зміні\n/referral - топ 10 рефералів",
   "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╠ Dil seçin\n╚ Выберите язык</pre>",
   "btn_trading": "Trading",
-  "btn_education": "Навчання"
+  "btn_education": "Навчання",
+  "btn_webapp": "Запустити WebApp",
+  "btn_webapp_emoji": "5974166407699501213"
 }

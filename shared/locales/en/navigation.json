@@ -10,5 +10,7 @@
   "chat_commands_text": "<blockquote><tg-emoji emoji-id=\"6010457897803189771\">🤖</tg-emoji> <b>Available chat commands:</b></blockquote>\n\n/top - top 10 all time\n/topm - top 10 monthly\n/topw - top 10 weekly\n/topd - top 10 daily\n/bio id - profile statistics\n/smena - who is on shift\n/referral - top 10 referrals",
   "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╠ Dil seçin\n╚ Выберите язык</pre>",
   "btn_trading": "Trading",
-  "btn_education": "Education"
+  "btn_education": "Education",
+  "btn_webapp": "Launch WebApp",
+  "btn_webapp_emoji": "5974166407699501213"
 }

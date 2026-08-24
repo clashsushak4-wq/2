@@ -1,1 +1,0 @@
-# handlers/common/chat_commands/general/__init__.py
