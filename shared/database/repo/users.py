@@ -6,7 +6,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError, OperationalError, DatabaseError
 from shared.database.models import User
 from shared.utils.exceptions import DatabaseException
-from shared.utils.passwords import hash_password, verify_password
+
 from shared.database.repo.base import BaseRepo
 
 logger = logging.getLogger(__name__)
@@ -85,26 +85,7 @@ class UserRepo(BaseRepo):
         return result.scalar_one_or_none()
 
     # ── WebApp пароль ────────────────────────────────────────
-    async def has_password(self, tg_id: int) -> bool:
-        user = await self.get_user(tg_id)
-        return bool(user and user.password_hash)
 
-    async def set_password(self, tg_id: int, password: str) -> None:
-        password_hash = hash_password(password)
-        await self._update_user(
-            tg_id,
-            password_hash=password_hash,
-            password_set_at=func.now(),
-        )
-
-    async def clear_password(self, tg_id: int) -> None:
-        await self._update_user(tg_id, password_hash=None, password_set_at=None)
-
-    async def verify_password(self, tg_id: int, password: str) -> bool:
-        user = await self.get_user(tg_id)
-        if not user or not user.password_hash:
-            return False
-        return verify_password(password, user.password_hash)
 
     async def get_user_stats(self) -> dict:
         from datetime import datetime, timezone, timedelta

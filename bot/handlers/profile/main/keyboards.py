@@ -15,7 +15,6 @@ def profile_main_inline_kb(_: Callable) -> InlineKeyboardMarkup:
 def settings_inline_kb(_: Callable) -> InlineKeyboardMarkup:
     """Инлайн-клавиатура меню Настроек."""
     builder = InlineKeyboardBuilder()
-    builder.button(text=_("btn_security"), callback_data="profile:security", icon_custom_emoji_id=safe_emoji(_("btn_security_emoji")))
     builder.button(text=_("btn_language"), callback_data="profile:language", icon_custom_emoji_id=safe_emoji(_("btn_language_emoji")))
     builder.button(text=_("btn_notifications"), callback_data="profile:notifications", icon_custom_emoji_id=safe_emoji(_("btn_notifications_emoji")))
     builder.button(text=_("btn_change_nick"), callback_data="profile:nickname", icon_custom_emoji_id=safe_emoji(_("btn_change_nick_emoji")))

@@ -167,8 +167,7 @@
     "verified": "Верифіковано",
     "menu": {
       "personal": "Особисті дані",
-      "notifications": "Сповіщення",
-      "security": "Безпека"
+      "notifications": "Сповіщення"
     },
     "about": "Про нас",
     "settings": "Налаштування",
@@ -208,23 +207,5 @@
   },
   "loading": {
     "marketData": "Завантаження даних ринку"
-  },
-  "auth": {
-    "title": "Вхід у DTX",
-    "subtitle": "Увійдіть своїм ID та паролем, щоб відкрити застосунок.",
-    "loginLabel": "Ваш ID",
-    "passwordLabel": "Пароль",
-    "passwordPlaceholder": "Введіть пароль",
-    "signIn": "Увійти",
-    "signingIn": "Вхід...",
-    "hint": "Пароль задається в боті: Кабінет → Налаштування → Безпека",
-    "errorInvalidCredentials": "Невірний ID або пароль",
-    "errorTooManyAttempts": "Забагато спроб. Зачекайте хвилину.",
-    "errorBadRequest": "Пароль ще не задано у боті",
-    "errorGeneric": "Не вдалося увійти. Спробуйте ще раз.",
-    "noPasswordTitle": "Пароль не встановлено",
-    "noPasswordHint": "Відкрийте бота → Кабінет → Налаштування → Безпека і створіть пароль для входу в WebApp.",
-    "checkingSession": "Перевіряємо сесію...",
-    "logout": "Вийти"
   }
 }

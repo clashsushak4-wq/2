@@ -167,8 +167,7 @@
     "verified": "Verified",
     "menu": {
       "personal": "Personal Data",
-      "notifications": "Notifications",
-      "security": "Security"
+      "notifications": "Notifications"
     },
     "about": "About",
     "settings": "Settings",
@@ -208,23 +207,5 @@
   },
   "loading": {
     "marketData": "Loading Market Data"
-  },
-  "auth": {
-    "title": "Sign in to DTX",
-    "subtitle": "Enter your ID and password to open the app.",
-    "loginLabel": "Your ID",
-    "passwordLabel": "Password",
-    "passwordPlaceholder": "Enter password",
-    "signIn": "Sign in",
-    "signingIn": "Signing in...",
-    "hint": "Password is set in the bot: Profile → Settings → Security",
-    "errorInvalidCredentials": "Invalid ID or password",
-    "errorTooManyAttempts": "Too many attempts. Wait a minute.",
-    "errorBadRequest": "Password is not set in the bot yet",
-    "errorGeneric": "Sign in failed. Please try again.",
-    "noPasswordTitle": "No password set",
-    "noPasswordHint": "Open the bot → Profile → Settings → Security and set a password to access the WebApp.",
-    "checkingSession": "Checking session...",
-    "logout": "Sign out"
   }
 }

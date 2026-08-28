@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getAuthToken, useAuthStore } from '../store/useAuthStore';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -20,47 +19,17 @@ export const apiClient = axios.create({
   timeout: 10000,
 });
 
-// Эндпоинты, которые ВСЕГДА должны идти с Telegram initData,
-// даже если сессионный токен есть в localStorage (сессии ещё нет,
-// либо мы хотим узнать её статус по tg_id из initData).
-const FORCE_INIT_DATA_PATHS = ['/webapp/auth/status', '/webapp/auth/login', '/webapp/auth/rules'];
-
 apiClient.interceptors.request.use((config) => {
-  const path = config.url || '';
-  const forceInitData = FORCE_INIT_DATA_PATHS.some((p) => path.includes(p));
-  const token = forceInitData ? null : getAuthToken();
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    const initData = getInitData();
-    if (initData) {
-      config.headers.Authorization = `tma ${initData}`;
-    }
+  const initData = getInitData();
+  if (initData) {
+    config.headers.Authorization = `tma ${initData}`;
   }
   return config;
 });
 
-let isSessionClearing = false;
-
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Если сессионный токен протух — снимаем его, UI решит что делать дальше.
-    const status = error?.response?.status;
-    const url: string = error?.config?.url || '';
-    const usedBearer = (error?.config?.headers?.Authorization || '').startsWith('Bearer ');
-    if (status === 401 && usedBearer && !FORCE_INIT_DATA_PATHS.some((p) => url.includes(p))) {
-      if (!isSessionClearing) {
-        isSessionClearing = true;
-        try {
-          useAuthStore.getState().clearSession();
-        } catch {
-          /* ignore */
-        }
-        setTimeout(() => { isSessionClearing = false; }, 1000);
-      }
-    }
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
@@ -101,31 +70,6 @@ export interface HomeTile {
 
 export type MarketType = 'spot' | 'futures';
 
-export interface AuthStatusResponse {
-  has_password: boolean;
-  nickname: string | null;
-  requires_password: boolean;
-}
-
-export interface LoginResponse {
-  success: boolean;
-  token: string;
-  expires_at: string;
-  user_id: number;
-  nickname: string;
-}
-
-export interface PasswordRules {
-  min_length: number;
-  max_length: number;
-}
-
-export interface WhoAmIResponse {
-  user_id: number;
-  nickname: string | null;
-  expires_at: string | null;
-}
-
 export interface SymbolInfo {
   symbol: string;
   base: string;
@@ -136,31 +80,6 @@ export interface SymbolInfo {
 }
 
 export const api = {
-  auth: {
-    status: async (): Promise<AuthStatusResponse> => {
-      const response = await apiClient.get('/webapp/auth/status');
-      return response.data;
-    },
-    rules: async (): Promise<PasswordRules> => {
-      const response = await apiClient.get('/webapp/auth/rules');
-      return response.data;
-    },
-    login: async (nickname: string, password: string): Promise<LoginResponse> => {
-      const response = await apiClient.post('/webapp/auth/login', { nickname, password });
-      return response.data;
-    },
-    me: async (): Promise<WhoAmIResponse> => {
-      const response = await apiClient.get('/webapp/auth/me');
-      return response.data;
-    },
-    logout: async (): Promise<void> => {
-      await apiClient.post('/webapp/auth/logout');
-    },
-    logoutAll: async (): Promise<void> => {
-      await apiClient.post('/webapp/auth/logout-all');
-    },
-  },
-
   support: {
     getMyTicket: async () => {
       const response = await apiClient.get('/support/my-ticket');

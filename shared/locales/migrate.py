@@ -28,17 +28,7 @@ mapping = {
         'btn_notifications', 'notif_title', 'notif_on', 'notif_off', 'btn_toggle_on', 
         'btn_toggle_off'
     ],
-    'security.json': [
-        'btn_security', 'btn_set_password', 'btn_change_password', 'btn_logout_all', 
-        'btn_sessions', 'security_title_empty', 'security_title_set', 'security_set_ask', 
-        'security_set_confirm_ask', 'security_set_success', 'security_change_ask_old', 
-        'security_change_ask_new', 'security_change_confirm_ask', 'security_change_success', 
-        'security_old_password_wrong', 'security_password_mismatch', 'security_password_invalid', 
-        'security_password_empty', 'security_password_too_short', 'security_password_too_long', 
-        'security_already_has_password', 'security_no_password_yet', 'security_session_expired', 
-        'security_cancelled', 'security_logout_all_confirm', 'security_logout_all_done', 
-        'security_sessions_title', 'security_sessions_empty', 'security_sessions_item'
-    ],
+
     'sections.json': [
         'info_main_text', 'trading_title', 'education_title', 'admin_panel_title', 
         'btn_admin_web', 'admin_web_hint', 'no_admin_access'

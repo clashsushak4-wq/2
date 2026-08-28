@@ -4,7 +4,6 @@ import { AnimatePresence, MotionConfig } from 'framer-motion';
 import { LoadingScreen, DesktopLayout, MobileLayout } from './shared';
 import { HomeView, WalletView, SupportView, ProfileView, TradeView } from './pages';
 import { CryptoScreen, ScreenerScreen } from './pages/trade/components';
-import { LoginScreen, NoPasswordScreen, useAuthSession } from './pages/auth';
 import { useWebApp } from './hooks';
 import { useAppStore } from './store';
 import { useI18nStore } from './i18n/useTranslation';
@@ -59,7 +58,7 @@ function MainApp() {
             webApp.offEvent('fullscreen_failed', handleFullscreenChange);
           }
         } catch (e) {
-          // ignore
+          console.warn('fullscreen events not supported', e);
         }
       };
     }
@@ -67,18 +66,13 @@ function MainApp() {
 
   const handleCloseMarket = useCallback(() => setActiveMarket(null), [setActiveMarket]);
 
-  // Auth: проверяем наличие пароля / валидной сессии WebApp.
-  const { state: authState, refresh: refreshAuth, onLoginSuccess } = useAuthSession({
-    enabled: isTelegram && !isTgLoading,
-  });
-
-  // Пока Telegram SDK инициализируется (до 2с) — показываем чёрный экран,
-  // чтобы не мигать "Telegram Only" на нормальном запуске в TG.
+  // Пока проверяем среду — черный экран.
   if (isTgLoading) {
     return <div className="bg-black min-h-screen" />;
   }
 
-  if (!isTelegram) {
+  // Если открыто не из Telegram — заглушка.
+  if (!isTelegram && !import.meta.env.DEV) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center text-zinc-100 font-sans p-6">
         <div className="text-center max-w-sm">
@@ -87,34 +81,6 @@ function MainApp() {
           <p className="text-zinc-400 text-sm">
             This app is available only inside Telegram. Please open it via the bot.
           </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Auth gate — пока статус неизвестен или пользователь не авторизован,
-  // главный UI не рендерим, чтобы избежать «мигания» приватного содержимого.
-  if (authState.status === 'checking') {
-    return <div className="bg-black min-h-screen" />;
-  }
-  if (authState.status === 'no_password') {
-    return <NoPasswordScreen onRetry={refreshAuth} />;
-  }
-  if (authState.status === 'needs_login') {
-    return <LoginScreen nickname={authState.nickname} onSuccess={onLoginSuccess} />;
-  }
-  if (authState.status === 'error') {
-    return (
-      <div className="bg-black min-h-screen flex items-center justify-center text-zinc-100 font-sans p-6">
-        <div className="text-center max-w-sm">
-          <div className="text-5xl mb-4">⚠️</div>
-          <p className="text-zinc-400 text-sm mb-4">{authState.message}</p>
-          <button
-            onClick={refreshAuth}
-            className="h-11 px-5 rounded-xl bg-white text-black font-bold active:bg-zinc-200"
-          >
-            Retry
-          </button>
         </div>
       </div>
     );

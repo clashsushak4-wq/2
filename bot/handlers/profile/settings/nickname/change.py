@@ -13,8 +13,8 @@ from bot.states import ProfileState
 from shared.constants import NICKNAME_PATTERN
 from shared.database.repo.users import UserRepo
 from bot.utils.media import edit_message_with_media, edit_with_media
-from bot.handlers.profile.settings.security.helpers import safe_delete
-
+from contextlib import suppress
+from aiogram.exceptions import TelegramBadRequest
 logger = logging.getLogger(__name__)
 router = Router()
 NICK_REGEX = re.compile(NICKNAME_PATTERN)
@@ -27,7 +27,8 @@ async def process_new_nick(
     state: FSMContext,
 ):
     nickname = message.text.strip() if message.text else ""
-    await safe_delete(message)
+    with suppress(TelegramBadRequest):
+        await message.delete()
     
     data = await state.get_data()
     settings_msg_id = data.get("settings_msg_id")

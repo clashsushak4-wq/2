@@ -58,71 +58,72 @@ export const TokenReceiveScreen = ({ currency, address, onClose, isDesktopInline
           </h1>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 py-6 flex flex-col items-center custom-scrollbar" style={{ paddingBottom: 'calc(80px + var(--safe-bottom, 0px))' }}>
-          
-          {/* Main Card */}
-          <div className="bg-[#1C1C1E] w-full rounded-3xl p-6 flex flex-col items-center border border-white/5 relative overflow-hidden">
-            {/* Background Glow */}
-            <div className={`absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none ${isGram ? 'bg-[#0098EA]' : 'bg-[#26A17B]'}`} />
-            
-            <p className="text-white/60 font-medium mb-6 relative z-10">
-              {currency} в сети TON
-            </p>
-
-            <div className={`p-4 rounded-3xl mb-8 relative z-10 ${isGram ? 'bg-[#0098EA]' : 'bg-[#26A17B]'}`}>
-              <QRCode 
-                value={address} 
-                size={220}
-                bgColor="transparent"
-                fgColor="#ffffff"
-                level="M"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 mb-2 relative z-10">
-              <span className="text-white/90 font-medium text-sm">Название адреса</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-white/50">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </div>
-
-            <button 
-              onClick={handleCopy}
-              className="group flex flex-col items-center justify-center w-full bg-white/5 hover:bg-white/10 rounded-2xl p-4 transition-colors relative z-10"
-            >
-              <p className="text-white font-mono text-sm break-all text-center leading-relaxed">
-                {address}
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+          <div className="flex flex-col items-center px-4 py-6 w-full" style={{ paddingBottom: 'calc(80px + var(--safe-bottom, 0px))' }}>
+            {/* Main Card */}
+            <div className="bg-[#1C1C1E] w-full rounded-3xl p-6 flex flex-col items-center border border-white/5 relative overflow-hidden shrink-0">
+              {/* Background Glow */}
+              <div className={`absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none ${isGram ? 'bg-[#0098EA]' : 'bg-[#26A17B]'}`} />
+              
+              <p className="text-white/60 font-medium mb-6 relative z-10">
+                {currency} в сети TON
               </p>
-              <div className="mt-2 flex items-center gap-1 text-white/50 group-hover:text-white/80">
-                <Copy size={16} />
-                <span className="text-xs font-medium">{copied ? "Скопировано!" : "Скопировать"}</span>
+
+              <div className={`p-4 rounded-3xl mb-8 relative z-10 ${isGram ? 'bg-[#0098EA]' : 'bg-[#26A17B]'}`}>
+                <QRCode 
+                  value={address} 
+                  size={220}
+                  bgColor="transparent"
+                  fgColor="#ffffff"
+                  level="M"
+                />
               </div>
+
+              <div className="flex items-center gap-2 mb-2 relative z-10">
+                <span className="text-white/90 font-medium text-sm">Название адреса</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-white/50">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+
+              <button 
+                onClick={handleCopy}
+                className="group flex flex-col items-center justify-center w-full bg-white/5 hover:bg-white/10 rounded-2xl p-4 transition-colors relative z-10"
+              >
+                <p className="text-white font-mono text-sm break-all text-center leading-relaxed">
+                  {address}
+                </p>
+                <div className="mt-2 flex items-center gap-1 text-white/50 group-hover:text-white/80">
+                  <Copy size={16} />
+                  <span className="text-xs font-medium">{copied ? "Скопировано!" : "Скопировать"}</span>
+                </div>
+              </button>
+
+              <p className="text-center text-white/40 text-xs mt-6 px-4 leading-relaxed relative z-10">
+                Отправляйте только {currency} в сети TON на этот адрес. Сумма меньше <span className="text-orange-400 font-medium">0.1 {currency}</span> может быть утеряна.
+              </p>
+            </div>
+
+            {/* Attention Box */}
+            <div className="w-full bg-[#1C1C1E] border border-orange-500/20 rounded-2xl p-4 mt-4 flex items-center gap-4 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0">
+                <AlertCircle size={24} className="text-orange-500" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm">Обратите внимание!</p>
+                <p className="text-white/60 text-xs mt-0.5">Это некастодиальный кошелек. Убедитесь, что отправитель поддерживает сеть TON.</p>
+              </div>
+            </div>
+
+            {/* Share Button */}
+            <button 
+              onClick={handleShare}
+              className="w-full shrink-0 bg-white text-black font-bold text-lg py-4 rounded-2xl mt-8 flex items-center justify-center gap-2 shadow-lg"
+            >
+              <Share size={20} />
+              Поделиться
             </button>
-
-            <p className="text-center text-white/40 text-xs mt-6 px-4 leading-relaxed relative z-10">
-              Отправляйте только {currency} в сети TON на этот адрес. Сумма меньше <span className="text-orange-400 font-medium">0.1 {currency}</span> может быть утеряна.
-            </p>
           </div>
-
-          {/* Attention Box */}
-          <div className="w-full bg-[#1C1C1E] border border-orange-500/20 rounded-2xl p-4 mt-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0">
-              <AlertCircle size={24} className="text-orange-500" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm">Обратите внимание!</p>
-              <p className="text-white/60 text-xs mt-0.5">Это некастодиальный кошелек. Убедитесь, что отправитель поддерживает сеть TON.</p>
-            </div>
-          </div>
-
-          {/* Share Button */}
-          <button 
-            onClick={handleShare}
-            className="w-full bg-white text-black font-bold text-lg py-4 rounded-2xl mt-8 flex items-center justify-center gap-2 shadow-lg"
-          >
-            <Share size={20} />
-            Поделиться
-          </button>
         </div>
       </motion.div>
   );

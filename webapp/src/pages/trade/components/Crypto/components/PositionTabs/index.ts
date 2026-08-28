@@ -1,1 +1,0 @@
-export { PositionTabs } from './PositionTabs';

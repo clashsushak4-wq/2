@@ -20,9 +20,6 @@ class User(Base):
     nickname: Mapped[str | None] = mapped_column(String(15), unique=True, nullable=True, index=True)
     nickname_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    # WebApp авторизация по логину/паролю
-    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    password_set_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     language: Mapped[str] = mapped_column(String(5), default="ru", server_default="ru")
     notifications_enabled: Mapped[bool] = mapped_column(Boolean, default=True)

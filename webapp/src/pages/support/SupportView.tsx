@@ -23,7 +23,7 @@ export const SupportView = () => {
 
   return (
     <>
-      <PageWrapper className="pb-4 space-y-6 px-4 md:mx-auto md:max-w-5xl md:mt-8 md:flex md:flex-col md:gap-6">
+      <PageWrapper className="pb-4 flex flex-col gap-3 -mx-3 px-1 md:mx-auto md:px-4 md:max-w-5xl md:mt-8 md:gap-6">
         <div className="w-full">
           <ChatTile onClick={() => setIsChatOpen(true)} />
         </div>

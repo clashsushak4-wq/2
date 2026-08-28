@@ -1,4 +1,4 @@
-import { useAppStore, useAuthStore } from '../../../../store';
+import { useAppStore } from '../../../../store';
 import { NotificationButton } from '../NotificationButton';
 
 interface ProfileCardProps {
@@ -8,14 +8,9 @@ interface ProfileCardProps {
 
 export const ProfileCard = ({ onNotificationClick, isNotificationActive }: ProfileCardProps = {}) => {
   const user = useAppStore((s) => s.user);
-  const session = useAuthStore((s) => s.session);
 
-  // Уникальный ник, заданный в боте, — главное отображаемое имя.
-  // Если ника ещё нет (новый пользователь / нет сессии) — показываем Telegram-имя.
-  const nickname = session?.nickname || null;
-  const fallbackName = user?.username ?? user?.firstName ?? 'User';
-  const displayName = nickname ? `#${nickname}` : fallbackName;
-  const avatarChar = (nickname ?? fallbackName)[0]?.toUpperCase() ?? 'U';
+  const displayName = user?.username ? `@${user.username}` : (user?.firstName ?? 'User');
+  const avatarChar = (user?.username ?? user?.firstName ?? 'U')[0]?.toUpperCase() ?? 'U';
 
   return (
     <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 hover:border-white/10 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 rounded-2xl p-5 relative overflow-hidden">

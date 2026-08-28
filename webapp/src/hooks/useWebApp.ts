@@ -63,6 +63,18 @@ export const useWebApp = () => {
         
         if (isMobilePlatform) {
           setIsDesktop(false);
+          // Блокируем закрытие по свайпу вниз на мобилках
+          if (tg.disableVerticalSwipes) {
+            tg.disableVerticalSwipes();
+          }
+          // Блокируем закрытие по аппаратной кнопке "Назад" (Android) или свайпу "Назад" (iOS)
+          if (!(window as any).__back_button_locked__) {
+            window.history.pushState(null, '', window.location.href);
+            window.addEventListener('popstate', () => {
+              window.history.pushState(null, '', window.location.href);
+            });
+            (window as any).__back_button_locked__ = true;
+          }
         } else {
           setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
         }

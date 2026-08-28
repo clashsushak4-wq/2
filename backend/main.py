@@ -11,11 +11,10 @@ from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from shared.utils.logger import setup_logger
 from shared.database.core import session_maker
-from shared.database.repo.sessions import SessionRepo
 
 setup_logger()  # Unified loguru + stdlib logging bridge for backend
 
-from backend.api.routes import admin_auth, auth, bot_media, charts, exchanges, home, news, support, users, webapp_auth, trade
+from backend.api.routes import admin_auth, auth, bot_media, charts, exchanges, home, news, support, users, trade
 from backend.api.routes.uploads import router as uploads_router
 from backend.bot_webhook import router as telegram_webhook_router
 from backend.bot_webhook import shutdown_bot_webhook, startup_bot_webhook
@@ -25,28 +24,11 @@ logger = logging.getLogger(__name__)
 _BASE = os.path.dirname(__file__)
 
 
-# ── Lifecycle ────────────────────────────────────────────────
-async def _session_cleanup_worker():
-    while True:
-        try:
-            async with session_maker() as session:
-                repo = SessionRepo(session)
-                await repo.cleanup_expired()
-                await session.commit()
-        except asyncio.CancelledError:
-            break
-        except Exception as e:
-            logger.error("Error in session cleanup task: %s", e)
-        await asyncio.sleep(60 * 60)  # Каждый час
-
-
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    cleanup_task = asyncio.create_task(_session_cleanup_worker())
     await startup_bot_webhook()
     yield
     await shutdown_bot_webhook()
-    cleanup_task.cancel()
 
 
 app = FastAPI(title="Trading Bot API", version="1.0.0", lifespan=lifespan)
@@ -76,7 +58,7 @@ async def health():
 
 # ── API Routes ───────────────────────────────────────────────
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(webapp_auth.router, prefix="/api/webapp/auth", tags=["webapp-auth"])
+
 app.include_router(admin_auth.router, prefix="/api/admin/auth", tags=["admin-auth"])
 app.include_router(support.router, prefix="/api/support", tags=["support"])
 app.include_router(home.router, prefix="/api/home", tags=["home"])

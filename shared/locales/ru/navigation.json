@@ -8,7 +8,7 @@
   "main_menu": "<tg-emoji emoji-id=\"5979027086612892618\">🏠</tg-emoji> Вы в главном меню",
   "start_main_text": "<blockquote><tg-emoji emoji-id=\"5974193375799152241\">ℹ️</tg-emoji> <b>Информация</b></blockquote>\n\n╔ <b>Открылись:</b> 20.03.2025\n╠ <b>Версия:</b> 1.2.0 (Stable)\n╚ <b>Администратор:</b> @shadowqb\n\n<blockquote><tg-emoji emoji-id=\"6021868195684552067\">📍</tg-emoji> <b>Навигация</b></blockquote>",
   "chat_commands_text": "<blockquote><tg-emoji emoji-id=\"6010457897803189771\">🤖</tg-emoji> <b>Доступные команды в чате:</b></blockquote>\n\n/top - топ 10 за все время\n/topm - топ 10 за месяц\n/topw - топ 10 за неделю\n/topd - топ 10 за день\n/bio id - статистика профиля\n/smena - кто на смене\n/referral - топ 10 рефералов",
-  "welcome_select_language": "<pre>╔ Select language\n╠ Виберіть мову\n╠ Dil seçin\n╚ Выберите язык</pre>",
+  "welcome_select_language": "<blockquote>╔ Select language\n╠ Виберіть мову\n╠ Dil seçin\n╚ Выберите язык</blockquote>",
   "btn_trading": "Trading",
   "btn_education": "Обучение",
   "btn_webapp": "Запустить WebApp",

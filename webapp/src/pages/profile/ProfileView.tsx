@@ -37,11 +37,11 @@ export const ProfileView = () => {
   }
 
   return (
-    <PageWrapper className="pb-4 px-4 md:mx-auto md:max-w-2xl md:mt-12 flex flex-col gap-4 md:gap-6">
+    <PageWrapper className="pb-4 -mx-3 px-1 md:mx-auto md:px-4 md:max-w-2xl md:mt-12 flex flex-col gap-3 md:gap-6">
       <div className="shrink-0 w-full">
         <ProfileCard />
       </div>
-      <div className="w-full flex flex-col gap-3">
+      <div className="w-full flex flex-col gap-2 md:gap-3">
         <SettingsTile />
         <AboutTile />
       </div>

@@ -6,7 +6,7 @@ from .support import Ticket, TicketMessage
 from .home import HomeTile
 from .exchanges import Exchange
 from .bot_media import BotMedia
-from .sessions import UserSession
+
 
 __all__ = [
     "Base",
@@ -16,5 +16,4 @@ __all__ = [
     "HomeTile",
     "Exchange",
     "BotMedia",
-    "UserSession",
 ]
