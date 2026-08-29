@@ -110,10 +110,14 @@ if os.path.exists(webapp_dist):
     async def serve_webapp(request: Request, full_path: str):
         """Serve webapp SPA with fallback to index.html for client-side routing."""
         file_path = os.path.normpath(os.path.join(webapp_dist, full_path))
+        no_cache_headers = {"Cache-Control": "no-cache, no-store, must-revalidate"}
+        
         if not file_path.startswith(os.path.normpath(webapp_dist)):
-            return FileResponse(os.path.join(webapp_dist, "index.html"))
+            return FileResponse(os.path.join(webapp_dist, "index.html"), headers=no_cache_headers)
+            
         if full_path and os.path.isfile(file_path):
             return FileResponse(file_path)
-        return FileResponse(os.path.join(webapp_dist, "index.html"))
+            
+        return FileResponse(os.path.join(webapp_dist, "index.html"), headers=no_cache_headers)
 
 
