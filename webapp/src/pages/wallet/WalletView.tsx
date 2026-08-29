@@ -4,7 +4,7 @@ import { Onboarding, Dashboard, PinPad, SeedBackup, SeedImport, SendForm, Receiv
 import { BottomSheet } from '../../shared/ui';
 import { useWalletStore } from '../../store/walletStore';
 import { generateNewWallet, encryptMnemonic, decryptMnemonic } from '../../utils/crypto';
-import { useBinanceTicker } from '../../hooks/useBinanceMarket';
+
 import { useMediaQuery } from '../../hooks';
 import { sendTransaction } from '../../utils/transactions';
 
@@ -101,7 +101,12 @@ export const WalletView = () => {
       await sendTransaction(mnemonicStr, sendData.address, sendData.amount, sendData.currency);
       
       // 3. Успех
-      alert('Транзакция успешно отправлена в сеть!');
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg?.showAlert) {
+        tg.showAlert('Транзакция успешно отправлена в сеть!');
+      } else {
+        alert('Транзакция успешно отправлена в сеть!');
+      }
       setSendData(null);
       setStep('dashboard');
     } catch (e) {

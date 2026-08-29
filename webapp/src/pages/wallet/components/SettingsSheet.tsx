@@ -13,9 +13,19 @@ export const SettingsScreen = ({ onClose, isDesktopInline }: SettingsScreenProps
   useBackButton(onClose);
 
   const handleLogout = () => {
-    if (window.confirm("Вы уверены, что хотите удалить кошелек с устройства? Без сид-фразы вы потеряете к нему доступ навсегда.")) {
-      useWalletStore.getState().clearWallet();
-      window.location.reload();
+    const tg = (window as any).Telegram?.WebApp;
+    const msg = "Вы уверены, что хотите удалить кошелек с устройства? Без сид-фразы вы потеряете к нему доступ навсегда.";
+    const onConfirm = (ok: boolean) => {
+      if (ok) {
+        useWalletStore.getState().clearWallet();
+        window.location.reload();
+      }
+    };
+    
+    if (tg?.showConfirm) {
+      tg.showConfirm(msg, onConfirm);
+    } else {
+      if (window.confirm(msg)) onConfirm(true);
     }
   };
 

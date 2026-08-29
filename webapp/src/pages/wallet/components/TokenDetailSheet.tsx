@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { History, ArrowDownLeft, ArrowUpRight, Plus, ArrowLeftRight, ChevronRight, ArrowUpFromLine } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Plus, ArrowLeftRight, ChevronRight, ArrowUpFromLine } from 'lucide-react';
 import { fetchHistory, TransactionEvent } from '../../../utils/tonapi';
 import { useBackButton } from '../../../hooks';
 import { slideFromRight } from '../../../shared/animations';
@@ -60,7 +60,7 @@ export const TokenDetailScreen = ({ currency, balance, address, currentPrice, on
 
   const balanceUsd = (parseFloat(balance) * currentPrice).toFixed(2);
   const isGram = currency === 'GRAM';
-  const themeColor = isGram ? 'from-[#0098EA]/30' : 'from-[#26A17B]/30';
+
 
   const content = (
       <motion.div

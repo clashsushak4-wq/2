@@ -7,6 +7,7 @@ export interface AppUser {
   firstName?: string;
   lastName?: string;
   languageCode?: string;
+  nickname?: string;
 }
 
 export type MarketType = 'crypto' | 'screener';

@@ -5,11 +5,30 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
-from backend.core.deps import get_session, get_admin_user_id
+from backend.core.deps import get_session, get_admin_user_id, get_current_user_id
 from shared.database.repo.users import UserRepo
 from shared.database.models.support import Ticket
+from fastapi import HTTPException
 
 router = APIRouter()
+
+class UserMeResponse(BaseModel):
+    id: int
+    nickname: Optional[str]
+    
+@router.get("/me", response_model=UserMeResponse)
+async def get_me(
+    user_id: int = Depends(get_current_user_id),
+    session: AsyncSession = Depends(get_session)
+):
+    repo = UserRepo(session)
+    user = await repo.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return UserMeResponse(
+        id=user.tg_id,
+        nickname=user.nickname
+    )
 
 
 class AdminUserResponse(BaseModel):

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TonConnectUIProvider } from '@tonconnect/ui-react';
+
 import { AnimatePresence, MotionConfig } from 'framer-motion';
 import { LoadingScreen, DesktopLayout, MobileLayout } from './shared';
 import { HomeView, WalletView, SupportView, ProfileView, TradeView } from './pages';
@@ -12,7 +12,7 @@ function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
   const [isLoading, setIsLoading] = useState(true);
   const { user, webApp, isTelegram, isDesktop, isLoading: isTgLoading } = useWebApp();
-  const { setUser, isFullscreen, setFullscreen, activeMarket, setActiveMarket } = useAppStore();
+  const { setUser, isFullscreen, setFullscreen, activeMarket, setActiveMarket, user: storeUser } = useAppStore();
   const setLanguage = useI18nStore((s) => s.setLanguage);
 
   useEffect(() => {
@@ -23,6 +23,7 @@ function MainApp() {
         firstName: user.first_name,
         lastName: user.last_name,
         languageCode: user.language_code,
+        nickname: storeUser?.nickname, // preserve existing nickname if any
       });
       if (!localStorage.getItem('app_language')) {
         const lang = user.language_code === 'ru' ? 'ru' : user.language_code === 'uk' ? 'ua' : 'en';
@@ -30,6 +31,25 @@ function MainApp() {
       }
     }
   }, [user, setUser, setLanguage]);
+
+  useEffect(() => {
+    if (user) {
+      import('./api/client').then(({ api }) => {
+        api.user.getMe().then((data) => {
+          if (data.nickname) {
+            setUser({
+              id: user.id,
+              username: user.username,
+              firstName: user.first_name,
+              lastName: user.last_name,
+              languageCode: user.language_code,
+              nickname: data.nickname,
+            });
+          }
+        }).catch(console.error);
+      });
+    }
+  }, [user, setUser]);
 
   useEffect(() => {
     if (webApp) {
@@ -127,17 +147,6 @@ function MainApp() {
   );
 }
 
-const MANIFEST_URL =
-  import.meta.env.VITE_TONCONNECT_MANIFEST_URL ||
-  `${import.meta.env.BASE_URL}tonconnect-manifest.json`;
-
 export default function App() {
-  return (
-    <TonConnectUIProvider
-      manifestUrl={MANIFEST_URL}
-      actionsConfiguration={{ twaReturnUrl: 'https://t.me/io_sdbot' }}
-    >
-      <MainApp />
-    </TonConnectUIProvider>
-  );
+  return <MainApp />;
 }

@@ -9,7 +9,7 @@ const getInitData = (): string => {
   return '';
 };
 
-const isDev = import.meta.env.DEV;
+
 
 export const apiClient = axios.create({
   baseURL: API_URL,
@@ -68,18 +68,13 @@ export interface HomeTile {
   content: TileContent;
 }
 
-export type MarketType = 'spot' | 'futures';
-
-export interface SymbolInfo {
-  symbol: string;
-  base: string;
-  quote: string;
-  volume_24h: number;
-  price: number;
-  change_24h: number;
-}
-
 export const api = {
+  user: {
+    getMe: async () => {
+      const response = await apiClient.get('/users/me');
+      return response.data;
+    }
+  },
   support: {
     getMyTicket: async () => {
       const response = await apiClient.get('/support/my-ticket');
@@ -106,45 +101,6 @@ export const api = {
     },
   },
 
-  charts: {
-    getCryptoOHLCV: async (symbol: string, timeframe = '1h', limit = 1500) => {
-      const res = await apiClient.get(`/charts/crypto/ohlcv/${symbol}`, {
-        params: { timeframe, limit },
-        timeout: 30000,
-      });
-      return res.data as {
-        symbol: string;
-        timeframe: string;
-        candles: { time: number; open: number; high: number; low: number; close: number; volume: number }[];
-        exchange: string;
-      };
-    },
-    getCryptoOHLCVBefore: async (
-      symbol: string,
-      timeframe: string,
-      limit: number,
-      endTime: number,
-    ) => {
-      const res = await apiClient.get(`/charts/crypto/ohlcv/${symbol}`, {
-        params: { timeframe, limit, end_time: endTime * 1000 },
-        timeout: 30000,
-      });
-      return res.data as {
-        symbol: string;
-        timeframe: string;
-        candles: { time: number; open: number; high: number; low: number; close: number; volume: number }[];
-        exchange: string;
-      };
-    },
-    getSymbols: async (market: MarketType = 'futures', limit = 200): Promise<SymbolInfo[]> => {
-      const res = await apiClient.get('/charts/crypto/symbols', {
-        params: { market, limit },
-        timeout: 30000,
-      });
-      return res.data;
-    },
-  },
-
   news: {
     getCrypto: async () => {
       const response = await apiClient.get('/news/crypto');
@@ -160,17 +116,4 @@ export const api = {
     },
   },
 
-  trade: {
-    placeOrder: async (data: {
-      symbol: string;
-      side: 'buy' | 'sell';
-      type: 'limit' | 'market';
-      quantity: number;
-      price?: number;
-      leverage: number;
-    }) => {
-      const response = await apiClient.post('/trade/order', data);
-      return response.data;
-    },
-  },
 };

@@ -2,49 +2,61 @@ import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { PageWrapper } from '../../shared/ui';
 import { 
-  ProfileCard, 
-  SettingsTile, 
-  AboutTile 
+  ProfileMenu
 } from './components';
 import { SettingsModal } from './components/SettingsTile/SettingsModal';
 import { AboutModal } from './components/AboutTile/AboutModal';
 import { NotificationModal } from './components/NotificationButton/NotificationModal';
 import { useMediaQuery } from '../../hooks';
 
-type ProfileTab = 'notifications' | 'settings' | 'about';
+type ProfileTab = 'settings' | 'security' | 'referrals' | 'about' | 'notifications' | null;
 
 export const ProfileView = () => {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const [activeTab, setActiveTab] = useState<ProfileTab>('notifications');
+  const [activeTab, setActiveTab] = useState<ProfileTab>(null);
+
+  const handleTabChange = (tab: 'settings' | 'about' | 'security' | 'referrals' | 'notifications') => {
+    if (tab === 'security' || tab === 'referrals') {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg?.showAlert) {
+        tg.showAlert('Раздел находится в разработке');
+      } else {
+        alert('Раздел находится в разработке');
+      }
+      return;
+    }
+    setActiveTab(tab);
+  };
+
+  const closeModal = () => setActiveTab(null);
 
   if (isDesktop) {
     return (
-      <PageWrapper className="pb-4 px-4 md:mx-auto lg:max-w-[1000px] flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-8 h-[calc(100vh-120px)] min-h-[500px]">
-        <div className="lg:col-span-5 w-full flex flex-col gap-4">
-          <ProfileCard onNotificationClick={() => setActiveTab('notifications')} isNotificationActive={activeTab === 'notifications'} />
-          <SettingsTile onClick={() => setActiveTab('settings')} isActive={activeTab === 'settings'} />
-          <AboutTile onClick={() => setActiveTab('about')} isActive={activeTab === 'about'} />
+      <PageWrapper className="pb-4 px-4 h-full flex flex-col items-center w-full">
+        <div className="w-full max-w-lg flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2 pt-8">
+          <ProfileMenu activeTab={activeTab || ''} onTabChange={handleTabChange} />
         </div>
-        <div className="lg:col-span-7 w-full h-full bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl relative">
-          <AnimatePresence mode="wait">
-            {activeTab === 'notifications' && <NotificationModal key="notifications" isDesktopInline onClose={() => {}} />}
-            {activeTab === 'settings' && <SettingsModal key="settings" isDesktopInline onClose={() => {}} />}
-            {activeTab === 'about' && <AboutModal key="about" isDesktopInline onClose={() => {}} />}
-          </AnimatePresence>
-        </div>
+
+        <AnimatePresence>
+          {activeTab === 'settings' && <SettingsModal key="settings" onClose={closeModal} />}
+          {activeTab === 'about' && <AboutModal key="about" onClose={closeModal} />}
+          {activeTab === 'notifications' && <NotificationModal key="notifications" onClose={closeModal} isDesktopInline={false} />}
+        </AnimatePresence>
       </PageWrapper>
     );
   }
 
   return (
-    <PageWrapper className="pb-4 -mx-3 px-1 md:mx-auto md:px-4 md:max-w-2xl md:mt-12 flex flex-col gap-3 md:gap-6">
-      <div className="shrink-0 w-full">
-        <ProfileCard />
+    <PageWrapper className="pb-8 -mx-3 px-1 md:mx-auto md:px-4 md:max-w-2xl md:mt-12 flex flex-col gap-4 pt-4">
+      <div className="w-full">
+        <ProfileMenu activeTab={activeTab || ''} onTabChange={handleTabChange} />
       </div>
-      <div className="w-full flex flex-col gap-2 md:gap-3">
-        <SettingsTile />
-        <AboutTile />
-      </div>
+
+      <AnimatePresence>
+        {activeTab === 'settings' && <SettingsModal key="settings_mobile" onClose={closeModal} />}
+        {activeTab === 'about' && <AboutModal key="about_mobile" onClose={closeModal} />}
+        {activeTab === 'notifications' && <NotificationModal key="notifications_mobile" onClose={closeModal} />}
+      </AnimatePresence>
     </PageWrapper>
   );
 };
