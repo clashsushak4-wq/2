@@ -11,7 +11,7 @@ interface MobileLayoutProps {
 export const MobileLayout = ({ activeTab, onTabChange, children, isFullscreen }: MobileLayoutProps) => {
   return (
     <div 
-      className="min-h-screen pb-24 transition-all duration-300"
+      className="min-h-screen pb-24 transition-[padding-top] duration-300"
       style={{ 
           paddingTop: isFullscreen ? 'var(--safe-top, 0px)' : '0px'
       }}

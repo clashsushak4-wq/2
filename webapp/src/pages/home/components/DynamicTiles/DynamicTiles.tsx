@@ -11,6 +11,15 @@ import { ExpandBlocks } from './ExpandBlocks';
 import { TileModal } from './TileModal';
 import { useTranslation } from '../../../../i18n';
 
+const openTelegramLink = (url: string) => {
+  const tg = (window as any).Telegram?.WebApp;
+  if (tg?.openLink) {
+    tg.openLink(url);
+  } else {
+    window.open(url, '_blank', 'noreferrer');
+  }
+};
+
 export const DynamicTiles = () => {
   const { homeTiles, setHomeTiles } = useAppStore();
   const { t } = useTranslation();
@@ -72,7 +81,7 @@ export const DynamicTiles = () => {
                 autoRotate={tile.content.auto_rotate !== false}
                 colSpan={colSpan}
                 rowSpan={rowSpan}
-                onClick={tile.content?.action_url ? () => window.open(tile.content!.action_url!, '_blank', 'noreferrer') : undefined}
+                onClick={tile.content?.action_url ? () => openTelegramLink(tile.content!.action_url!) : undefined}
               />
             );
           }
@@ -87,7 +96,7 @@ export const DynamicTiles = () => {
 
           const handleTileClick = () => {
             if (tile.type === 'promo' && tile.content?.action_url) {
-              window.open(tile.content.action_url, '_blank', 'noreferrer');
+              openTelegramLink(tile.content.action_url);
               return;
             }
             if (isExpandable) {

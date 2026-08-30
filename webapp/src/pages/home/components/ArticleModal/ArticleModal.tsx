@@ -19,10 +19,9 @@ export const ArticleModal = ({ article, onClose }: ArticleModalProps) => {
   const [loading, setLoading] = useState(true);
   const [viewImage, setViewImage] = useState<string | null>(null);
 
-  // Block background scroll
+  // Block background scroll (removed for iOS compatibility)
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    // scroll lock logic removed
   }, []);
 
   useEffect(() => {
@@ -57,7 +56,7 @@ export const ArticleModal = ({ article, onClose }: ArticleModalProps) => {
   };
 
   return (
-    <div key="news-modal" className="fixed inset-0 z-50">
+    <div key="news-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <motion.div
         variants={simpleFade}
         initial="hidden"
@@ -72,8 +71,7 @@ export const ArticleModal = ({ article, onClose }: ArticleModalProps) => {
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-x-3 bg-zinc-900/95 backdrop-blur-xl rounded-3xl border-2 border-zinc-700 z-10 max-w-md mx-auto max-h-[80vh] overflow-y-auto overscroll-contain"
-        style={{ top: 'calc(50px + var(--safe-top, 0px))' }}
+        className="relative w-full bg-zinc-900/95 backdrop-blur-xl rounded-3xl border-2 border-zinc-700 z-10 max-w-md mx-auto max-h-[80vh] overflow-y-auto overscroll-contain"
       >
         {/* Hero image — tappable */}
         {article.image && (

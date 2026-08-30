@@ -12,16 +12,9 @@ interface BottomSheetProps {
 export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetProps) => {
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  // Блокируем скролл body, когда открыта шторка
+  // Блокируем скролл body, когда открыта шторка (отключено для iOS)
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    // scroll lock logic removed
   }, [isOpen]);
 
   return (

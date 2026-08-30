@@ -117,6 +117,12 @@ function MainApp() {
     }
   };
 
+  const content = (
+    <AnimatePresence mode="wait">
+      {renderContent()}
+    </AnimatePresence>
+  );
+
   return (
     <MotionConfig reducedMotion="user">
     <div className="bg-black min-h-screen text-zinc-100 font-sans select-none">
@@ -125,11 +131,11 @@ function MainApp() {
                 <LoadingScreen key="loader" onComplete={() => setIsLoading(false)} />
             ) : isDesktop ? (
                 <DesktopLayout key="desktop-app" activeTab={activeTab} onTabChange={setActiveTab} isFullscreen={isFullscreen}>
-                    {renderContent()}
+                    {content}
                 </DesktopLayout>
             ) : (
                 <MobileLayout key="mobile-app" activeTab={activeTab} onTabChange={setActiveTab} isFullscreen={isFullscreen}>
-                    {renderContent()}
+                    {content}
                 </MobileLayout>
             )}
         </AnimatePresence>

@@ -20,7 +20,7 @@ export const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
 
   return (
     <div className="fixed left-4 right-4 z-40" style={{ bottom: 'calc(16px + var(--safe-bottom, 0px))' }}>
-        <div className="relative bg-zinc-900/95 backdrop-blur-xl border-2 border-zinc-700 rounded-3xl px-3 py-2.5 shadow-2xl max-w-md mx-auto overflow-visible">
+        <div className="relative bg-zinc-900/95 backdrop-blur-xl border-2 border-zinc-700 rounded-3xl px-3 py-2.5 shadow-2xl max-w-md mx-auto overflow-visible transform-gpu will-change-transform">
           <div className="flex justify-between items-center relative z-10 h-[50px]">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
