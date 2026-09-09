@@ -60,6 +60,7 @@ services:
       - ../backend:/app/backend
       - ../shared:/app/shared
       - ../webapp:/app/webapp
+      - ../admin:/app/admin
       - ../uploads:/app/uploads
     ports:
       - "8000:8000"

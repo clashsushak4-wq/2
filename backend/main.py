@@ -120,4 +120,23 @@ if os.path.exists(webapp_dist):
             
         return FileResponse(os.path.join(webapp_dist, "index.html"), headers=no_cache_headers)
 
+admin_dist = os.path.join(_BASE, "..", "admin", "dist")
+admin_assets = os.path.join(admin_dist, "assets")
+if os.path.exists(admin_dist):
+    if os.path.exists(admin_assets):
+        app.mount("/admin/assets", StaticFiles(directory=admin_assets), name="admin-assets")
+    
+    @app.get("/admin/{full_path:path}")
+    async def serve_admin(request: Request, full_path: str):
+        file_path = os.path.normpath(os.path.join(admin_dist, full_path))
+        no_cache_headers = {"Cache-Control": "no-cache, no-store, must-revalidate"}
+        
+        if not file_path.startswith(os.path.normpath(admin_dist)):
+            return FileResponse(os.path.join(admin_dist, "index.html"), headers=no_cache_headers)
+            
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+            
+        return FileResponse(os.path.join(admin_dist, "index.html"), headers=no_cache_headers)
+
 
