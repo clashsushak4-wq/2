@@ -2,6 +2,7 @@
 import logging
 from sqlalchemy import select, update, or_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import cast, String
 from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError, OperationalError, DatabaseError
 from shared.database.models import User
@@ -123,11 +124,13 @@ class UserRepo(BaseRepo):
     async def get_all_users(self, limit: int = 20, offset: int = 0, search: str = "") -> list[User]:
         stmt = select(User).order_by(User.created_at.desc())
         if search:
+            search = search.lstrip('@')
             safe = self._escape_like(search)
             stmt = stmt.where(
                 or_(
                     User.username.ilike(f"%{safe}%"),
                     User.nickname.ilike(f"%{safe}%"),
+                    cast(User.tg_id, String).ilike(f"%{safe}%"),
                 )
             )
         stmt = stmt.limit(limit).offset(offset)
@@ -137,11 +140,13 @@ class UserRepo(BaseRepo):
     async def count_users(self, search: str = "") -> int:
         stmt = select(func.count()).select_from(User)
         if search:
+            search = search.lstrip('@')
             safe = self._escape_like(search)
             stmt = stmt.where(
                 or_(
                     User.username.ilike(f"%{safe}%"),
                     User.nickname.ilike(f"%{safe}%"),
+                    cast(User.tg_id, String).ilike(f"%{safe}%"),
                 )
             )
         result = await self.session.execute(stmt)

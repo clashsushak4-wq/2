@@ -14,7 +14,7 @@ from shared.database.core import session_maker
 
 setup_logger()  # Unified loguru + stdlib logging bridge for backend
 
-from backend.api.routes import admin_auth, auth, bot_media, charts, exchanges, home, news, support, users, trade
+from backend.api.routes import admin_auth, auth, bot_media, charts, exchanges, home, news, support, users, trade, broadcast
 from backend.api.routes.uploads import router as uploads_router
 from backend.bot_webhook import router as telegram_webhook_router
 from backend.bot_webhook import shutdown_bot_webhook, startup_bot_webhook
@@ -70,6 +70,7 @@ app.include_router(bot_media.router, prefix="/api/admin/bot-media", tags=["bot-m
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(telegram_webhook_router, prefix="/api/telegram", tags=["telegram-webhook"])
 app.include_router(trade.router, prefix="/api/trade", tags=["trade"])
+app.include_router(broadcast.router, prefix="/api", tags=["broadcast"])
 
 
 # ── Error / 404 handlers ─────────────────────────────────────
