@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode, useEffect } from 'react';
-import { useMediaQuery } from '../../hooks';
+import { useAppStore } from '../../store';
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface BottomSheetProps {
 }
 
 export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetProps) => {
-  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const isDesktop = useAppStore((s) => s.isFullscreen);
 
   // Блокируем скролл body, когда открыта шторка (отключено для iOS)
   useEffect(() => {

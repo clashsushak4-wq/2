@@ -5,7 +5,7 @@ import { BottomSheet } from '../../shared/ui';
 import { useWalletStore } from '../../store/walletStore';
 import { generateNewWallet, encryptMnemonic, decryptMnemonic } from '../../utils/crypto';
 
-import { useMediaQuery } from '../../hooks';
+import { useAppStore } from '../../store';
 import { sendTransaction } from '../../utils/transactions';
 
 type WalletStep = 'onboarding' | 'import_seed' | 'generating' | 'backup' | 'pin_setup' | 'pin_confirm' | 'dashboard' | 'send_form' | 'send_pin' | 'sending' | 'receive_sheet' | 'settings_sheet' | 'token_detail_sheet' | 'token_receive_sheet';
@@ -121,7 +121,7 @@ export const WalletView = () => {
     setStep('token_detail_sheet');
   };
 
-  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const isDesktop = useAppStore((s) => s.isFullscreen);
   const isDesktopSplit = isDesktop && ['dashboard', 'send_form', 'send_pin', 'receive_sheet', 'sending', 'settings_sheet', 'token_detail_sheet', 'token_receive_sheet'].includes(step);
 
   const renderRightPane = () => {

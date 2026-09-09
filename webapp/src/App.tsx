@@ -51,38 +51,7 @@ function MainApp() {
     }
   }, [user, setUser]);
 
-  useEffect(() => {
-    if (webApp) {
-      if (webApp.isFullscreen !== undefined) {
-        setFullscreen(!!webApp.isFullscreen);
-      }
-      const handleFullscreenChange = () => {
-        if (webApp.isFullscreen !== undefined) {
-          setFullscreen(!!webApp.isFullscreen);
-        }
-      };
-      
-      try {
-        if (webApp.onEvent) {
-          webApp.onEvent('fullscreen_changed', handleFullscreenChange);
-          webApp.onEvent('fullscreen_failed', handleFullscreenChange);
-        }
-      } catch (e) {
-        console.warn('fullscreen events not supported', e);
-      }
 
-      return () => {
-        try {
-          if (webApp.offEvent) {
-            webApp.offEvent('fullscreen_changed', handleFullscreenChange);
-            webApp.offEvent('fullscreen_failed', handleFullscreenChange);
-          }
-        } catch (e) {
-          console.warn('fullscreen events not supported', e);
-        }
-      };
-    }
-  }, [webApp, setFullscreen]);
 
   const handleCloseMarket = useCallback(() => setActiveMarket(null), [setActiveMarket]);
 

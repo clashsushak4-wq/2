@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { PageWrapper } from '../../shared/ui';
 import { ChatTile, FAQSection, SupportChat } from './components';
-import { useMediaQuery } from '../../hooks';
+import { useAppStore } from '../../store';
 
 export const SupportView = () => {
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const isDesktop = useAppStore((s) => s.isFullscreen);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (isDesktop) {

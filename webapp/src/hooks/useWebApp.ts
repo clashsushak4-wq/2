@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAppStore } from '../store';
 
 declare global {
   interface Window {
@@ -14,14 +15,10 @@ export const useWebApp = () => {
   const [isTelegram, setIsTelegram] = useState(
     () => !!window.Telegram?.WebApp?.initData || !!(window as any).TelegramWebviewProxy,
   );
-  const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    const platform = window.Telegram?.WebApp?.platform || '';
-    const isMobilePlatform = ['android', 'android_x', 'ios'].includes(platform);
-    if (isMobilePlatform) return false;
-    const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform);
-    return isDesktopPlatform || window.innerWidth > 768;
-  });
+  
+  const isFullscreen = useAppStore((s) => s.isFullscreen);
+  const isDesktop = isFullscreen;
+
   const [isLoading, setIsLoading] = useState(
     () => !(window.Telegram?.WebApp?.initData || (window as any).TelegramWebviewProxy),
   );
@@ -34,14 +31,12 @@ export const useWebApp = () => {
       if (!tg) return false;
 
       try {
-        // Protect Telegram WebApp side effects from running in every component.
         if (!(window as any).__tg_webapp_initialized__) {
           tg.ready();
 
           if (tg.setHeaderColor) tg.setHeaderColor('#000000');
           if (tg.setBackgroundColor) tg.setBackgroundColor('#000000');
 
-          // Don't expand on signal page — keep compact (half-screen) mode
           const isSignalPage =
             window.location.pathname.includes('/signal/') || tg.initDataUnsafe?.start_param;
           if (!isSignalPage) {
@@ -59,15 +54,11 @@ export const useWebApp = () => {
         
         const platform = tg.platform || '';
         const isMobilePlatform = ['android', 'android_x', 'ios'].includes(platform);
-        const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform);
         
         if (isMobilePlatform) {
-          setIsDesktop(false);
-          // Блокируем закрытие по свайпу вниз на мобилках
           if (tg.disableVerticalSwipes) {
             tg.disableVerticalSwipes();
           }
-          // Блокируем закрытие по аппаратной кнопке "Назад" (Android) или свайпу "Назад" (iOS)
           if (!(window as any).__back_button_locked__) {
             window.history.pushState(null, '', window.location.href);
             window.addEventListener('popstate', () => {
@@ -75,8 +66,6 @@ export const useWebApp = () => {
             });
             (window as any).__back_button_locked__ = true;
           }
-        } else {
-          setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
         }
         
         setUser(tg.initDataUnsafe?.user || null);
@@ -92,7 +81,6 @@ export const useWebApp = () => {
       return;
     }
 
-    // Retry — SDK может инициализироваться не сразу
     let attempt = 0;
     const maxAttempts = 10;
     const interval = setInterval(() => {
@@ -103,21 +91,8 @@ export const useWebApp = () => {
       }
     }, 200);
 
-    const handleResize = () => {
-      const platform = window.Telegram?.WebApp?.platform || '';
-      const isMobilePlatform = ['android', 'android_x', 'ios'].includes(platform);
-      const isDesktopPlatform = ['macos', 'tdesktop', 'weba', 'web', 'webz'].includes(platform);
-      if (isMobilePlatform) {
-        setIsDesktop(false);
-      } else {
-        setIsDesktop(isDesktopPlatform || window.innerWidth > 768);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-
     return () => {
       clearInterval(interval);
-      window.removeEventListener('resize', handleResize);
     };
   }, []);
 

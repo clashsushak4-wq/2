@@ -9,24 +9,9 @@ export const FullscreenSetting = () => {
   const { t } = useTranslation();
 
   const toggleFullscreen = () => {
-    if (!webApp) return;
-    
-    try {
-      if (isFullscreen) {
-        if (webApp.exitFullscreen) {
-          webApp.exitFullscreen();
-          setFullscreen(false);
-        }
-      } else {
-        if (webApp.requestFullscreen) {
-          webApp.requestFullscreen();
-          setFullscreen(true);
-        }
-      }
-    } catch (e) {
-      console.warn('Fullscreen toggle failed', e);
-    }
+    setFullscreen(!isFullscreen);
   };
+
 
   const Icon = isFullscreen ? Minimize : Maximize;
 

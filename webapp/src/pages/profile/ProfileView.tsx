@@ -7,12 +7,12 @@ import {
 import { SettingsModal } from './components/SettingsTile/SettingsModal';
 import { AboutModal } from './components/AboutTile/AboutModal';
 import { NotificationModal } from './components/NotificationButton/NotificationModal';
-import { useMediaQuery } from '../../hooks';
+import { useAppStore } from '../../store';
 
 type ProfileTab = 'settings' | 'security' | 'referrals' | 'about' | 'notifications' | null;
 
 export const ProfileView = () => {
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const isDesktop = useAppStore((s) => s.isFullscreen);
   const [activeTab, setActiveTab] = useState<ProfileTab>(null);
 
   const handleTabChange = (tab: 'settings' | 'about' | 'security' | 'referrals' | 'notifications') => {
