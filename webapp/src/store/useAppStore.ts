@@ -10,7 +10,7 @@ export interface AppUser {
   nickname?: string;
 }
 
-export type MarketType = 'crypto' | 'screener';
+export type MarketType = 'crypto' | 'screener' | 'diary';
 
 interface AppState {
   user: AppUser | null;

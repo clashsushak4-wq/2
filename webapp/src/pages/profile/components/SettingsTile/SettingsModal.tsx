@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useBackButton } from '../../../../hooks';
 import { slideFromRight } from '../../../../shared/animations';
-import { FullscreenSetting, LanguageSetting, LanguagePickerScreen } from './components';
+import { FullscreenSetting, RealFullscreenSetting, LanguageSetting, LanguagePickerScreen } from './components';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -26,6 +26,7 @@ export const SettingsModal = ({ onClose, isDesktopInline }: SettingsModalProps) 
         <div className="flex-1 overflow-y-auto px-2 space-y-2" style={{ paddingTop: isDesktopInline ? '24px' : 'calc(24px + var(--safe-top, 0px))', paddingBottom: isDesktopInline ? '24px' : 'calc(80px + var(--safe-bottom, 0px))' }}>
           <LanguageSetting onOpenPicker={() => setShowLangPicker(true)} />
           <FullscreenSetting />
+          <RealFullscreenSetting />
         </div>
       </motion.div>
   );

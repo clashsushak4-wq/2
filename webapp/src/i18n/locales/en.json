@@ -42,6 +42,7 @@
     "subtitle": "Charts and order book",
     "openPosition": "Open Position",
     "crypto": "Cryptocurrencies",
+    "diary": "Trader's Diary",
     "screener": "Analytics",
     "analytics": "Analytics",
     "statistics": "Statistics",
@@ -198,6 +199,7 @@
     "theme": "Theme",
     "themeAuto": "Auto",
     "fullscreen": "Desktop mode",
+    "realFullscreen": "Fullscreen mode",
     "twoFA": "2FA",
     "languages": {
       "ru": "Русский",

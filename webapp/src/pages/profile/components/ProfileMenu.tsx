@@ -15,31 +15,23 @@ export const ProfileMenu = ({ activeTab, onTabChange }: ProfileMenuProps) => {
   ] as const;
 
   return (
-    <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-[20px] p-2 flex flex-col w-full shadow-lg">
-      {menuItems.map((item, index) => {
+    <div className="flex flex-col gap-3 w-full">
+      {menuItems.map((item) => {
         const isActive = activeTab === item.id;
         return (
-          <div key={item.id}>
-            <button 
-              onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center justify-between p-4 rounded-xl transition-all duration-200 ${
-                isActive ? 'bg-zinc-800/80 text-white' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                  isActive ? 'bg-zinc-700 text-white' : 'bg-zinc-800 text-zinc-400'
-                }`}>
-                  <item.icon size={20} />
-                </div>
-                <span className="font-semibold text-[15px]">{item.label}</span>
-              </div>
-              <ChevronRight size={20} className="text-zinc-600" />
-            </button>
-            {index < menuItems.length - 1 && (
-              <div className="w-[calc(100%-64px)] ml-auto h-[1px] bg-white/5 my-1" />
-            )}
-          </div>
+          <button 
+            key={item.id}
+            onClick={() => onTabChange(item.id)}
+            className={`w-full flex items-center gap-3 px-4 py-3 bg-zinc-900 border-2 rounded-xl transition-colors text-left ${
+              isActive ? 'border-zinc-500 bg-zinc-800' : 'border-zinc-700 active:bg-zinc-800'
+            }`}
+          >
+            <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0">
+              <item.icon size={18} className="text-black" />
+            </div>
+            <span className="flex-1 text-white text-base font-medium">{item.label}</span>
+            <ChevronRight size={16} className="text-zinc-600 shrink-0" />
+          </button>
         );
       })}
     </div>

@@ -42,6 +42,7 @@
     "subtitle": "Графики и стакан ордеров",
     "openPosition": "Открыть сделку",
     "crypto": "Криптовалюты",
+    "diary": "Дневник трейдера",
     "screener": "Аналитика",
     "analytics": "Аналитика",
     "statistics": "Статистика",
@@ -198,6 +199,7 @@
     "theme": "Тема",
     "themeAuto": "Авто",
     "fullscreen": "Десктоп режим",
+    "realFullscreen": "Полноэкранный режим",
     "twoFA": "2FA",
     "languages": {
       "ru": "Русский",

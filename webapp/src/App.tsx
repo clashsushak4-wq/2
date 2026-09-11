@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, MotionConfig } from 'framer-motion';
 import { LoadingScreen, DesktopLayout, MobileLayout } from './shared';
 import { HomeView, WalletView, SupportView, ProfileView, TradeView } from './pages';
-import { CryptoScreen, ScreenerScreen } from './pages/trade/components';
+import { CryptoScreen, ScreenerScreen, DiaryScreen } from './pages/trade/components';
 import { useWebApp } from './hooks';
 import { useAppStore } from './store';
 import { useI18nStore } from './i18n/useTranslation';
@@ -115,6 +115,9 @@ function MainApp() {
             )}
             {activeMarket === 'screener' && (
                 <ScreenerScreen key="screener-screen" onClose={handleCloseMarket} />
+            )}
+            {activeMarket === 'diary' && (
+                <DiaryScreen key="diary-screen" onClose={handleCloseMarket} />
             )}
         </AnimatePresence>
     </div>
