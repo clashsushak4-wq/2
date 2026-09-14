@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
-import { Bitcoin } from 'lucide-react';
 import { useBackButton } from '../../../../hooks';
 import { slideFromRight } from '../../../../shared/animations';
-
+import { TerminalHeader } from './TerminalHeader';
+import { OrderPanel } from './OrderPanel';
+import { OrderBook } from './OrderBook';
+import { BottomTabs } from './BottomTabs';
 
 interface CryptoScreenProps {
   onClose: () => void;
@@ -11,21 +13,24 @@ interface CryptoScreenProps {
 export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
   useBackButton(onClose);
 
-
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black text-zinc-100 flex flex-col font-sans">
       <motion.div
         variants={slideFromRight}
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="absolute inset-0 bg-black flex flex-col items-center justify-center gap-3"
+        className="absolute inset-0 flex flex-col overflow-y-auto custom-scrollbar"
       >
-        <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-          <Bitcoin size={24} className="text-zinc-600" />
+        <TerminalHeader />
+        
+        {/* Main Content (2 columns) */}
+        <div className="flex px-3 pt-4">
+          <OrderPanel />
+          <OrderBook />
         </div>
-        <p className="text-zinc-500 text-sm font-medium">Crypto Market</p>
-        <p className="text-zinc-700 text-xs">В разработке</p>
+
+        <BottomTabs />
       </motion.div>
     </div>
   );

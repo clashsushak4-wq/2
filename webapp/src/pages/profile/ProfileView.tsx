@@ -47,7 +47,7 @@ export const ProfileView = () => {
   }
 
   return (
-    <PageWrapper className="pb-8 -mx-3 px-1 md:mx-auto md:px-4 md:max-w-2xl md:mt-12 flex flex-col gap-4 pt-4">
+    <PageWrapper className="pb-8 -mx-4 px-1 md:mx-auto md:px-4 md:max-w-2xl -mt-2 md:mt-12 flex flex-col gap-4 pt-0">
       <div className="w-full">
         <ProfileMenu activeTab={activeTab || ''} onTabChange={handleTabChange} />
       </div>
