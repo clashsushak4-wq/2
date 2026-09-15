@@ -16,10 +16,10 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
   const [isLeverageOpen, setIsLeverageOpen] = useState(false);
 
   return (
-    <div className="flex flex-col flex-[1.2] pr-2 border-r border-zinc-900/50 select-none">
+    <div className="flex flex-col flex-[1.2] pr-1 border-r border-zinc-900/50 select-none">
 
       {/* Margin Settings */}
-      <div className="flex items-center gap-1 mb-3">
+      <div className="flex items-center gap-1 mb-2">
         <div className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded truncate flex-1 flex items-center justify-center cursor-pointer" onClick={() => haptic.light()}>
           Изолиров...
         </div>
@@ -32,7 +32,7 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
       </div>
 
       {/* Buy/Sell Toggles */}
-      <div className="flex bg-zinc-900 rounded p-0.5 mb-3">
+      <div className="flex bg-black border border-zinc-800 rounded p-0.5 mb-2">
         <div
           onClick={() => { haptic.light(); setSide('buy'); }}
           className={`flex-1 py-1.5 text-center text-sm font-medium rounded cursor-pointer transition-colors ${side === 'buy' ? 'bg-white text-black' : 'text-zinc-400'}`}
@@ -41,14 +41,14 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
         </div>
         <div
           onClick={() => { haptic.light(); setSide('sell'); }}
-          className={`flex-1 py-1.5 text-center text-sm font-medium rounded cursor-pointer transition-colors ${side === 'sell' ? 'bg-zinc-700 text-white' : 'text-zinc-400'}`}
+          className={`flex-1 py-1.5 text-center text-sm font-medium rounded cursor-pointer transition-colors ${side === 'sell' ? 'bg-zinc-800 text-white' : 'text-zinc-400'}`}
         >
           Продать
         </div>
       </div>
 
       {/* Order Type */}
-      <div className="flex items-center justify-between bg-zinc-900 rounded px-2 py-1.5 mb-3 cursor-pointer" onClick={() => haptic.light()}>
+      <div className="flex items-center justify-between bg-black border border-zinc-700 rounded px-2 py-1.5 mb-2 cursor-pointer" onClick={() => haptic.light()}>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full border border-zinc-500 flex items-center justify-center">
             <div className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
@@ -59,9 +59,9 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
       </div>
 
       {/* Price Input */}
-      <div className="flex items-center gap-1.5 mb-3">
-        <div className="flex-1 bg-zinc-900 rounded px-2 py-1 flex flex-col border border-zinc-800">
-          <span className="text-[10px] text-zinc-500">Цена(USDT)</span>
+      <div className="flex items-center gap-1.5 mb-2">
+        <div className="flex-1 bg-black rounded px-2 py-1 flex flex-col border border-zinc-700">
+          <span className="text-[10px] text-zinc-400">Цена(USDT)</span>
           <input
             type="text"
             defaultValue="0.01312"
@@ -74,7 +74,7 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
       </div>
 
       {/* Amount Input */}
-      <div className={`bg-zinc-900 rounded px-2 py-2 flex items-center justify-between border border-zinc-800 ${amountPercent > 0 ? 'mb-1' : 'mb-3'}`}>
+      <div className={`bg-black rounded px-2 py-2 flex items-center justify-between border border-zinc-700 ${amountPercent > 0 ? 'mb-1' : 'mb-2'}`}>
         <span className="text-sm text-zinc-400">Количество</span>
         <span className="text-sm text-zinc-400 font-bold">{amountPercent > 0 ? `${amountPercent}%` : 'CP'}</span>
       </div>
@@ -86,8 +86,8 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
       )}
 
       {/* Slider */}
-      <div className="px-1 mb-4 relative flex items-center h-4 group">
-        <input 
+      <div className="px-1 mb-2 relative flex items-center h-4 group">
+        <input
           type="range"
           min="0"
           max="100"
@@ -101,23 +101,23 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
         />
         <div className="h-0.5 w-full bg-zinc-800 relative z-10 pointer-events-none">
           <div className="absolute left-0 top-0 bottom-0 bg-white" style={{ width: `${amountPercent}%` }} />
-          
+
           {[0, 25, 50, 75, 100].map(mark => {
             const isZero = mark === 0;
             return (
-              <div 
+              <div
                 key={mark}
                 className={`absolute top-1/2 -translate-y-1/2 rounded-full -translate-x-1/2 transition-colors ${amountPercent >= mark ? (isZero ? 'bg-zinc-100' : 'bg-white') : 'bg-zinc-700'}`}
-                style={{ 
-                  left: `${mark}%`, 
-                  width: isZero ? '10px' : '6px', 
-                  height: isZero ? '10px' : '6px' 
+                style={{
+                  left: `${mark}%`,
+                  width: isZero ? '10px' : '6px',
+                  height: isZero ? '10px' : '6px'
                 }}
               />
             )
           })}
 
-          <div 
+          <div
             className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-[0_0_5px_rgba(255,255,255,0.5)] -translate-x-1/2"
             style={{ left: `${amountPercent}%` }}
           />
@@ -125,7 +125,7 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
       </div>
 
       {/* TP/SL Checkbox */}
-      <div className={`flex items-center justify-between ${isTPSL ? 'mb-2' : 'mb-4'}`}>
+      <div className={`flex items-center justify-between ${isTPSL ? 'mb-1.5' : 'mb-2'}`}>
         <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => { haptic.light(); setIsTPSL(!isTPSL); }}>
           <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-colors ${isTPSL ? 'bg-zinc-300 border-none' : 'border border-zinc-500'}`}>
             {isTPSL && <div className="w-1.5 h-1.5 bg-zinc-900 rounded-sm" />}
@@ -137,18 +137,18 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
 
       {/* TP/SL Inputs */}
       {isTPSL && (
-        <div className="flex flex-col gap-2 mb-4 h-[64px]">
+        <div className="flex flex-col gap-1.5 mb-2">
           {/* TP Input */}
-          <div className="bg-zinc-900 rounded px-2 py-1.5 flex items-center justify-between border border-zinc-800">
-            <span className="text-xs text-zinc-500">TP (USDT)</span>
+          <div className="bg-black rounded px-2 py-1.5 flex items-center justify-between border border-zinc-700">
+            <span className="text-xs text-zinc-400">TP (USDT)</span>
             <div className="flex items-center gap-1 cursor-pointer" onClick={() => haptic.light()}>
               <span className="text-xs text-zinc-100">Цена</span>
               <ChevronDown size={12} className="text-zinc-500" />
             </div>
           </div>
           {/* SL Input */}
-          <div className="bg-zinc-900 rounded px-2 py-1.5 flex items-center justify-between border border-zinc-800">
-            <span className="text-xs text-zinc-500">SL (USDT)</span>
+          <div className="bg-black rounded px-2 py-1.5 flex items-center justify-between border border-zinc-700">
+            <span className="text-xs text-zinc-400">SL (USDT)</span>
             <div className="flex items-center gap-1 cursor-pointer" onClick={() => haptic.light()}>
               <span className="text-xs text-zinc-100">Цена</span>
               <ChevronDown size={12} className="text-zinc-500" />
@@ -158,13 +158,13 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
       )}
 
       {/* Total Input */}
-      <div className="bg-zinc-900 rounded px-2 py-2 flex items-center justify-between border border-zinc-800 mb-4">
+      <div className="bg-black rounded px-2 py-1.5 flex items-center justify-between border border-zinc-700 mb-3">
         <span className="text-sm text-zinc-400">Всего</span>
         <span className="text-sm text-zinc-400 font-bold">USDT</span>
       </div>
 
       {/* Info Rows */}
-      <div className="flex flex-col gap-1 mb-4 text-xs">
+      <div className="flex flex-col gap-1 mb-2 text-xs">
         <div className="flex justify-between items-center text-zinc-500">
           <span className="border-b border-dashed border-zinc-600 pb-0.5">Доступно</span>
           <div className="flex items-center gap-1 text-zinc-200">
@@ -185,15 +185,15 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
       {/* Action Button */}
       <button
         onClick={() => haptic.medium()}
-        className={`w-full py-3 rounded-lg font-bold text-base transition-transform active:scale-95 ${side === 'buy' ? 'bg-white text-black' : 'bg-zinc-700 text-white'
+        className={`w-full py-2.5 rounded-lg font-bold text-base transition-transform active:scale-95 ${side === 'buy' ? 'bg-white text-black' : 'bg-zinc-800 text-white border border-zinc-600'
           }`}
       >
         {side === 'buy' ? 'Купить CP' : 'Продать CP'}
       </button>
 
-      <LeverageModal 
-        isOpen={isLeverageOpen} 
-        onClose={() => setIsLeverageOpen(false)} 
+      <LeverageModal
+        isOpen={isLeverageOpen}
+        onClose={() => setIsLeverageOpen(false)}
         currentLeverage={leverage}
         onChange={setLeverage}
       />

@@ -28,7 +28,7 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
         <TerminalHeader />
         
         {/* Main Content (2 columns) */}
-        <div className="flex px-3 pt-4">
+        <div className="flex px-2 pt-2">
           <OrderPanel amountPercent={amountPercent} setAmountPercent={setAmountPercent} isTPSL={isTPSL} setIsTPSL={setIsTPSL} />
           <OrderBook amountPercent={amountPercent} isTPSL={isTPSL} />
         </div>

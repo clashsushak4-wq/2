@@ -42,19 +42,19 @@ export const OrderBook = ({ amountPercent, isTPSL }: OrderBookProps) => {
   }
 
   return (
-    <div className="flex flex-col flex-1 pl-2 text-xs font-mono select-none">
+    <div className="flex flex-col flex-1 pl-1 text-xs font-mono select-none">
       <div className="flex justify-between items-center mb-2">
         <span className="text-zinc-500 font-sans">Цена<br />(USDT)</span>
         <span className="text-zinc-500 text-right font-sans">Количество<br />(CP)</span>
       </div>
 
       {/* Asks */}
-      <div className="flex flex-col gap-1.5 flex-1 justify-end pb-2">
+      <div className="flex flex-col gap-1 flex-1 justify-end pb-2">
         {asks.map((ask, i) => (
-          <div key={`ask-${i}`} className="flex justify-between items-center relative h-[18px]">
+          <div key={`ask-${i}`} className="flex justify-between items-center relative h-[16px]">
             {/* Volume indicator background */}
             <div
-              className="absolute right-0 top-0 bottom-0 bg-zinc-700/20"
+              className="absolute right-0 top-0 bottom-0 bg-zinc-500/40"
               style={{ width: `${Math.max(10, Math.random() * 100)}%` }}
             />
             <span className="text-zinc-400 z-10">{ask.price}</span>
@@ -64,7 +64,7 @@ export const OrderBook = ({ amountPercent, isTPSL }: OrderBookProps) => {
       </div>
 
       {/* Current Price */}
-      <div className="flex flex-col py-2 border-y border-zinc-900/50 my-1">
+      <div className="flex flex-col py-1 border-y border-zinc-900/50 my-1">
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-zinc-100">0.01311</span>
           <span className="text-zinc-500 rotate-180">›</span>
@@ -73,12 +73,12 @@ export const OrderBook = ({ amountPercent, isTPSL }: OrderBookProps) => {
       </div>
 
       {/* Bids */}
-      <div className="flex flex-col gap-1.5 flex-1 pt-2">
+      <div className="flex flex-col gap-1 flex-1 pt-2">
         {bids.map((bid, i) => (
-          <div key={`bid-${i}`} className="flex justify-between items-center relative h-[18px]">
+          <div key={`bid-${i}`} className="flex justify-between items-center relative h-[16px]">
             {/* Volume indicator background */}
             <div
-              className="absolute right-0 top-0 bottom-0 bg-white/10"
+              className="absolute right-0 top-0 bottom-0 bg-white/20"
               style={{ width: `${Math.max(10, Math.random() * 100)}%` }}
             />
             <span className="text-white z-10">{bid.price}</span>
@@ -88,10 +88,10 @@ export const OrderBook = ({ amountPercent, isTPSL }: OrderBookProps) => {
       </div>
 
       {/* Buy/Sell Ratio and Precision */}
-      <div className="flex flex-col mt-auto pt-4 gap-2">
+      <div className="flex flex-col mt-auto pt-2 gap-2">
         <div className="flex items-center text-[10px] gap-1 h-1 w-full bg-zinc-800 rounded-full overflow-hidden relative">
           <div className="absolute left-0 top-0 bottom-0 bg-white w-[48%]" />
-          <div className="absolute right-0 top-0 bottom-0 bg-zinc-600 w-[52%]" />
+          <div className="absolute right-0 top-0 bottom-0 bg-zinc-500 w-[52%]" />
         </div>
         <div className="flex justify-between text-[10px] text-zinc-500 font-sans">
           <span>B 48%</span>

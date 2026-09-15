@@ -44,24 +44,24 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
       <div className="flex flex-col text-zinc-100">
         
         {/* Controls */}
-        <div className="flex items-center justify-between bg-zinc-900 rounded-xl p-2 mb-8 mt-2 border border-zinc-800">
+        <div className="flex items-center justify-between bg-black rounded-xl p-1 mb-4 mt-2 border border-zinc-700">
           <button 
             onClick={() => updateLeverage(leverage - 1)}
-            className="p-3 text-zinc-400 active:text-white"
+            className="p-2 text-zinc-300 active:text-white"
           >
             <Minus size={20} />
           </button>
           <span className="text-xl font-bold">{leverage}x</span>
           <button 
             onClick={() => updateLeverage(leverage + 1)}
-            className="p-3 text-zinc-400 active:text-white"
+            className="p-2 text-zinc-300 active:text-white"
           >
             <Plus size={20} />
           </button>
         </div>
 
         {/* Custom Slider */}
-        <div className="relative mb-12">
+        <div className="relative mb-8">
           <div className="relative h-6 flex items-center">
             <input 
               type="range"
@@ -99,12 +99,12 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
         </div>
 
         {/* Info Rows */}
-        <div className="flex justify-between items-center mb-6 mt-2">
+        <div className="flex justify-between items-center mb-3 mt-2">
           <span className="text-sm text-zinc-400">Макс. открытие после изменения кредитного плеча</span>
           <span className="text-sm text-white font-medium">1,200.0</span>
         </div>
 
-        <div className="flex justify-between items-center mb-6 gap-4">
+        <div className="flex justify-between items-center mb-4 gap-4">
           <span className="text-sm text-zinc-400 leading-snug">
             Пакетная корректировка кредитного плеча (≤20x) для всех Фьючерсы USDT-M
           </span>
@@ -117,7 +117,7 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
         </div>
 
         {/* Warning Text */}
-        <div className="text-xs text-amber-500 font-medium leading-relaxed mb-6">
+        <div className="text-xs text-amber-500 font-medium leading-relaxed mb-4">
           * Если вы сейчас настроите кредитное плечо, это повлияет на все позиции и отложенные ордера.<br/>
           Выбор торговли с кредитным плечом более 10x может легко привести к ликвидации. Пожалуйста, выполняйте регулировку с осторожностью!
         </div>
@@ -125,7 +125,7 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
         {/* Confirm Button */}
         <button
           onClick={handleConfirm}
-          className="w-full py-3.5 bg-white text-black font-bold text-lg rounded-xl transition-transform active:scale-95"
+          className="w-full py-2.5 bg-white text-black font-bold text-lg rounded-xl transition-transform active:scale-95"
         >
           Подтвердить
         </button>
