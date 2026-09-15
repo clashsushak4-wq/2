@@ -1,8 +1,13 @@
 import { ChevronDown, ListFilter } from 'lucide-react';
 import { haptic } from '../../../../utils';
 
-export const OrderBook = () => {
-  const asks = [
+interface OrderBookProps {
+  amountPercent: number;
+  isTPSL: boolean;
+}
+
+export const OrderBook = ({ amountPercent, isTPSL }: OrderBookProps) => {
+  const baseAsks = [
     { price: '0.01316', amount: '276.85K' },
     { price: '0.01315', amount: '171.21K' },
     { price: '0.01314', amount: '27.44K' },
@@ -10,13 +15,31 @@ export const OrderBook = () => {
     { price: '0.01312', amount: '30.34K' },
   ];
 
-  const bids = [
+  const asks = [...baseAsks];
+  if (amountPercent > 0) {
+    asks.unshift({ price: '0.01317', amount: (amountPercent * 1.5).toFixed(2) + 'K' });
+  }
+  if (isTPSL) {
+    asks.unshift({ price: '0.01318', amount: '21.05K' });
+    asks.unshift({ price: '0.01319', amount: '8.44K' });
+  }
+
+  const baseBids = [
     { price: '0.01311', amount: '11.06K' },
     { price: '0.01310', amount: '41.70K' },
     { price: '0.01309', amount: '69.23K' },
     { price: '0.01308', amount: '65.75K' },
     { price: '0.01307', amount: '63.24K' },
   ];
+
+  const bids = [...baseBids];
+  if (amountPercent > 0) {
+    bids.push({ price: '0.01306', amount: (amountPercent * 1.2).toFixed(2) + 'K' });
+  }
+  if (isTPSL) {
+    bids.push({ price: '0.01305', amount: '18.30K' });
+    bids.push({ price: '0.01304', amount: '45.12K' });
+  }
 
   return (
     <div className="flex flex-col flex-1 pl-2 text-xs font-mono select-none">
