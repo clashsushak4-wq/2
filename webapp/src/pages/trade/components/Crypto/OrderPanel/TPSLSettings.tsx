@@ -5,6 +5,9 @@ import { useCryptoStore } from '../store/useCryptoStore';
 export const TPSLSettings = () => {
   const isTPSL = useCryptoStore(state => state.isTPSL);
   const setIsTPSL = useCryptoStore.getState().setIsTPSL;
+  const side = useCryptoStore(state => state.side);
+
+  if (side === 'sell') return null;
 
   return (
     <>
