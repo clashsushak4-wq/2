@@ -8,8 +8,8 @@ export default {
     extend: {
       colors: {
         bitget: {
-          green: '#00C2D8',
-          red: '#FF2E63',
+          green: '#82A736', // томно-салатовый
+          red: '#475E7A',   // темно-синий с дымком
         }
       },
       fontFamily: {
