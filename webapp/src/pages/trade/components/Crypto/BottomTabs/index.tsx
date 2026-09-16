@@ -1,0 +1,59 @@
+import { useCryptoStore, TabType } from '../store/useCryptoStore';
+import { OrdersTab } from './OrdersTab';
+import { PositionsTab } from './PositionsTab';
+import { ScreenerTab } from './ScreenerTab';
+import { HistoryTab } from './HistoryTab';
+import { haptic } from '../../../../../utils';
+
+export const BottomTabs = () => {
+  const activeTab = useCryptoStore(state => state.activeTab);
+  const setActiveTab = useCryptoStore(state => state.setActiveTab);
+
+  const tabs: { id: TabType; label: string }[] = [
+    { id: 'orders', label: 'Ордера' },
+    { id: 'positions', label: 'Позиции' },
+    { id: 'screener', label: 'Скринер' },
+    { id: 'history', label: 'История' },
+  ];
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'orders': return <OrdersTab />;
+      case 'positions': return <PositionsTab />;
+      case 'screener': return <ScreenerTab />;
+      case 'history': return <HistoryTab />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="flex flex-col mt-2 select-none">
+      {/* Tabs Header */}
+      <div className="flex items-center gap-4 border-b border-zinc-800 pb-1.5 px-2 overflow-x-auto custom-scrollbar whitespace-nowrap">
+        {tabs.map((tab) => (
+          <div
+            key={tab.id}
+            onClick={() => {
+              haptic.light();
+              setActiveTab(tab.id);
+            }}
+            className="flex items-center gap-1 cursor-pointer"
+          >
+            <span
+              className={`font-medium text-sm transition-colors ${
+                activeTab === tab.id ? 'text-white font-bold' : 'text-zinc-400'
+              }`}
+            >
+              {tab.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs Content */}
+      <div className="min-h-[100px]">
+        {renderContent()}
+      </div>
+    </div>
+  );
+};

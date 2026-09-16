@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useBackButton } from '../../../../hooks';
 import { slideFromRight } from '../../../../shared/animations';
 import { TerminalHeader } from './layout/TerminalHeader';
-import { BottomTabs } from './layout/BottomTabs';
+import { BottomTabs } from './BottomTabs';
 import { OrderPanel } from './OrderPanel/index';
 import { OrderBook } from './OrderBook/index';
 import { LeverageModal } from './modals/LeverageModal';

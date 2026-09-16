@@ -34,11 +34,13 @@ export const OrderBook = memo(() => {
 
   const asks = useMemo(() => {
     let baseAsks = side === 'sell' ? [
+      { price: '0.01316', amount: '276.85K' },
       { price: '0.01315', amount: '171.21K' },
       { price: '0.01314', amount: '27.44K' },
       { price: '0.01313', amount: '70.29K' },
       { price: '0.01312', amount: '30.34K' },
     ] : [
+      { price: '0.01317', amount: '143.50K' },
       { price: '0.01316', amount: '276.85K' },
       { price: '0.01315', amount: '171.21K' },
       { price: '0.01314', amount: '27.44K' },
@@ -47,13 +49,13 @@ export const OrderBook = memo(() => {
     ];
 
     if (amountPercent > 0) {
-      const askPrice = side === 'sell' ? '0.01316' : '0.01317';
+      const askPrice = side === 'sell' ? '0.01317' : '0.01318';
       baseAsks.unshift({ price: askPrice, amount: (amountPercent * 1.5).toFixed(2) + 'K' });
     }
     
     if (isTPSL && side === 'buy') {
-      baseAsks.unshift({ price: '0.01318', amount: '21.05K' });
-      baseAsks.unshift({ price: '0.01319', amount: '8.44K' });
+      baseAsks.unshift({ price: '0.01319', amount: '21.05K' });
+      baseAsks.unshift({ price: '0.01320', amount: '8.44K' });
     }
     return baseAsks;
   }, [amountPercent, isTPSL, side]);
@@ -64,22 +66,24 @@ export const OrderBook = memo(() => {
       { price: '0.01310', amount: '41.70K' },
       { price: '0.01309', amount: '69.23K' },
       { price: '0.01308', amount: '65.75K' },
+      { price: '0.01307', amount: '63.24K' },
     ] : [
       { price: '0.01311', amount: '11.06K' },
       { price: '0.01310', amount: '41.70K' },
       { price: '0.01309', amount: '69.23K' },
       { price: '0.01308', amount: '65.75K' },
       { price: '0.01307', amount: '63.24K' },
+      { price: '0.01306', amount: '89.10K' },
     ];
     
     if (amountPercent > 0) {
-      const bidPrice = side === 'sell' ? '0.01307' : '0.01306';
+      const bidPrice = side === 'sell' ? '0.01306' : '0.01305';
       baseBids.push({ price: bidPrice, amount: (amountPercent * 1.2).toFixed(2) + 'K' });
     }
     
     if (isTPSL && side === 'buy') {
-      baseBids.push({ price: '0.01305', amount: '18.30K' });
-      baseBids.push({ price: '0.01304', amount: '45.12K' });
+      baseBids.push({ price: '0.01304', amount: '18.30K' });
+      baseBids.push({ price: '0.01303', amount: '45.12K' });
     }
     return baseBids;
   }, [amountPercent, isTPSL, side]);
@@ -99,12 +103,11 @@ export const OrderBook = memo(() => {
       </div>
 
       {/* Current Price */}
-      <div className="flex flex-col py-1 border-y border-zinc-900/50 my-1">
+      <div className="flex flex-col py-1.5 border-y border-zinc-900/50 my-1">
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-zinc-100">0.01311</span>
           <span className="text-zinc-500 rotate-180">›</span>
         </div>
-        <span className="text-zinc-500">≈₽0.58</span>
       </div>
 
       {/* Bids */}
