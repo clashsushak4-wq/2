@@ -4,7 +4,7 @@ export const OrdersTab = () => {
   return (
     <div className="flex items-center justify-between px-2 py-2">
       <div className="flex items-center gap-2 cursor-pointer" onClick={() => haptic.light()}>
-        <div className="w-4 h-4 rounded border border-zinc-600 bg-transparent flex items-center justify-center" />
+        <div className="w-4 h-4 rounded-full bg-zinc-800 flex items-center justify-center" />
         <span className="text-zinc-300 text-sm">Показать текущий</span>
       </div>
       <button 

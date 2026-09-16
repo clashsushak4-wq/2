@@ -6,16 +6,16 @@ export const SideToggle = () => {
   const setSide = useCryptoStore.getState().setSide;
 
   return (
-    <div className="flex bg-black border border-zinc-800 rounded p-0.5 mb-2">
+    <div className="flex bg-zinc-900 rounded p-0.5 mb-2">
       <div
         onClick={() => { haptic.light(); setSide('buy'); }}
-        className={`flex-1 py-1.5 text-center text-sm font-medium rounded cursor-pointer transition-colors ${side === 'buy' ? 'bg-zinc-800 text-white' : 'text-zinc-400'}`}
+        className={`flex-1 py-1.5 text-center text-sm font-medium rounded cursor-pointer transition-colors ${side === 'buy' ? 'bg-bitget-green text-white' : 'text-zinc-400'}`}
       >
         Открыть
       </div>
       <div
         onClick={() => { haptic.light(); setSide('sell'); }}
-        className={`flex-1 py-1.5 text-center text-sm font-medium rounded cursor-pointer transition-colors ${side === 'sell' ? 'bg-zinc-800 text-white' : 'text-zinc-400'}`}
+        className={`flex-1 py-1.5 text-center text-sm font-medium rounded cursor-pointer transition-colors ${side === 'sell' ? 'bg-bitget-red text-white' : 'text-zinc-400'}`}
       >
         Закрыть
       </div>

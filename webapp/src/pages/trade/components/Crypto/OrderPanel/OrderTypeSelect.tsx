@@ -8,7 +8,7 @@ export const OrderTypeSelect = () => {
 
   return (
     <div 
-      className="flex items-center justify-between bg-black border border-zinc-700 rounded px-2 py-1.5 mb-2 cursor-pointer" 
+      className="flex items-center justify-between bg-zinc-900 rounded px-2 py-1.5 mb-2 cursor-pointer" 
       onClick={() => { haptic.light(); setOrderTypeOpen(true); }}
     >
       <div className="flex items-center gap-1.5">

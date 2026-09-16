@@ -7,7 +7,7 @@ export const PriceInput = () => {
   if (orderType === 'market') {
     return (
       <div className="flex items-center gap-1.5 mb-2">
-        <div className="flex-1 bg-zinc-900/60 rounded px-3 py-2 flex items-center border border-zinc-800/80 h-[42px]">
+        <div className="flex-1 bg-zinc-900 rounded px-3 py-2 flex items-center h-[42px]">
           <span className="text-[13px] text-zinc-500 font-medium tracking-wide">Исполнить по рыночной цене</span>
         </div>
       </div>
@@ -16,7 +16,7 @@ export const PriceInput = () => {
 
   return (
     <div className="flex items-center gap-1.5 mb-2">
-      <div className="flex-1 bg-black rounded px-2 py-1 flex flex-col border border-zinc-700">
+      <div className="flex-1 bg-zinc-900 rounded px-2 py-1 flex flex-col">
         <span className="text-[10px] text-zinc-400">Цена(USDT)</span>
         <input
           type="text"

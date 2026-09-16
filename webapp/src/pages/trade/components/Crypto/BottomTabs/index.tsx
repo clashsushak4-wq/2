@@ -29,7 +29,7 @@ export const BottomTabs = () => {
   return (
     <div className="flex flex-col mt-2 select-none">
       {/* Tabs Header */}
-      <div className="flex items-center gap-4 border-b border-zinc-800 pb-1.5 px-2 overflow-x-auto custom-scrollbar whitespace-nowrap">
+      <div className="flex items-center gap-4 pb-1.5 px-2 overflow-x-auto custom-scrollbar whitespace-nowrap">
         {tabs.map((tab) => (
           <div
             key={tab.id}

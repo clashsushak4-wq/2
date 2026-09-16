@@ -3,7 +3,7 @@ import { haptic } from '../../../../../utils';
 
 export const TerminalHeader = () => {
   return (
-    <div className="flex items-center justify-between px-2 py-1.5 bg-black border-b border-zinc-800">
+    <div className="flex items-center justify-between px-2 py-1.5 bg-black">
       <div className="flex flex-col">
         <div className="flex items-center gap-1.5" onClick={() => haptic.light()}>
           <h1 className="text-xl font-bold text-white">CP/USDT</h1>

@@ -19,7 +19,7 @@ export const AmountSlider = () => {
   return (
     <>
       {/* Amount Input */}
-      <div className={`bg-black rounded px-2 py-2.5 flex items-center justify-between border border-zinc-700 ${amountPercent > 0 ? 'mb-1' : 'mb-2'}`}>
+      <div className={`bg-zinc-900 rounded px-2 py-2.5 flex items-center justify-between ${amountPercent > 0 ? 'mb-1' : 'mb-2'}`}>
         <div className="flex items-center gap-2">
           <span className="text-sm text-zinc-500 font-medium">{unitInfo.left}</span>
           {amountPercent > 0 && <span className="text-sm text-zinc-100 font-bold ml-1">{amountPercent}%</span>}
