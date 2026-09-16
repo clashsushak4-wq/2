@@ -1,76 +1,69 @@
 import { useEffect, useRef } from 'react';
 import { useWebApp } from './useWebApp';
 
-/**
- * Stack-based BackButton manager — поддерживает несколько одновременно
- * смонтированных компонентов (например TradeScreen + PairPicker).
- *
- * Активный обработчик — последний в стеке с непустым ref. Кнопка показана
- * пока есть хотя бы один активный обработчик.
- */
-type Handler = { current: (() => void) | null };
+type Handler = { cb: () => void };
 
 const handlerStack: Handler[] = [];
 let isShown = false;
 let dispatcherAttached = false;
-let attachedWebApp: any = null;
-
-const hasActive = (): boolean => handlerStack.some((h) => !!h.current);
 
 const sync = (webApp: any) => {
   if (!webApp?.BackButton) return;
-  if (hasActive()) {
-    if (!isShown) {
-      webApp.BackButton.show();
-      isShown = true;
-    }
-  } else if (isShown) {
+  const hasActive = handlerStack.length > 0;
+  if (hasActive && !isShown) {
+    webApp.BackButton.show();
+    isShown = true;
+  } else if (!hasActive && isShown) {
     webApp.BackButton.hide();
     isShown = false;
   }
 };
 
 const dispatch = () => {
-  // Активный — последний non-null handler в стеке (LIFO)
-  for (let i = handlerStack.length - 1; i >= 0; i--) {
-    const cb = handlerStack[i].current;
-    if (cb) {
-      cb();
-      return;
-    }
-  }
+  if (handlerStack.length === 0) return;
+  // Берем последний обработчик (самый верхний активный слой)
+  const lastHandler = handlerStack[handlerStack.length - 1];
+  lastHandler.cb();
 };
 
 const attachDispatcher = (webApp: any) => {
   if (!webApp?.BackButton || dispatcherAttached) return;
   webApp.BackButton.onClick(dispatch);
   dispatcherAttached = true;
-  attachedWebApp = webApp;
 };
 
 export const useBackButton = (onBack: (() => void) | null) => {
   const { webApp } = useWebApp();
-  const handlerRef = useRef<Handler>({ current: onBack });
+  
+  // Храним актуальный коллбэк в ref, чтобы не переподписывать effect при каждой смене функции
+  const onBackRef = useRef(onBack);
+  onBackRef.current = onBack;
 
-  // Sync ref with latest callback на каждом ре-рендере (без перезапуска эффекта).
-  handlerRef.current.current = onBack;
+  const isActive = !!onBack;
 
   useEffect(() => {
     if (!webApp?.BackButton) return;
-
     attachDispatcher(webApp);
-    handlerStack.push(handlerRef.current);
-    sync(webApp);
 
-    return () => {
-      const idx = handlerStack.lastIndexOf(handlerRef.current);
-      if (idx >= 0) handlerStack.splice(idx, 1);
+    if (isActive) {
+      const handler: Handler = {
+        cb: () => {
+          if (onBackRef.current) {
+            onBackRef.current();
+          }
+        }
+      };
+      
+      handlerStack.push(handler);
       sync(webApp);
-    };
-  }, [webApp]);
 
-  // При смене null ↔ function пересинхронизировать видимость без перерегистрации.
-  useEffect(() => {
-    sync(webApp || attachedWebApp);
-  }, [onBack, webApp]);
+      return () => {
+        const idx = handlerStack.indexOf(handler);
+        if (idx >= 0) {
+          handlerStack.splice(idx, 1);
+        }
+        sync(webApp);
+      };
+    }
+  }, [isActive, webApp]);
 };

@@ -36,19 +36,11 @@ export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetPro
             animate={isDesktop ? { opacity: 1, scale: 1, y: 0 } : { y: 0 }}
             exit={isDesktop ? { opacity: 0, scale: 0.95 } : { y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            drag={isDesktop ? false : "y"}
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(_, info) => {
-              if (!isDesktop && (info.offset.y > 100 || info.velocity.y > 500)) {
-                onClose();
-              }
-            }}
             className="relative w-full bg-zinc-950 border-t md:border border-zinc-800 rounded-t-3xl md:rounded-2xl flex flex-col max-h-[90vh] md:max-h-[85vh] md:max-w-md shadow-2xl overflow-hidden"
           >
-            {/* Ползунок (Drag Handle) - только для мобилок */}
+            {/* Ползунок (Только визуал) */}
             {!isDesktop && (
-              <div className="flex justify-center pt-4 pb-2 w-full touch-none">
+              <div className="flex justify-center pt-4 pb-2 w-full">
                 <div className="w-12 h-1.5 bg-zinc-800 rounded-full" />
               </div>
             )}

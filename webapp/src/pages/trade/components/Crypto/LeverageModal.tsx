@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import { BottomSheet } from '../../../../shared/ui';
 import { haptic } from '../../../../utils';
+import { useBackButton } from '../../../../hooks';
 
 interface LeverageModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface LeverageModalProps {
 const MARKS = [1, 30, 60, 90, 120, 150];
 
 export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: LeverageModalProps) => {
+  useBackButton(isOpen ? onClose : null);
   const [leverage, setLeverage] = useState(currentLeverage);
   const [isBatch, setIsBatch] = useState(false);
 
@@ -44,7 +46,7 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
       <div className="flex flex-col text-zinc-100">
         
         {/* Controls */}
-        <div className="flex items-center justify-between bg-black rounded-xl p-1 mb-4 mt-2 border border-zinc-700">
+        <div className="flex items-center justify-between bg-black rounded-xl p-1 mb-3 mt-0 border border-zinc-700">
           <button 
             onClick={() => updateLeverage(leverage - 1)}
             className="p-2 text-zinc-300 active:text-white"
@@ -61,7 +63,7 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
         </div>
 
         {/* Custom Slider */}
-        <div className="relative mb-8">
+        <div className="relative mb-6">
           <div className="relative h-6 flex items-center">
             <input 
               type="range"
@@ -99,13 +101,13 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
         </div>
 
         {/* Info Rows */}
-        <div className="flex justify-between items-center mb-3 mt-2">
+        <div className="flex justify-between items-center mb-2 mt-1">
           <span className="text-sm text-zinc-400">Макс. открытие после изменения кредитного плеча</span>
           <span className="text-sm text-white font-medium">1,200.0</span>
         </div>
 
-        <div className="flex justify-between items-center mb-4 gap-4">
-          <span className="text-sm text-zinc-400 leading-snug">
+        <div className="flex justify-between items-center mb-3 gap-4">
+          <span className="text-[13px] text-zinc-400 leading-snug">
             Пакетная корректировка кредитного плеча (≤20x) для всех Фьючерсы USDT-M
           </span>
           <div 
@@ -117,7 +119,7 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
         </div>
 
         {/* Warning Text */}
-        <div className="text-xs text-amber-500 font-medium leading-relaxed mb-4">
+        <div className="text-[11px] text-amber-500 font-medium leading-tight mb-3">
           * Если вы сейчас настроите кредитное плечо, это повлияет на все позиции и отложенные ордера.<br/>
           Выбор торговли с кредитным плечом более 10x может легко привести к ликвидации. Пожалуйста, выполняйте регулировку с осторожностью!
         </div>
@@ -125,7 +127,7 @@ export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: Le
         {/* Confirm Button */}
         <button
           onClick={handleConfirm}
-          className="w-full py-2.5 bg-white text-black font-bold text-lg rounded-xl transition-transform active:scale-95"
+          className="w-full py-2 bg-white text-black font-bold text-base rounded-xl transition-transform active:scale-95"
         >
           Подтвердить
         </button>

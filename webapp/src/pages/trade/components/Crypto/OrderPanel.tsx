@@ -3,6 +3,7 @@ import { ChevronDown, PlusSquare } from 'lucide-react';
 import { haptic } from '../../../../utils';
 import { LeverageModal } from './LeverageModal';
 import { OrderTypeModal } from './OrderTypeModal';
+import { UnitModal, UnitType } from './UnitModal';
 
 interface OrderPanelProps {
   amountPercent: number;
@@ -17,6 +18,15 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
   const [isOrderTypeOpen, setIsOrderTypeOpen] = useState(false);
   const [leverage, setLeverage] = useState(3);
   const [isLeverageOpen, setIsLeverageOpen] = useState(false);
+  const [unit, setUnit] = useState<UnitType>('value_usdt');
+  const [isUnitOpen, setIsUnitOpen] = useState(false);
+
+  const getUnitLabel = () => {
+    if (unit === 'qty_btc') return { left: 'Количество', right: 'BTC' };
+    if (unit === 'cost_usdt') return { left: 'Себестоимость', right: 'USDT' };
+    return { left: 'Стоимость', right: 'USDT' };
+  };
+  const unitInfo = getUnitLabel();
 
   return (
     <div className="flex flex-col flex-[1.2] pr-1 border-r border-zinc-900/50 select-none">
@@ -90,9 +100,19 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
       )}
 
       {/* Amount Input */}
-      <div className={`bg-black rounded px-2 py-2 flex items-center justify-between border border-zinc-700 ${amountPercent > 0 ? 'mb-1' : 'mb-2'}`}>
-        <span className="text-sm text-zinc-400">Количество</span>
-        <span className="text-sm text-zinc-400 font-bold">{amountPercent > 0 ? `${amountPercent}%` : 'CP'}</span>
+      <div className={`bg-black rounded px-2 py-2.5 flex items-center justify-between border border-zinc-700 ${amountPercent > 0 ? 'mb-1' : 'mb-2'}`}>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-zinc-500 font-medium">{unitInfo.left}</span>
+          {amountPercent > 0 && <span className="text-sm text-zinc-100 font-bold ml-1">{amountPercent}%</span>}
+        </div>
+        
+        <div 
+          className="flex items-center gap-1 cursor-pointer"
+          onClick={() => { haptic.light(); setIsUnitOpen(true); }}
+        >
+          <span className="text-sm text-zinc-300 font-bold">{unitInfo.right}</span>
+          <ChevronDown size={14} className="text-zinc-500" />
+        </div>
       </div>
 
       {amountPercent > 0 && (
@@ -204,6 +224,13 @@ export const OrderPanel = ({ amountPercent, setAmountPercent, isTPSL, setIsTPSL 
         onClose={() => setIsOrderTypeOpen(false)}
         currentType={orderType}
         onChange={setOrderType}
+      />
+
+      <UnitModal
+        isOpen={isUnitOpen}
+        onClose={() => setIsUnitOpen(false)}
+        currentUnit={unit}
+        onChange={setUnit}
       />
     </div>
   );
