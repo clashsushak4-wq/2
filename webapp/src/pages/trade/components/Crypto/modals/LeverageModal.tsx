@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Minus, Plus } from 'lucide-react';
-import { BottomSheet } from '../../../../shared/ui';
-import { haptic } from '../../../../utils';
-import { useBackButton } from '../../../../hooks';
-
-interface LeverageModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  currentLeverage: number;
-  onChange: (leverage: number) => void;
-}
+import { BottomSheet } from '../../../../../shared/ui';
+import { haptic } from '../../../../../utils';
+import { useBackButton } from '../../../../../hooks';
+import { useCryptoStore } from '../store/useCryptoStore';
 
 const MARKS = [1, 30, 60, 90, 120, 150];
 
-export const LeverageModal = ({ isOpen, onClose, currentLeverage, onChange }: LeverageModalProps) => {
+export const LeverageModal = () => {
+  const isOpen = useCryptoStore(state => state.isLeverageOpen);
+  const onClose = () => useCryptoStore.getState().setLeverageOpen(false);
+  const currentLeverage = useCryptoStore(state => state.leverage);
+  const onChange = useCryptoStore.getState().setLeverage;
+
   useBackButton(isOpen ? onClose : null);
   const [leverage, setLeverage] = useState(currentLeverage);
   const [isBatch, setIsBatch] = useState(false);

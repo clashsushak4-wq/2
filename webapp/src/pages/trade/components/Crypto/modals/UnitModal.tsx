@@ -1,17 +1,9 @@
-import { BottomSheet } from '../../../../shared/ui';
-import { haptic } from '../../../../utils';
-import { useBackButton } from '../../../../hooks';
+import { BottomSheet } from '../../../../../shared/ui';
+import { haptic } from '../../../../../utils';
+import { useBackButton } from '../../../../../hooks';
+import { useCryptoStore, UnitType } from '../store/useCryptoStore';
 
-export type UnitType = 'qty_btc' | 'cost_usdt' | 'value_usdt';
-
-interface UnitModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  currentUnit: UnitType;
-  onChange: (unit: UnitType) => void;
-}
-
-const OPTIONS = [
+const OPTIONS: { id: UnitType; title: string; desc: string }[] = [
   {
     id: 'qty_btc',
     title: 'Количество – BTC',
@@ -27,9 +19,14 @@ const OPTIONS = [
     title: 'Стоимость – USDT',
     desc: 'Рыночная стоимость базового актива, рассчитанная на основе маржи и кредитного плеча и скорректированная с учетом изменений рыночной цены.',
   },
-] as const;
+];
 
-export const UnitModal = ({ isOpen, onClose, currentUnit, onChange }: UnitModalProps) => {
+export const UnitModal = () => {
+  const isOpen = useCryptoStore(state => state.isUnitOpen);
+  const onClose = () => useCryptoStore.getState().setUnitOpen(false);
+  const currentUnit = useCryptoStore(state => state.unit);
+  const onChange = useCryptoStore.getState().setUnit;
+
   useBackButton(isOpen ? onClose : null);
 
   const handleSelect = (val: UnitType) => {

@@ -1,11 +1,13 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useBackButton } from '../../../../hooks';
 import { slideFromRight } from '../../../../shared/animations';
-import { TerminalHeader } from './TerminalHeader';
-import { OrderPanel } from './OrderPanel';
-import { OrderBook } from './OrderBook';
-import { BottomTabs } from './BottomTabs';
+import { TerminalHeader } from './layout/TerminalHeader';
+import { BottomTabs } from './layout/BottomTabs';
+import { OrderPanel } from './OrderPanel/index';
+import { OrderBook } from './OrderBook/index';
+import { LeverageModal } from './modals/LeverageModal';
+import { OrderTypeModal } from './modals/OrderTypeModal';
+import { UnitModal } from './modals/UnitModal';
 
 interface CryptoScreenProps {
   onClose: () => void;
@@ -13,8 +15,6 @@ interface CryptoScreenProps {
 
 export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
   useBackButton(onClose);
-  const [amountPercent, setAmountPercent] = useState(0);
-  const [isTPSL, setIsTPSL] = useState(false);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black text-zinc-100 flex flex-col font-sans">
@@ -29,11 +29,16 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
         
         {/* Main Content (2 columns) */}
         <div className="flex px-2 pt-2">
-          <OrderPanel amountPercent={amountPercent} setAmountPercent={setAmountPercent} isTPSL={isTPSL} setIsTPSL={setIsTPSL} />
-          <OrderBook amountPercent={amountPercent} isTPSL={isTPSL} />
+          <OrderPanel />
+          <OrderBook />
         </div>
 
         <BottomTabs />
+
+        {/* Modals mounted here, they control their own state via Zustand */}
+        <LeverageModal />
+        <OrderTypeModal />
+        <UnitModal />
       </motion.div>
     </div>
   );

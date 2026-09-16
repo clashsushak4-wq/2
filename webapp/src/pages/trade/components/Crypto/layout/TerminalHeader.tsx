@@ -1,5 +1,5 @@
 import { ChevronDown, BarChart2, MoreHorizontal, CircleDollarSign } from 'lucide-react';
-import { haptic } from '../../../../utils';
+import { haptic } from '../../../../../utils';
 
 export const TerminalHeader = () => {
   return (

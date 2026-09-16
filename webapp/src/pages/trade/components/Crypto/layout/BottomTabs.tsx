@@ -1,5 +1,5 @@
 import { ChevronDown, FileText } from 'lucide-react';
-import { haptic } from '../../../../utils';
+import { haptic } from '../../../../../utils';
 
 export const BottomTabs = () => {
   return (

@@ -5,10 +5,10 @@ import { useAppStore } from '../../store';
 import { MarketTile } from './components';
 import type { MarketType } from '../../store/useAppStore';
 
-const TILES: { market: MarketType; icon: typeof Bitcoin; title: string; subtitleKey: string }[] = [
-  { market: 'crypto', icon: Bitcoin, title: 'Crypto', subtitleKey: 'trade.crypto' },
-  { market: 'screener', icon: ScanSearch, title: 'Screener', subtitleKey: 'trade.screener' },
-  { market: 'diary', icon: Book, title: 'Дневник трейдера', subtitleKey: 'trade.diary' },
+const TILES: { market: MarketType; icon: typeof Bitcoin; title: string }[] = [
+  { market: 'crypto', icon: Bitcoin, title: 'Crypto' },
+  { market: 'screener', icon: ScanSearch, title: 'Screener' },
+  { market: 'diary', icon: Book, title: 'Дневник трейдера' },
 ];
 
 export const TradeView = () => {
@@ -27,7 +27,6 @@ export const TradeView = () => {
             key={tile.market}
             icon={tile.icon}
             title={tile.title}
-            subtitleKey={tile.subtitleKey}
             onClick={() => handleTradeSelect(tile.market)}
           />
         ))}

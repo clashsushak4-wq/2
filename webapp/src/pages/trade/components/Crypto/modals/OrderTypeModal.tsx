@@ -1,24 +1,23 @@
 import { Check } from 'lucide-react';
-import { BottomSheet } from '../../../../shared/ui';
-import { haptic } from '../../../../utils';
-import { useBackButton } from '../../../../hooks';
+import { BottomSheet } from '../../../../../shared/ui';
+import { haptic } from '../../../../../utils';
+import { useBackButton } from '../../../../../hooks';
+import { useCryptoStore, OrderType } from '../store/useCryptoStore';
 
-interface OrderTypeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  currentType: 'limit' | 'market';
-  onChange: (type: 'limit' | 'market') => void;
-}
+export const OrderTypeModal = () => {
+  const isOpen = useCryptoStore(state => state.isOrderTypeOpen);
+  const onClose = () => useCryptoStore.getState().setOrderTypeOpen(false);
+  const currentType = useCryptoStore(state => state.orderType);
+  const onChange = useCryptoStore.getState().setOrderType;
 
-export const OrderTypeModal = ({ isOpen, onClose, currentType, onChange }: OrderTypeModalProps) => {
   useBackButton(isOpen ? onClose : null);
 
-  const options = [
+  const options: { value: OrderType; label: string }[] = [
     { value: 'limit', label: 'Лимитный' },
     { value: 'market', label: 'Рыночный' }
-  ] as const;
+  ];
 
-  const handleSelect = (val: 'limit' | 'market') => {
+  const handleSelect = (val: OrderType) => {
     haptic.medium();
     onChange(val);
     onClose();

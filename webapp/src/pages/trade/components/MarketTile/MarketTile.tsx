@@ -1,16 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
 import { ChevronRight } from 'lucide-react';
-import { useTranslation } from '../../../../i18n';
 
 interface MarketTileProps {
   icon: LucideIcon;
   title: string;
-  subtitleKey: string;
   onClick?: () => void;
 }
 
-export const MarketTile = ({ icon: Icon, title, subtitleKey, onClick }: MarketTileProps) => {
-  const { t } = useTranslation();
+export const MarketTile = ({ icon: Icon, title, onClick }: MarketTileProps) => {
   return (
     <button
       onClick={onClick}
