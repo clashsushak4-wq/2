@@ -4,16 +4,18 @@ import { PositionsTab } from './PositionsTab';
 import { ScreenerTab } from './ScreenerTab';
 import { HistoryTab } from './HistoryTab';
 import { haptic } from '../../../../../utils';
+import { useTranslation } from '../../../../../i18n';
 
 export const BottomTabs = () => {
   const activeTab = useCryptoStore(state => state.activeTab);
   const setActiveTab = useCryptoStore(state => state.setActiveTab);
+  const { t } = useTranslation();
 
   const tabs: { id: TabType; label: string }[] = [
-    { id: 'orders', label: 'Ордера' },
-    { id: 'positions', label: 'Позиции' },
-    { id: 'screener', label: 'Скринер' },
-    { id: 'history', label: 'История' },
+    { id: 'orders', label: t('trade.orders') },
+    { id: 'positions', label: t('trade.positions') },
+    { id: 'screener', label: t('trade.screener') },
+    { id: 'history', label: t('trade.orderHistory') },
   ];
 
   const renderContent = () => {
@@ -29,9 +31,12 @@ export const BottomTabs = () => {
   return (
     <div className="flex flex-col mt-2 select-none">
       {/* Tabs Header */}
-      <div className="flex items-center gap-4 pb-1.5 px-2 overflow-x-auto custom-scrollbar whitespace-nowrap">
+      <div role="tablist" className="flex items-center gap-4 pb-1.5 px-2 overflow-x-auto custom-scrollbar whitespace-nowrap">
         {tabs.map((tab) => (
-          <div
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
             key={tab.id}
             onClick={() => {
               haptic.light();
@@ -46,12 +51,12 @@ export const BottomTabs = () => {
             >
               {tab.label}
             </span>
-          </div>
+          </button>
         ))}
       </div>
 
       {/* Tabs Content */}
-      <div className="min-h-[100px]">
+      <div role="tabpanel" className="min-h-[100px]">
         {renderContent()}
       </div>
     </div>

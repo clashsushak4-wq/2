@@ -10,7 +10,9 @@ interface CryptoState {
   isTPSL: boolean;
   side: OrderSide;
   orderType: OrderType;
+  price: string;
   leverage: number;
+  isBatchLeverage: boolean;
   unit: UnitType;
   activeTab: TabType;
   
@@ -22,7 +24,9 @@ interface CryptoState {
   setIsTPSL: (val: boolean) => void;
   setSide: (val: OrderSide) => void;
   setOrderType: (val: OrderType) => void;
+  setPrice: (val: string) => void;
   setLeverage: (val: number) => void;
+  setIsBatchLeverage: (val: boolean) => void;
   setUnit: (val: UnitType) => void;
   setActiveTab: (val: TabType) => void;
   
@@ -36,7 +40,9 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   isTPSL: false,
   side: 'buy',
   orderType: 'limit',
+  price: '0.01312',
   leverage: 3,
+  isBatchLeverage: false,
   unit: 'value_usdt',
   activeTab: 'orders',
 
@@ -48,7 +54,9 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   setIsTPSL: (val) => set({ isTPSL: val }),
   setSide: (val) => set({ side: val }),
   setOrderType: (val) => set({ orderType: val }),
+  setPrice: (val) => set({ price: val }),
   setLeverage: (val) => set({ leverage: val }),
+  setIsBatchLeverage: (val) => set({ isBatchLeverage: val }),
   setUnit: (val) => set({ unit: val }),
   setActiveTab: (val) => set({ activeTab: val }),
   

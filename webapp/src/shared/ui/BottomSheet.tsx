@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useId, useRef } from 'react';
 import { useAppStore } from '../../store';
 
 interface BottomSheetProps {
@@ -11,10 +11,55 @@ interface BottomSheetProps {
 
 export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetProps) => {
   const isDesktop = useAppStore((s) => s.isFullscreen);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  const titleId = useId();
 
-  // Блокируем скролл body, когда открыта шторка (отключено для iOS)
   useEffect(() => {
-    // scroll lock logic removed
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const dialog = dialogRef.current;
+    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusable = dialog?.querySelectorAll<HTMLElement>(focusableSelector);
+    (focusable?.[0] ?? dialog)?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !dialog) return;
+      const elements = Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector))
+        .filter((element) => !element.hasAttribute('disabled'));
+      if (elements.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousFocus?.focus();
+    };
   }, [isOpen]);
 
   return (
@@ -27,11 +72,18 @@ export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetPro
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            aria-hidden="true"
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
 
           {/* Сама шторка / Модальное окно */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={title ? titleId : undefined}
+            aria-label={title ? undefined : 'Dialog'}
+            tabIndex={-1}
             initial={isDesktop ? { opacity: 0, scale: 0.95 } : { y: '100%' }}
             animate={isDesktop ? { opacity: 1, scale: 1, y: 0 } : { y: 0 }}
             exit={isDesktop ? { opacity: 0, scale: 0.95 } : { y: '100%' }}
@@ -48,7 +100,7 @@ export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetPro
             {/* Заголовок */}
             {title && (
               <div className={`px-6 pb-4 ${isDesktop ? 'pt-6' : ''}`}>
-                <h2 className="text-xl font-bold text-white text-center">{title}</h2>
+                <h2 id={titleId} className="text-xl font-bold text-white text-center">{title}</h2>
               </div>
             )}
 

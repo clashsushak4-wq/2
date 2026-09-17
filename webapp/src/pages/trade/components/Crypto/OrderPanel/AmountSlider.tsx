@@ -1,11 +1,12 @@
 import { ChevronDown } from 'lucide-react';
 import { haptic } from '../../../../../utils';
+import { useTranslation } from '../../../../../i18n';
 import { useCryptoStore, UnitType } from '../store/useCryptoStore';
 
-const getUnitLabel = (unit: UnitType) => {
-  if (unit === 'qty_btc') return { left: 'Количество', right: 'BTC' };
-  if (unit === 'cost_usdt') return { left: 'Себестоимость', right: 'USDT' };
-  return { left: 'Стоимость', right: 'USDT' };
+const getUnitLabel = (unit: UnitType, t: (key: string) => string) => {
+  if (unit === 'qty_btc') return { left: t('trade.amount'), right: 'BTC' };
+  if (unit === 'cost_usdt') return { left: t('trade.cost'), right: 'USDT' };
+  return { left: t('trade.value'), right: 'USDT' };
 };
 
 export const AmountSlider = () => {
@@ -13,8 +14,9 @@ export const AmountSlider = () => {
   const setAmountPercent = useCryptoStore.getState().setAmountPercent;
   const unit = useCryptoStore(state => state.unit);
   const setUnitOpen = useCryptoStore.getState().setUnitOpen;
+  const { t } = useTranslation();
   
-  const unitInfo = getUnitLabel(unit);
+  const unitInfo = getUnitLabel(unit, t);
 
   return (
     <>
@@ -25,13 +27,15 @@ export const AmountSlider = () => {
           {amountPercent > 0 && <span className="text-sm text-zinc-100 font-bold ml-1">{amountPercent}%</span>}
         </div>
         
-        <div 
+        <button
+          type="button"
+          aria-haspopup="dialog"
           className="flex items-center gap-1 cursor-pointer"
           onClick={() => { haptic.light(); setUnitOpen(true); }}
         >
           <span className="text-sm text-zinc-300 font-bold">{unitInfo.right}</span>
           <ChevronDown size={14} className="text-zinc-500" />
-        </div>
+        </button>
       </div>
 
       {amountPercent > 0 && (
@@ -49,9 +53,13 @@ export const AmountSlider = () => {
           step="1"
           value={amountPercent}
           onChange={(e) => {
-            haptic.light();
             setAmountPercent(Number(e.target.value));
           }}
+          onPointerUp={() => haptic.light()}
+          onKeyUp={(event) => {
+            if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) haptic.light();
+          }}
+          aria-label={t('trade.amount')}
           className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer"
         />
         <div className="h-0.5 w-full bg-zinc-800 relative z-10 pointer-events-none">

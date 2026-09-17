@@ -3,6 +3,7 @@ import { Minus, Plus } from 'lucide-react';
 import { BottomSheet } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import { useBackButton } from '../../../../../hooks';
+import { useTranslation } from '../../../../../i18n';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 const MARKS = [1, 30, 60, 90, 120, 150];
@@ -11,7 +12,10 @@ export const LeverageModal = () => {
   const isOpen = useCryptoStore(state => state.isLeverageOpen);
   const onClose = () => useCryptoStore.getState().setLeverageOpen(false);
   const currentLeverage = useCryptoStore(state => state.leverage);
+  const currentIsBatch = useCryptoStore(state => state.isBatchLeverage);
   const onChange = useCryptoStore.getState().setLeverage;
+  const onBatchChange = useCryptoStore.getState().setIsBatchLeverage;
+  const { t } = useTranslation();
 
   useBackButton(isOpen ? onClose : null);
   const [leverage, setLeverage] = useState(currentLeverage);
@@ -21,19 +25,21 @@ export const LeverageModal = () => {
   useEffect(() => {
     if (isOpen) {
       setLeverage(currentLeverage);
+      setIsBatch(currentIsBatch);
     }
-  }, [isOpen, currentLeverage]);
+  }, [isOpen, currentLeverage, currentIsBatch]);
 
   const handleConfirm = () => {
     haptic.medium();
     onChange(leverage);
+    onBatchChange(isBatch);
     onClose();
   };
 
-  const updateLeverage = (val: number) => {
+  const updateLeverage = (val: number, withHaptic = true) => {
     const newVal = Math.min(150, Math.max(1, val));
     if (newVal !== leverage) {
-      haptic.light();
+      if (withHaptic) haptic.light();
       setLeverage(newVal);
     }
   };
@@ -41,12 +47,13 @@ export const LeverageModal = () => {
   const getPercent = (val: number) => ((val - 1) / 149) * 100;
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} title="Отрегулируйте кредитное плечо">
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={t('trade.adjustLeverage')}>
       <div className="flex flex-col text-zinc-100">
         
         {/* Controls */}
         <div className="flex items-center justify-between bg-black rounded-xl p-1 mb-3 mt-0 border border-zinc-700">
           <button 
+            type="button"
             onClick={() => updateLeverage(leverage - 1)}
             className="p-2 text-zinc-300 active:text-white"
           >
@@ -54,6 +61,7 @@ export const LeverageModal = () => {
           </button>
           <span className="text-xl font-bold">{leverage}x</span>
           <button 
+            type="button"
             onClick={() => updateLeverage(leverage + 1)}
             className="p-2 text-zinc-300 active:text-white"
           >
@@ -69,7 +77,12 @@ export const LeverageModal = () => {
               min="1"
               max="150"
               value={leverage}
-              onChange={(e) => updateLeverage(Number(e.target.value))}
+              onChange={(e) => updateLeverage(Number(e.target.value), false)}
+              onPointerUp={() => haptic.light()}
+              onKeyUp={(event) => {
+                if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) haptic.light();
+              }}
+              aria-label={t('trade.leverage')}
               className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer"
             />
             <div className="w-full h-1 bg-zinc-800 rounded-full relative z-10 pointer-events-none">
@@ -101,34 +114,37 @@ export const LeverageModal = () => {
 
         {/* Info Rows */}
         <div className="flex justify-between items-center mb-2 mt-1">
-          <span className="text-sm text-zinc-400">Макс. открытие после изменения кредитного плеча</span>
+          <span className="text-sm text-zinc-400">{t('trade.maxOpenAfterLeverage')}</span>
           <span className="text-sm text-white font-medium">1,200.0</span>
         </div>
 
         <div className="flex justify-between items-center mb-3 gap-4">
-          <span className="text-[13px] text-zinc-400 leading-snug">
-            Пакетная корректировка кредитного плеча (≤20x) для всех Фьючерсы USDT-M
-          </span>
-          <div 
+          <span className="text-[13px] text-zinc-400 leading-snug">{t('trade.batchLeverageAdjustment')}</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isBatch}
+            aria-label={t('trade.batchLeverageAdjustment')}
             onClick={() => { haptic.light(); setIsBatch(!isBatch); }}
             className={`w-11 h-6 flex items-center rounded-full p-0.5 cursor-pointer transition-colors shrink-0 ${isBatch ? 'bg-white' : 'bg-zinc-600'}`}
           >
             <div className={`w-5 h-5 rounded-full shadow-md transform transition-transform ${isBatch ? 'translate-x-5 bg-black' : 'translate-x-0 bg-white'}`} />
-          </div>
+          </button>
         </div>
 
         {/* Warning Text */}
         <div className="text-[11px] text-amber-500 font-medium leading-tight mb-3">
-          * Если вы сейчас настроите кредитное плечо, это повлияет на все позиции и отложенные ордера.<br/>
-          Выбор торговли с кредитным плечом более 10x может легко привести к ликвидации. Пожалуйста, выполняйте регулировку с осторожностью!
+          * {t('trade.leverageWarning')}<br/>
+          {t('trade.leverageLiquidationWarning')}
         </div>
 
         {/* Confirm Button */}
         <button
+          type="button"
           onClick={handleConfirm}
           className="w-full py-2 bg-white text-black font-bold text-base rounded-xl transition-transform active:scale-95"
         >
-          Подтвердить
+          {t('trade.confirm')}
         </button>
 
       </div>

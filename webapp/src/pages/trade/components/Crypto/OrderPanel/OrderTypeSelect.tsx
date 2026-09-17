@@ -1,13 +1,19 @@
 import { ChevronDown } from 'lucide-react';
 import { haptic } from '../../../../../utils';
+import { useTranslation } from '../../../../../i18n';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 export const OrderTypeSelect = () => {
   const orderType = useCryptoStore(state => state.orderType);
+  const isOpen = useCryptoStore(state => state.isOrderTypeOpen);
   const setOrderTypeOpen = useCryptoStore.getState().setOrderTypeOpen;
+  const { t } = useTranslation();
 
   return (
-    <div 
+    <button
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded={isOpen}
       className="flex items-center justify-between bg-zinc-900 rounded px-2 py-1.5 mb-2 cursor-pointer" 
       onClick={() => { haptic.light(); setOrderTypeOpen(true); }}
     >
@@ -16,10 +22,10 @@ export const OrderTypeSelect = () => {
           <div className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
         </div>
         <span className="text-sm font-bold text-zinc-100">
-          {orderType === 'limit' ? 'Лимитный' : 'Рыночный'}
+          {t(orderType === 'limit' ? 'trade.limitOrder' : 'trade.marketOrder')}
         </span>
       </div>
       <ChevronDown size={16} className="text-zinc-500" />
-    </div>
+    </button>
   );
 };

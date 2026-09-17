@@ -11,8 +11,8 @@ import { useI18nStore } from './i18n/useTranslation';
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
   const [isLoading, setIsLoading] = useState(true);
-  const { user, webApp, isTelegram, isDesktop, isLoading: isTgLoading } = useWebApp();
-  const { setUser, isFullscreen, setFullscreen, activeMarket, setActiveMarket, user: storeUser } = useAppStore();
+  const { user, isTelegram, isDesktop, isLoading: isTgLoading } = useWebApp();
+  const { setUser, isFullscreen, activeMarket, setActiveMarket, user: storeUser } = useAppStore();
   const setLanguage = useI18nStore((s) => s.setLanguage);
 
   useEffect(() => {

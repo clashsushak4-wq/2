@@ -2,17 +2,19 @@ import { Bitcoin, ScanSearch, Book } from 'lucide-react';
 import { PageWrapper } from '../../shared/ui';
 import { haptic } from '../../utils';
 import { useAppStore } from '../../store';
+import { useTranslation } from '../../i18n';
 import { MarketTile } from './components';
 import type { MarketType } from '../../store/useAppStore';
 
-const TILES: { market: MarketType; icon: typeof Bitcoin; title: string }[] = [
-  { market: 'crypto', icon: Bitcoin, title: 'Crypto' },
-  { market: 'screener', icon: ScanSearch, title: 'Screener' },
-  { market: 'diary', icon: Book, title: 'Дневник трейдера' },
+const TILES: { market: MarketType; icon: typeof Bitcoin; titleKey: string }[] = [
+  { market: 'crypto', icon: Bitcoin, titleKey: 'trade.crypto' },
+  { market: 'screener', icon: ScanSearch, titleKey: 'trade.screener' },
+  { market: 'diary', icon: Book, titleKey: 'trade.diary' },
 ];
 
 export const TradeView = () => {
   const { setActiveMarket } = useAppStore();
+  const { t } = useTranslation();
 
   const handleTradeSelect = (market: MarketType) => {
     haptic.light();
@@ -26,7 +28,7 @@ export const TradeView = () => {
           <MarketTile
             key={tile.market}
             icon={tile.icon}
-            title={tile.title}
+            title={t(tile.titleKey)}
             onClick={() => handleTradeSelect(tile.market)}
           />
         ))}

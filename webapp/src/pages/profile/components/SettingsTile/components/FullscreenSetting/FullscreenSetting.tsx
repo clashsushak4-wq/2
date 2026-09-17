@@ -1,10 +1,8 @@
 import { Maximize, Minimize, ChevronRight } from 'lucide-react';
-import { useWebApp } from '../../../../../../hooks';
 import { useAppStore } from '../../../../../../store';
 import { useTranslation } from '../../../../../../i18n';
 
 export const FullscreenSetting = () => {
-  const { webApp } = useWebApp();
   const { isFullscreen, setFullscreen } = useAppStore();
   const { t } = useTranslation();
 

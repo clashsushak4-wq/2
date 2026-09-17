@@ -10,6 +10,7 @@ interface MarketTileProps {
 export const MarketTile = ({ icon: Icon, title, onClick }: MarketTileProps) => {
   return (
     <button
+      type="button"
       onClick={onClick}
       className="w-full flex items-center gap-3 px-4 py-3 bg-zinc-900 border-2 rounded-xl transition-colors text-left border-zinc-700 active:bg-zinc-800"
     >

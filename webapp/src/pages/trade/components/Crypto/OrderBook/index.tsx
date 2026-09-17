@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import { ChevronDown, ListFilter } from 'lucide-react';
 import { haptic } from '../../../../../utils';
+import { useTranslation } from '../../../../../i18n';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 // Хеш-функция для генерации псевдослучайной стабильной ширины бара на основе цены
@@ -31,6 +32,7 @@ export const OrderBook = memo(() => {
   const amountPercent = useCryptoStore(state => state.amountPercent);
   const isTPSL = useCryptoStore(state => state.isTPSL);
   const side = useCryptoStore(state => state.side);
+  const { t } = useTranslation();
 
   const asks = useMemo(() => {
     let baseAsks = side === 'sell' ? [
@@ -87,8 +89,8 @@ export const OrderBook = memo(() => {
   return (
     <div className="flex flex-col flex-1 pl-1 text-xs font-mono select-none">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-zinc-500 font-sans">Цена<br />(USDT)</span>
-        <span className="text-zinc-500 text-right font-sans">Количество<br />(CP)</span>
+        <span className="text-zinc-500 font-sans">{t('trade.price')}<br />(USDT)</span>
+        <span className="text-zinc-500 text-right font-sans">{t('trade.amount')}<br />(CP)</span>
       </div>
 
       {/* Asks */}
@@ -124,11 +126,11 @@ export const OrderBook = memo(() => {
           <span>52% S</span>
         </div>
 
-        <div className="flex items-center justify-between bg-zinc-900 rounded p-1 mt-1 cursor-pointer" onClick={() => haptic.light()}>
+        <button type="button" aria-label={t('trade.orderBookPrecision')} className="flex items-center justify-between bg-zinc-900 rounded p-1 mt-1 cursor-pointer" onClick={() => haptic.light()}>
           <ListFilter size={14} className="text-zinc-400" />
           <span className="text-zinc-300">0.00001</span>
           <ChevronDown size={14} className="text-zinc-500" />
-        </div>
+        </button>
       </div>
     </div>
   );
