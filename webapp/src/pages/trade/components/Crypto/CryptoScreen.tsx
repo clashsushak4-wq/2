@@ -13,7 +13,6 @@ import { SymbolSelectModal } from './modals/SymbolSelectModal';
 import { OrderTypeModal } from './modals/OrderTypeModal';
 import { UnitModal } from './modals/UnitModal';
 import { ChartScreen } from './Chart/ChartScreen';
-import { useCryptoStore } from './store/useCryptoStore';
 
 interface CryptoScreenProps {
   onClose: () => void;
@@ -22,14 +21,6 @@ interface CryptoScreenProps {
 export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
   useBackButton(onClose);
   const [refreshSequence, setRefreshSequence] = useState(0);
-  const isPullToRefreshDisabled = useCryptoStore(state => (
-    state.isOrderTypeOpen
-    || state.isLeverageOpen
-    || state.isUnitOpen
-    || state.isMarginModeOpen
-    || state.isSymbolSelectOpen
-    || state.isChartOpen
-  ));
 
   const refreshTerminal = useCallback(async () => {
     await new Promise<void>(resolve => window.setTimeout(resolve, 650));
@@ -45,7 +36,7 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
         exit="hidden"
         className="absolute inset-0"
       >
-        <PullToRefresh disabled={isPullToRefreshDisabled} onRefresh={refreshTerminal}>
+        <PullToRefresh onRefresh={refreshTerminal}>
           <div key={refreshSequence} className="contents">
             <TerminalHeader />
 
@@ -57,17 +48,16 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
 
             <BottomTabs />
 
-            {/* Modals mounted here, they control their own state via Zustand */}
-            <LeverageModal />
-            <MarginModeModal />
-            <SymbolSelectModal />
-            <OrderTypeModal />
-            <UnitModal />
-
-            {/* Full Screen Overlays */}
-            <ChartScreen />
           </div>
         </PullToRefresh>
+
+        {/* Overlays stay outside the transformed pull-to-refresh layer. */}
+        <LeverageModal />
+        <MarginModeModal />
+        <SymbolSelectModal />
+        <OrderTypeModal />
+        <UnitModal />
+        <ChartScreen />
       </motion.div>
     </div>
   );

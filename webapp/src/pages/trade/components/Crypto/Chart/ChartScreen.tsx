@@ -18,7 +18,6 @@ export const ChartScreen = () => {
   const isOpen = useCryptoStore(state => state.isChartOpen);
   const setChartOpen = useCryptoStore(state => state.setChartOpen);
   const setSymbolSelectOpen = useCryptoStore(state => state.setSymbolSelectOpen);
-  const isSymbolSelectOpen = useCryptoStore(state => state.isSymbolSelectOpen);
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const [refreshSequence, setRefreshSequence] = useState(0);
   const { t } = useTranslation();
@@ -44,7 +43,7 @@ export const ChartScreen = () => {
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
           className="absolute inset-0 z-[60] overflow-hidden bg-[#0a0a0a] text-zinc-100 font-sans"
         >
-          <PullToRefresh disabled={isSymbolSelectOpen} onRefresh={refreshChart}>
+          <PullToRefresh onRefresh={refreshChart}>
             <div key={refreshSequence} className="contents">
               {/* Header */}
               <div className="flex items-center justify-between px-3 pt-2 pb-1 shrink-0">
