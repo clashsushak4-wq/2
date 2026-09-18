@@ -10,6 +10,7 @@ import { MarginModeModal } from './modals/MarginModeModal';
 import { SymbolSelectModal } from './modals/SymbolSelectModal';
 import { OrderTypeModal } from './modals/OrderTypeModal';
 import { UnitModal } from './modals/UnitModal';
+import { ChartScreen } from './Chart/ChartScreen';
 
 interface CryptoScreenProps {
   onClose: () => void;
@@ -43,6 +44,9 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
         <SymbolSelectModal />
         <OrderTypeModal />
         <UnitModal />
+
+        {/* Full Screen Overlays */}
+        <ChartScreen />
       </motion.div>
     </div>
   );

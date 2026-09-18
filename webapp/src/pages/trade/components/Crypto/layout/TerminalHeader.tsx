@@ -24,8 +24,15 @@ export const TerminalHeader = () => {
       </div>
 
       <div className="flex items-center gap-4 text-zinc-400">
-        <button type="button" aria-label={t('trade.chart')} className="cursor-pointer" onClick={() => haptic.light()}><BarChart2 size={20} /></button>
-        <button type="button" aria-label={t('trade.more')} className="cursor-pointer" onClick={() => haptic.light()}><MoreHorizontal size={20} /></button>
+        <button 
+          type="button" 
+          aria-label={t('trade.chart')} 
+          className="cursor-pointer transition-opacity active:opacity-70" 
+          onClick={() => { haptic.light(); useCryptoStore.getState().setChartOpen(true); }}
+        >
+          <BarChart2 size={20} />
+        </button>
+        <button type="button" aria-label={t('trade.more')} className="cursor-pointer transition-opacity active:opacity-70" onClick={() => haptic.light()}><MoreHorizontal size={20} /></button>
       </div>
     </div>
   );
