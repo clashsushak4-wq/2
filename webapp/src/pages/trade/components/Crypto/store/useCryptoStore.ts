@@ -4,6 +4,7 @@ export type OrderSide = 'buy' | 'sell';
 export type OrderType = 'limit' | 'market';
 export type UnitType = 'qty_btc' | 'cost_usdt' | 'value_usdt';
 export type TabType = 'orders' | 'positions' | 'screener' | 'history';
+export type MarginMode = 'cross' | 'isolated';
 
 interface CryptoState {
   amountPercent: number;
@@ -15,10 +16,12 @@ interface CryptoState {
   isBatchLeverage: boolean;
   unit: UnitType;
   activeTab: TabType;
+  marginMode: MarginMode;
   
   isOrderTypeOpen: boolean;
   isLeverageOpen: boolean;
   isUnitOpen: boolean;
+  isMarginModeOpen: boolean;
 
   setAmountPercent: (val: number) => void;
   setIsTPSL: (val: boolean) => void;
@@ -29,10 +32,12 @@ interface CryptoState {
   setIsBatchLeverage: (val: boolean) => void;
   setUnit: (val: UnitType) => void;
   setActiveTab: (val: TabType) => void;
+  setMarginMode: (val: MarginMode) => void;
   
   setOrderTypeOpen: (isOpen: boolean) => void;
   setLeverageOpen: (isOpen: boolean) => void;
   setUnitOpen: (isOpen: boolean) => void;
+  setMarginModeOpen: (isOpen: boolean) => void;
 }
 
 export const useCryptoStore = create<CryptoState>((set) => ({
@@ -45,10 +50,12 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   isBatchLeverage: false,
   unit: 'value_usdt',
   activeTab: 'orders',
+  marginMode: 'isolated',
 
   isOrderTypeOpen: false,
   isLeverageOpen: false,
   isUnitOpen: false,
+  isMarginModeOpen: false,
 
   setAmountPercent: (val) => set({ amountPercent: val }),
   setIsTPSL: (val) => set({ isTPSL: val }),
@@ -59,8 +66,10 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   setIsBatchLeverage: (val) => set({ isBatchLeverage: val }),
   setUnit: (val) => set({ unit: val }),
   setActiveTab: (val) => set({ activeTab: val }),
+  setMarginMode: (val) => set({ marginMode: val }),
   
   setOrderTypeOpen: (isOpen) => set({ isOrderTypeOpen: isOpen }),
   setLeverageOpen: (isOpen) => set({ isLeverageOpen: isOpen }),
   setUnitOpen: (isOpen) => set({ isUnitOpen: isOpen }),
+  setMarginModeOpen: (isOpen) => set({ isMarginModeOpen: isOpen }),
 }));

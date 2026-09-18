@@ -8,7 +8,7 @@ import { ActionButtons } from './ActionButtons';
 
 export const OrderPanel = () => {
   return (
-    <div className="flex flex-col flex-[1.7] pr-1 select-none">
+    <div className="flex flex-col flex-[1.4] pr-1 select-none">
       <MarginSettings />
       <SideToggle />
       <OrderTypeSelect />

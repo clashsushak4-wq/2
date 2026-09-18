@@ -112,32 +112,6 @@ export const LeverageModal = () => {
           </div>
         </div>
 
-        {/* Info Rows */}
-        <div className="flex justify-between items-center mb-2 mt-1">
-          <span className="text-sm text-zinc-400">{t('trade.maxOpenAfterLeverage')}</span>
-          <span className="text-sm text-white font-medium">1,200.0</span>
-        </div>
-
-        <div className="flex justify-between items-center mb-3 gap-4">
-          <span className="text-[13px] text-zinc-400 leading-snug">{t('trade.batchLeverageAdjustment')}</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={isBatch}
-            aria-label={t('trade.batchLeverageAdjustment')}
-            onClick={() => { haptic.light(); setIsBatch(!isBatch); }}
-            className={`w-11 h-6 flex items-center rounded-full p-0.5 cursor-pointer transition-colors shrink-0 ${isBatch ? 'bg-white' : 'bg-zinc-600'}`}
-          >
-            <div className={`w-5 h-5 rounded-full shadow-md transform transition-transform ${isBatch ? 'translate-x-5 bg-black' : 'translate-x-0 bg-white'}`} />
-          </button>
-        </div>
-
-        {/* Warning Text */}
-        <div className="text-[11px] text-amber-500 font-medium leading-tight mb-3">
-          * {t('trade.leverageWarning')}<br/>
-          {t('trade.leverageLiquidationWarning')}
-        </div>
-
         {/* Confirm Button */}
         <button
           type="button"
