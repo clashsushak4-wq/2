@@ -1,18 +1,38 @@
+import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
 import { getMockInstrument } from '../data/mockInstruments.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
+import { TPSLModeModal, TPSLMode } from './TPSLModeModal';
 
 export const TPSLSettings = () => {
   const isTPSL = useCryptoStore(state => state.isTPSL);
   const setIsTPSL = useCryptoStore.getState().setIsTPSL;
   const side = useCryptoStore(state => state.side);
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
+  
+  const tpMode = useCryptoStore(state => state.tpMode);
+  const slMode = useCryptoStore(state => state.slMode);
+  const setTpMode = useCryptoStore.getState().setTpMode;
+  const setSlMode = useCryptoStore.getState().setSlMode;
+  
   const { t } = useTranslation();
   const instrument = getMockInstrument(selectedSymbol);
 
+  const [modalType, setModalType] = useState<'tp' | 'sl' | null>(null);
+
   if (side === 'sell') return null;
+
+  const getModeLabel = (mode: string) => {
+    switch (mode) {
+      case 'price': return 'Цена';
+      case 'roi': return 'ROI (%)';
+      case 'change': return 'Изменение (%)';
+      case 'pnl': return 'PnL';
+      default: return 'Цена';
+    }
+  };
 
   return (
     <>
@@ -31,21 +51,37 @@ export const TPSLSettings = () => {
           {/* TP Input */}
           <div className="bg-zinc-900 rounded px-2 py-1.5 flex items-center justify-between">
             <span className="text-xs text-zinc-400">TP ({instrument.quoteAsset})</span>
-            <button type="button" className="flex items-center gap-1 cursor-pointer" onClick={() => haptic.light()}>
-              <span className="text-xs text-zinc-100">{t('trade.price')}</span>
+            <button 
+              type="button" 
+              className="flex items-center gap-1 cursor-pointer active:opacity-70 transition-opacity" 
+              onClick={() => { haptic.light(); setModalType('tp'); }}
+            >
+              <span className="text-xs text-zinc-100">{getModeLabel(tpMode)}</span>
               <ChevronDown size={12} className="text-zinc-500" />
             </button>
           </div>
           {/* SL Input */}
           <div className="bg-zinc-900 rounded px-2 py-1.5 flex items-center justify-between">
             <span className="text-xs text-zinc-400">SL ({instrument.quoteAsset})</span>
-            <button type="button" className="flex items-center gap-1 cursor-pointer" onClick={() => haptic.light()}>
-              <span className="text-xs text-zinc-100">{t('trade.price')}</span>
+            <button 
+              type="button" 
+              className="flex items-center gap-1 cursor-pointer active:opacity-70 transition-opacity" 
+              onClick={() => { haptic.light(); setModalType('sl'); }}
+            >
+              <span className="text-xs text-zinc-100">{getModeLabel(slMode)}</span>
               <ChevronDown size={12} className="text-zinc-500" />
             </button>
           </div>
         </div>
       )}
+
+      <TPSLModeModal 
+        isOpen={modalType !== null}
+        onClose={() => setModalType(null)}
+        selectedMode={(modalType === 'tp' ? tpMode : slMode) as TPSLMode}
+        onSelectMode={(mode) => modalType === 'tp' ? setTpMode(mode) : setSlMode(mode)}
+        type={modalType || 'tp'}
+      />
     </>
   );
 };

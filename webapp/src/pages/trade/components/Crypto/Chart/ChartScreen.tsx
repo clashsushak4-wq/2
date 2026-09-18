@@ -13,6 +13,7 @@ import {
   getMockInstrument,
 } from '../data/mockInstruments.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
+import { ChartContainer } from './ChartContainer';
 
 export const ChartScreen = () => {
   const isOpen = useCryptoStore(state => state.isChartOpen);
@@ -70,14 +71,6 @@ export const ChartScreen = () => {
               <div className="flex justify-between items-start px-4 pt-1">
                 {/* Left Column */}
                 <div className="flex flex-col">
-                  <button
-                    type="button"
-                    className="flex items-center gap-1 text-zinc-400 mb-0.5 active:opacity-70 transition-opacity"
-                    onClick={() => haptic.light()}
-                  >
-                    <span className="text-[15px] font-medium tracking-tight">{t('trade.lastPrice')}</span>
-                    <ChevronDown size={14} className="mt-0.5" />
-                  </button>
 
                   <div className="text-[38px] font-bold text-white leading-none tracking-tight mb-2">
                     {formatInstrumentPrice(instrument)}
@@ -114,12 +107,11 @@ export const ChartScreen = () => {
                     <span className="text-zinc-500">{t('trade.turnover24h')} ({instrument.quoteAsset})</span>
                     <span className="text-white font-medium tracking-wide">{instrument.turnover24h}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-zinc-500 truncate mr-2">{t('trade.openInterest')} ({instrument.quoteAsset})</span>
-                    <span className="text-white font-medium tracking-wide shrink-0">{instrument.openInterest}</span>
-                  </div>
+
                 </div>
               </div>
+              
+              <ChartContainer />
             </div>
           </PullToRefresh>
         </motion.div>

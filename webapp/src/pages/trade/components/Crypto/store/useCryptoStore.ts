@@ -25,7 +25,7 @@ interface CryptoState {
   marginMode: MarginMode;
   selectedSymbol: string;
   favoriteSymbols: string[];
-  
+
   isOrderTypeOpen: boolean;
   isLeverageOpen: boolean;
   isUnitOpen: boolean;
@@ -45,13 +45,17 @@ interface CryptoState {
   setMarginMode: (val: MarginMode) => void;
   setSelectedSymbol: (symbol: string) => void;
   toggleFavoriteSymbol: (symbol: string) => void;
-  
+
   setOrderTypeOpen: (isOpen: boolean) => void;
   setLeverageOpen: (isOpen: boolean) => void;
   setUnitOpen: (isOpen: boolean) => void;
   setMarginModeOpen: (isOpen: boolean) => void;
   setSymbolSelectOpen: (isOpen: boolean) => void;
   setChartOpen: (isOpen: boolean) => void;
+  tpMode: 'price' | 'roi' | 'change' | 'pnl';
+  slMode: 'price' | 'roi' | 'change' | 'pnl';
+  setTpMode: (mode: 'price' | 'roi' | 'change' | 'pnl') => void;
+  setSlMode: (mode: 'price' | 'roi' | 'change' | 'pnl') => void;
 }
 
 export const useCryptoStore = create<CryptoState>((set) => ({
@@ -67,6 +71,8 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   marginMode: 'isolated',
   selectedSymbol: DEFAULT_INSTRUMENT.symbol,
   favoriteSymbols: DEFAULT_FAVORITE_SYMBOLS,
+  tpMode: 'price',
+  slMode: 'price',
 
   isOrderTypeOpen: false,
   isLeverageOpen: false,
@@ -98,11 +104,13 @@ export const useCryptoStore = create<CryptoState>((set) => ({
       ? state.favoriteSymbols.filter((favorite) => favorite !== symbol)
       : [...state.favoriteSymbols, symbol],
   })),
-  
+
   setOrderTypeOpen: (isOpen) => set({ isOrderTypeOpen: isOpen }),
   setLeverageOpen: (isOpen) => set({ isLeverageOpen: isOpen }),
   setUnitOpen: (isOpen) => set({ isUnitOpen: isOpen }),
   setMarginModeOpen: (isOpen) => set({ isMarginModeOpen: isOpen }),
   setSymbolSelectOpen: (isOpen) => set({ isSymbolSelectOpen: isOpen }),
   setChartOpen: (isOpen) => set({ isChartOpen: isOpen }),
+  setTpMode: (mode) => set({ tpMode: mode }),
+  setSlMode: (mode) => set({ slMode: mode }),
 }));
