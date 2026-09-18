@@ -1,12 +1,15 @@
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
+import { getMockInstrument } from '../data/mockInstruments.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 export const PriceInput = () => {
   const orderType = useCryptoStore(state => state.orderType);
   const price = useCryptoStore(state => state.price);
   const setPrice = useCryptoStore(state => state.setPrice);
+  const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const { t } = useTranslation();
+  const instrument = getMockInstrument(selectedSymbol);
 
   const handleIncrease = () => {
     const p = parseFloat(price);
@@ -41,7 +44,7 @@ export const PriceInput = () => {
   return (
     <div className="flex items-center justify-between bg-zinc-900 rounded px-2 py-1 mb-2">
       <div className="flex-1 flex flex-col">
-        <label htmlFor="trade-limit-price" className="text-[10px] text-zinc-400">{t('trade.price')} (USDT)</label>
+        <label htmlFor="trade-limit-price" className="text-[10px] text-zinc-400">{t('trade.price')} ({instrument.quoteAsset})</label>
         <input
           id="trade-limit-price"
           type="text"

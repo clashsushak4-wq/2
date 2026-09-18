@@ -1,22 +1,31 @@
 import { ChevronDown } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
+import { getMockInstrument } from '../data/mockInstruments.ts';
 import { useCryptoStore, UnitType } from '../store/useCryptoStore';
 
-const getUnitLabel = (unit: UnitType, t: (key: string) => string) => {
-  if (unit === 'qty_btc') return { left: t('trade.amount'), right: 'BTC' };
-  if (unit === 'cost_usdt') return { left: t('trade.cost'), right: 'USDT' };
-  return { left: t('trade.value'), right: 'USDT' };
+const getUnitLabel = (
+  unit: UnitType,
+  baseAsset: string,
+  quoteAsset: string,
+  t: (key: string) => string,
+) => {
+  if (unit === 'qty_base') return { left: t('trade.amount'), right: baseAsset };
+  if (unit === 'cost_quote') return { left: t('trade.cost'), right: quoteAsset };
+  return { left: t('trade.value'), right: quoteAsset };
 };
 
 export const AmountSlider = () => {
   const amountPercent = useCryptoStore(state => state.amountPercent);
   const setAmountPercent = useCryptoStore.getState().setAmountPercent;
   const unit = useCryptoStore(state => state.unit);
+  const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const setUnitOpen = useCryptoStore.getState().setUnitOpen;
   const { t } = useTranslation();
-  
-  const unitInfo = getUnitLabel(unit, t);
+  const instrument = getMockInstrument(selectedSymbol);
+  const unitInfo = getUnitLabel(unit, instrument.baseAsset, instrument.quoteAsset, t);
+  const baseAmount = amountPercent * 0.0005;
+  const quoteValue = baseAmount * instrument.price;
 
   return (
     <>
@@ -40,7 +49,9 @@ export const AmountSlider = () => {
 
       {amountPercent > 0 && (
         <div className="text-[10px] text-zinc-500 mb-2 h-[26px] flex items-center font-mono">
-          ≈ <span className="text-zinc-300 ml-1">{(amountPercent * 0.005).toFixed(4)}</span> <span className="text-zinc-600 mx-1">/</span> <span className="text-zinc-300">{(amountPercent * 0.005).toFixed(4)}</span> BTC
+          ≈ <span className="text-zinc-300 ml-1">{quoteValue.toFixed(2)} {instrument.quoteAsset}</span>
+          <span className="text-zinc-600 mx-1">/</span>
+          <span className="text-zinc-300">{baseAmount.toFixed(4)} {instrument.baseAsset}</span>
         </div>
       )}
 

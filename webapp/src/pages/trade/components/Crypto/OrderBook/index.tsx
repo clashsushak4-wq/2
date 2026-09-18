@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react';
 import { ChevronDown, ListFilter } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
+import { formatInstrumentPrice, getMockInstrument, MockInstrument } from '../data/mockInstruments.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 // Хеш-функция для генерации псевдослучайной стабильной ширины бара на основе цены
@@ -28,69 +29,53 @@ const OrderBookRow = memo(({ price, amount, isAsk }: { price: string; amount: st
   );
 });
 
+const createBookRows = (
+  instrument: MockInstrument,
+  direction: 'ask' | 'bid',
+  count: number,
+  amountMultiplier: number,
+) => {
+  const step = 10 ** -instrument.priceDecimals;
+  const seed = Array.from(instrument.symbol).reduce((total, char) => total + char.charCodeAt(0), 0);
+
+  return Array.from({ length: count }, (_, index) => {
+    const level = direction === 'ask' ? count - index : index + 1;
+    const price = instrument.price + (direction === 'ask' ? step * level : -step * level);
+    const amount = ((seed % 37 + 18) * (index + 1) * amountMultiplier / 10).toFixed(2);
+    return {
+      price: formatInstrumentPrice(instrument, Math.max(0, price)),
+      amount: `${amount}K`,
+    };
+  });
+};
+
 export const OrderBook = memo(() => {
   const amountPercent = useCryptoStore(state => state.amountPercent);
   const isTPSL = useCryptoStore(state => state.isTPSL);
   const side = useCryptoStore(state => state.side);
+  const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const { t } = useTranslation();
+  const instrument = getMockInstrument(selectedSymbol);
 
-  const asks = useMemo(() => {
-    let baseAsks = side === 'sell' ? [
-      { price: '0.01315', amount: '171.21K' },
-      { price: '0.01314', amount: '27.44K' },
-      { price: '0.01313', amount: '70.29K' },
-      { price: '0.01312', amount: '30.34K' },
-    ] : [
-      { price: '0.01316', amount: '276.85K' },
-      { price: '0.01315', amount: '171.21K' },
-      { price: '0.01314', amount: '27.44K' },
-      { price: '0.01313', amount: '70.29K' },
-      { price: '0.01312', amount: '30.34K' },
-    ];
-
-    if (amountPercent > 0) {
-      const askPrice = side === 'sell' ? '0.01316' : '0.01317';
-      baseAsks.unshift({ price: askPrice, amount: (amountPercent * 1.5).toFixed(2) + 'K' });
-    }
-    
-    if (isTPSL && side === 'buy') {
-      baseAsks.unshift({ price: '0.01318', amount: '21.05K' });
-      baseAsks.unshift({ price: '0.01319', amount: '8.44K' });
-    }
-    return baseAsks;
-  }, [amountPercent, isTPSL, side]);
-
-  const bids = useMemo(() => {
-    let baseBids = side === 'sell' ? [
-      { price: '0.01311', amount: '11.06K' },
-      { price: '0.01310', amount: '41.70K' },
-      { price: '0.01309', amount: '69.23K' },
-      { price: '0.01308', amount: '65.75K' },
-    ] : [
-      { price: '0.01311', amount: '11.06K' },
-      { price: '0.01310', amount: '41.70K' },
-      { price: '0.01309', amount: '69.23K' },
-      { price: '0.01308', amount: '65.75K' },
-      { price: '0.01307', amount: '63.24K' },
-    ];
-    
-    if (amountPercent > 0) {
-      const bidPrice = side === 'sell' ? '0.01307' : '0.01306';
-      baseBids.push({ price: bidPrice, amount: (amountPercent * 1.2).toFixed(2) + 'K' });
-    }
-    
-    if (isTPSL && side === 'buy') {
-      baseBids.push({ price: '0.01305', amount: '18.30K' });
-      baseBids.push({ price: '0.01304', amount: '45.12K' });
-    }
-    return baseBids;
-  }, [amountPercent, isTPSL, side]);
+  const extraRows = (amountPercent > 0 ? 1 : 0) + (isTPSL && side === 'buy' ? 1 : 0);
+  const baseRowCount = side === 'sell' ? 4 : 5;
+  const asks = useMemo(
+    () => createBookRows(instrument, 'ask', baseRowCount + extraRows, 1 + amountPercent / 100),
+    [amountPercent, baseRowCount, extraRows, instrument],
+  );
+  const bids = useMemo(
+    () => createBookRows(instrument, 'bid', baseRowCount + extraRows, 1.15 + amountPercent / 120),
+    [amountPercent, baseRowCount, extraRows, instrument],
+  );
+  const buyPercent = Math.round(Math.min(70, Math.max(30, 50 + instrument.changePercent * 1.5)));
+  const sellPercent = 100 - buyPercent;
+  const priceColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
   return (
     <div className="flex flex-col flex-1 pl-1 text-xs font-mono select-none">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-zinc-500 font-sans">{t('trade.price')}<br />(USDT)</span>
-        <span className="text-zinc-500 text-right font-sans">{t('trade.amount')}<br />(CP)</span>
+        <span className="text-zinc-500 font-sans">{t('trade.price')}<br />({instrument.quoteAsset})</span>
+        <span className="text-zinc-500 text-right font-sans">{t('trade.amount')}<br />({instrument.baseAsset})</span>
       </div>
 
       {/* Asks */}
@@ -103,7 +88,7 @@ export const OrderBook = memo(() => {
       {/* Current Price */}
       <div className="flex flex-col py-1.5 my-1">
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-bitget-green">0.01311</span>
+          <span className={`text-lg font-bold ${priceColor}`}>{formatInstrumentPrice(instrument)}</span>
           <span className="text-zinc-500 rotate-180">›</span>
         </div>
       </div>
@@ -118,17 +103,17 @@ export const OrderBook = memo(() => {
       {/* Buy/Sell Ratio and Precision */}
       <div className="flex flex-col mt-auto pt-2 gap-2">
         <div className="flex items-center text-[10px] gap-1 h-1 w-full bg-zinc-800 rounded-full overflow-hidden relative">
-          <div className="absolute left-0 top-0 bottom-0 bg-bitget-green w-[48%]" />
-          <div className="absolute right-0 top-0 bottom-0 bg-bitget-red w-[52%]" />
+          <div className="absolute left-0 top-0 bottom-0 bg-bitget-green" style={{ width: `${buyPercent}%` }} />
+          <div className="absolute right-0 top-0 bottom-0 bg-bitget-red" style={{ width: `${sellPercent}%` }} />
         </div>
         <div className="flex justify-between text-[10px] text-zinc-500 font-sans">
-          <span>B 48%</span>
-          <span>52% S</span>
+          <span>B {buyPercent}%</span>
+          <span>{sellPercent}% S</span>
         </div>
 
         <button type="button" aria-label={t('trade.orderBookPrecision')} className="flex items-center justify-between bg-zinc-900 rounded p-1 mt-1 cursor-pointer" onClick={() => haptic.light()}>
           <ListFilter size={14} className="text-zinc-400" />
-          <span className="text-zinc-300">0.00001</span>
+          <span className="text-zinc-300">{(10 ** -instrument.priceDecimals).toFixed(instrument.priceDecimals)}</span>
           <ChevronDown size={14} className="text-zinc-500" />
         </button>
       </div>

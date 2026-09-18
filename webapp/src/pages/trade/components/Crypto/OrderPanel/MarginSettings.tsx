@@ -17,7 +17,7 @@ export const MarginSettings = () => {
         className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1.5 rounded truncate flex-1 flex items-center justify-center cursor-pointer" 
         onClick={() => { haptic.light(); setMarginModeOpen(true); }}
       >
-        {marginMode === 'cross' ? 'Кросс' : 'Изолированная'}
+        {t(marginMode === 'cross' ? 'trade.cross' : 'trade.isolated')}
       </button>
       <button 
         type="button" 

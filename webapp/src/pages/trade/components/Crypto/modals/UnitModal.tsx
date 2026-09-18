@@ -2,32 +2,34 @@ import { BottomSheet } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
+import { getMockInstrument } from '../data/mockInstruments.ts';
 import { useCryptoStore, UnitType } from '../store/useCryptoStore';
-
-const OPTIONS: { id: UnitType; titleKey: string; descKey: string }[] = [
-  {
-    id: 'qty_btc',
-    titleKey: 'trade.quantityBtc',
-    descKey: 'trade.quantityBtcDescription',
-  },
-  {
-    id: 'cost_usdt',
-    titleKey: 'trade.costUsdt',
-    descKey: 'trade.costUsdtDescription',
-  },
-  {
-    id: 'value_usdt',
-    titleKey: 'trade.valueUsdt',
-    descKey: 'trade.valueUsdtDescription',
-  },
-];
 
 export const UnitModal = () => {
   const isOpen = useCryptoStore(state => state.isUnitOpen);
   const onClose = () => useCryptoStore.getState().setUnitOpen(false);
   const currentUnit = useCryptoStore(state => state.unit);
+  const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const onChange = useCryptoStore.getState().setUnit;
   const { t } = useTranslation();
+  const instrument = getMockInstrument(selectedSymbol);
+  const options: { id: UnitType; title: string; description: string }[] = [
+    {
+      id: 'qty_base',
+      title: `${t('trade.amount')} – ${instrument.baseAsset}`,
+      description: `${t('trade.quantityAssetDescription')} ${instrument.baseAsset}`,
+    },
+    {
+      id: 'cost_quote',
+      title: `${t('trade.cost')} – ${instrument.quoteAsset}`,
+      description: t('trade.costQuoteDescription'),
+    },
+    {
+      id: 'value_quote',
+      title: `${t('trade.value')} – ${instrument.quoteAsset}`,
+      description: t('trade.valueQuoteDescription'),
+    },
+  ];
 
   useBackButton(isOpen ? onClose : null);
 
@@ -40,7 +42,7 @@ export const UnitModal = () => {
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title={t('trade.futuresUnitSettings')}>
       <div className="flex flex-col text-zinc-100 mb-2 px-2 mt-0 gap-2">
-        {OPTIONS.map((opt) => {
+        {options.map((opt) => {
           const isSelected = currentUnit === opt.id;
           return (
             <button
@@ -52,8 +54,8 @@ export const UnitModal = () => {
               }`}
               onClick={() => handleSelect(opt.id)}
             >
-              <div className="font-bold text-[15px] mb-1">{t(opt.titleKey)}</div>
-              <div className="text-[11px] text-zinc-400 leading-tight font-medium">{t(opt.descKey)}</div>
+              <div className="font-bold text-[15px] mb-1">{opt.title}</div>
+              <div className="text-[11px] text-zinc-400 leading-tight font-medium">{opt.description}</div>
             </button>
           );
         })}

@@ -33,10 +33,10 @@ export const MarginModeModal = () => {
   };
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} title="Режим маржи">
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={t('trade.marginMode')}>
       <div className="flex flex-col text-zinc-100">
         <p className="text-[11px] text-zinc-400 mb-3 leading-tight">
-          Настройка режима маржи действует только для текущей торговой пары
+          {t('trade.marginModeDescription')}
         </p>
 
         <div className="flex flex-col gap-2 mb-4">
@@ -48,9 +48,9 @@ export const MarginModeModal = () => {
               mode === 'cross' ? 'border-white bg-zinc-900' : 'border-zinc-800 bg-transparent'
             }`}
           >
-            <span className="text-[15px] font-bold mb-0.5">Кросс</span>
+            <span className="text-[15px] font-bold mb-0.5">{t('trade.cross')}</span>
             <span className="text-[10px] text-zinc-400 leading-tight">
-              Все позиции по одному маржинальному активу имеют один и тот же баланс маржи. В случае ликвидации трейдеры рискуют потерять весь остаток маржи вместе с любыми позициями по маржинальному активу.
+              {t('trade.crossDescription')}
             </span>
           </button>
 
@@ -62,9 +62,9 @@ export const MarginModeModal = () => {
               mode === 'isolated' ? 'border-white bg-zinc-900' : 'border-zinc-800 bg-transparent'
             }`}
           >
-            <span className="text-[15px] font-bold mb-0.5">Изолированная</span>
+            <span className="text-[15px] font-bold mb-0.5">{t('trade.isolated')}</span>
             <span className="text-[10px] text-zinc-400 leading-tight">
-              В режиме изолированной маржи на каждую позицию выделяется определенная сумма маржи. Если маржа позиции опускается ниже уровня поддерживаемой маржи, позиция ликвидируется, а максимальный убыток ограничивается маржой позиции. В режиме изолированной маржи вы можете добавлять или уменьшать маржу для конкретной позиции.
+              {t('trade.isolatedDescription')}
             </span>
           </button>
         </div>
@@ -75,7 +75,7 @@ export const MarginModeModal = () => {
           onClick={handleConfirm}
           className="w-full py-2 bg-white text-black font-bold text-base rounded-xl transition-transform active:scale-95"
         >
-          {t('trade.confirm') || 'Подтвердить'}
+          {t('trade.confirm')}
         </button>
       </div>
     </BottomSheet>

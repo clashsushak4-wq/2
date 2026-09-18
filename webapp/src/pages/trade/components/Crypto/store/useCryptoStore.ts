@@ -1,8 +1,14 @@
 import { create } from 'zustand';
+import {
+  DEFAULT_FAVORITE_SYMBOLS,
+  DEFAULT_INSTRUMENT,
+  getMockInstrument,
+  toInputPrice,
+} from '../data/mockInstruments.ts';
 
 export type OrderSide = 'buy' | 'sell';
 export type OrderType = 'limit' | 'market';
-export type UnitType = 'qty_btc' | 'cost_usdt' | 'value_usdt';
+export type UnitType = 'qty_base' | 'cost_quote' | 'value_quote';
 export type TabType = 'orders' | 'positions' | 'screener' | 'history';
 export type MarginMode = 'cross' | 'isolated';
 
@@ -17,6 +23,8 @@ interface CryptoState {
   unit: UnitType;
   activeTab: TabType;
   marginMode: MarginMode;
+  selectedSymbol: string;
+  favoriteSymbols: string[];
   
   isOrderTypeOpen: boolean;
   isLeverageOpen: boolean;
@@ -35,6 +43,8 @@ interface CryptoState {
   setUnit: (val: UnitType) => void;
   setActiveTab: (val: TabType) => void;
   setMarginMode: (val: MarginMode) => void;
+  setSelectedSymbol: (symbol: string) => void;
+  toggleFavoriteSymbol: (symbol: string) => void;
   
   setOrderTypeOpen: (isOpen: boolean) => void;
   setLeverageOpen: (isOpen: boolean) => void;
@@ -49,12 +59,14 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   isTPSL: false,
   side: 'buy',
   orderType: 'limit',
-  price: '0.01312',
+  price: toInputPrice(DEFAULT_INSTRUMENT),
   leverage: 3,
   isBatchLeverage: false,
-  unit: 'value_usdt',
+  unit: 'value_quote',
   activeTab: 'orders',
   marginMode: 'isolated',
+  selectedSymbol: DEFAULT_INSTRUMENT.symbol,
+  favoriteSymbols: DEFAULT_FAVORITE_SYMBOLS,
 
   isOrderTypeOpen: false,
   isLeverageOpen: false,
@@ -73,6 +85,19 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   setUnit: (val) => set({ unit: val }),
   setActiveTab: (val) => set({ activeTab: val }),
   setMarginMode: (val) => set({ marginMode: val }),
+  setSelectedSymbol: (symbol) => {
+    const instrument = getMockInstrument(symbol);
+    set({
+      selectedSymbol: instrument.symbol,
+      price: toInputPrice(instrument),
+      isSymbolSelectOpen: false,
+    });
+  },
+  toggleFavoriteSymbol: (symbol) => set((state) => ({
+    favoriteSymbols: state.favoriteSymbols.includes(symbol)
+      ? state.favoriteSymbols.filter((favorite) => favorite !== symbol)
+      : [...state.favoriteSymbols, symbol],
+  })),
   
   setOrderTypeOpen: (isOpen) => set({ isOrderTypeOpen: isOpen }),
   setLeverageOpen: (isOpen) => set({ isLeverageOpen: isOpen }),
