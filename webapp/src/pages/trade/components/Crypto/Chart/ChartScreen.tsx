@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Settings } from 'lucide-react';
 import { useBackButton } from '../../../../../hooks';
 import { slideFromRight } from '../../../../../shared/animations';
 import { haptic } from '../../../../../utils';
@@ -23,8 +23,23 @@ export const ChartScreen = () => {
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
           className="absolute inset-0 z-[60] bg-[#0a0a0a] text-zinc-100 flex flex-col font-sans overflow-y-auto"
         >
-      {/* Ticker Data Card */}
-      <div className="flex justify-between items-start px-4 pt-3">
+          {/* Header */}
+          <div className="flex items-center justify-between px-3 pt-2 pb-1 shrink-0">
+            <button 
+              type="button" 
+              className="flex items-center gap-1.5 cursor-pointer transition-opacity active:opacity-70"
+              onClick={() => { haptic.light(); useCryptoStore.getState().setSymbolSelectOpen(true); }}
+            >
+              <h1 className="text-[18px] font-bold text-white tracking-tight leading-none">BTCUSDT</h1>
+              <ChevronDown size={14} className="text-zinc-500" />
+            </button>
+            <button type="button" className="p-1 cursor-pointer transition-opacity active:opacity-70" onClick={() => haptic.light()}>
+              <Settings size={18} className="text-zinc-300" />
+            </button>
+          </div>
+
+          {/* Ticker Data Card */}
+          <div className="flex justify-between items-start px-4 pt-1">
         
         {/* Left Column */}
         <div className="flex flex-col">

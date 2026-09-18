@@ -67,7 +67,7 @@ export const BottomSheet = ({ isOpen, onClose, children, title, fullHeight, noPa
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center">
+        <div className="fixed inset-0 z-[70] flex items-end md:items-center md:justify-center">
           {/* Темный фон */}
           <motion.div
             initial={{ opacity: 0 }}
