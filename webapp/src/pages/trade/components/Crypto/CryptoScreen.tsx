@@ -7,6 +7,7 @@ import { OrderPanel } from './OrderPanel/index';
 import { OrderBook } from './OrderBook/index';
 import { LeverageModal } from './modals/LeverageModal';
 import { MarginModeModal } from './modals/MarginModeModal';
+import { SymbolSelectModal } from './modals/SymbolSelectModal';
 import { OrderTypeModal } from './modals/OrderTypeModal';
 import { UnitModal } from './modals/UnitModal';
 
@@ -39,6 +40,7 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
         {/* Modals mounted here, they control their own state via Zustand */}
         <LeverageModal />
         <MarginModeModal />
+        <SymbolSelectModal />
         <OrderTypeModal />
         <UnitModal />
       </motion.div>

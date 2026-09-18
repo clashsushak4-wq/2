@@ -7,9 +7,11 @@ interface BottomSheetProps {
   onClose: () => void;
   children: ReactNode;
   title?: string;
+  fullHeight?: boolean;
+  noPadding?: boolean;
 }
 
-export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetProps) => {
+export const BottomSheet = ({ isOpen, onClose, children, title, fullHeight, noPadding }: BottomSheetProps) => {
   const isDesktop = useAppStore((s) => s.isFullscreen);
   const dialogRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
@@ -88,24 +90,24 @@ export const BottomSheet = ({ isOpen, onClose, children, title }: BottomSheetPro
             animate={isDesktop ? { opacity: 1, scale: 1, y: 0 } : { y: 0 }}
             exit={isDesktop ? { opacity: 0, scale: 0.95 } : { y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="relative w-full bg-zinc-950 border-t md:border border-zinc-800 rounded-t-3xl md:rounded-2xl flex flex-col max-h-[90vh] md:max-h-[85vh] md:max-w-md shadow-2xl overflow-hidden"
+            className={`relative w-full bg-zinc-950 border-t md:border border-zinc-800 rounded-t-3xl md:rounded-2xl flex flex-col ${fullHeight ? 'h-[96vh] max-h-[96vh]' : 'max-h-[90vh]'} md:max-h-[85vh] md:max-w-md shadow-2xl overflow-hidden`}
           >
             {/* Ползунок (Только визуал) */}
             {!isDesktop && (
-              <div className="flex justify-center pt-4 pb-2 w-full">
+              <div className="flex justify-center pt-4 pb-2 w-full shrink-0">
                 <div className="w-12 h-1.5 bg-zinc-800 rounded-full" />
               </div>
             )}
 
             {/* Заголовок */}
             {title && (
-              <div className={`px-6 pb-4 ${isDesktop ? 'pt-6' : ''}`}>
+              <div className={`px-6 pb-4 shrink-0 ${isDesktop ? 'pt-6' : ''}`}>
                 <h2 id={titleId} className="text-xl font-bold text-white text-center">{title}</h2>
               </div>
             )}
 
             {/* Контент с прокруткой */}
-            <div className={`flex-1 min-h-0 overflow-y-auto px-6 pb-8 custom-scrollbar ${isDesktop && !title ? 'pt-6' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar ${noPadding ? '' : `px-6 pb-8 ${isDesktop && !title ? 'pt-6' : ''}`}`}>
               {children}
             </div>
           </motion.div>

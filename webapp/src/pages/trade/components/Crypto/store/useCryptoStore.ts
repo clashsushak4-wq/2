@@ -22,6 +22,7 @@ interface CryptoState {
   isLeverageOpen: boolean;
   isUnitOpen: boolean;
   isMarginModeOpen: boolean;
+  isSymbolSelectOpen: boolean;
 
   setAmountPercent: (val: number) => void;
   setIsTPSL: (val: boolean) => void;
@@ -38,6 +39,7 @@ interface CryptoState {
   setLeverageOpen: (isOpen: boolean) => void;
   setUnitOpen: (isOpen: boolean) => void;
   setMarginModeOpen: (isOpen: boolean) => void;
+  setSymbolSelectOpen: (isOpen: boolean) => void;
 }
 
 export const useCryptoStore = create<CryptoState>((set) => ({
@@ -56,6 +58,7 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   isLeverageOpen: false,
   isUnitOpen: false,
   isMarginModeOpen: false,
+  isSymbolSelectOpen: false,
 
   setAmountPercent: (val) => set({ amountPercent: val }),
   setIsTPSL: (val) => set({ isTPSL: val }),
@@ -72,4 +75,5 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   setLeverageOpen: (isOpen) => set({ isLeverageOpen: isOpen }),
   setUnitOpen: (isOpen) => set({ isUnitOpen: isOpen }),
   setMarginModeOpen: (isOpen) => set({ isMarginModeOpen: isOpen }),
+  setSymbolSelectOpen: (isOpen) => set({ isSymbolSelectOpen: isOpen }),
 }));
