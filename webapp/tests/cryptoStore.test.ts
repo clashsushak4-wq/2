@@ -2,6 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DEFAULT_FAVORITE_SYMBOLS } from '../src/pages/trade/components/Crypto/data/mockInstruments.ts';
 import { useCryptoStore } from '../src/pages/trade/components/Crypto/store/useCryptoStore.ts';
+import {
+  getPullProgress,
+  getResistedPullDistance,
+  MAX_PULL_DISTANCE,
+  REFRESH_THRESHOLD,
+} from '../src/shared/ui/pullToRefreshMotion.ts';
 
 test.beforeEach(() => {
   useCryptoStore.setState({
@@ -58,4 +64,13 @@ test('favorite symbols can be added and removed', () => {
 
   useCryptoStore.getState().toggleFavoriteSymbol('ETHUSDT');
   assert.equal(useCryptoStore.getState().favoriteSymbols.includes('ETHUSDT'), false);
+});
+
+test('pull to refresh uses resistance and clamps visual progress', () => {
+  assert.equal(getResistedPullDistance(-20), 0);
+  assert.ok(getResistedPullDistance(100) >= REFRESH_THRESHOLD);
+  assert.ok(getResistedPullDistance(1000) <= MAX_PULL_DISTANCE);
+  assert.equal(getPullProgress(0), 0);
+  assert.equal(getPullProgress(REFRESH_THRESHOLD), 1);
+  assert.equal(getPullProgress(MAX_PULL_DISTANCE), 1);
 });

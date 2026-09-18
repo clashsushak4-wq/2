@@ -19,10 +19,22 @@ interface NewsState {
   error: string | null;
 }
 
-const CACHE_TTL = 5 * 60 * 1000; // 5 min client-side cache
-const cache: Record<string, { ts: number; items: NewsArticle[] }> = {};
+type NewsCategory = 'crypto' | 'forex';
 
-export const useNews = (category: 'crypto' | 'forex') => {
+const CACHE_TTL = 5 * 60 * 1000; // 5 min client-side cache
+const cache: Partial<Record<NewsCategory, { ts: number; items: NewsArticle[] }>> = {};
+
+export const invalidateNewsCache = (category?: NewsCategory) => {
+  if (category) {
+    delete cache[category];
+    return;
+  }
+
+  delete cache.crypto;
+  delete cache.forex;
+};
+
+export const useNews = (category: NewsCategory) => {
   const [state, setState] = useState<NewsState>({
     items: cache[category]?.items || [],
     isLoading: !cache[category],

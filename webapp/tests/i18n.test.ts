@@ -48,3 +48,15 @@ test('every trade translation key used by the UI exists', () => {
     assert.ok(key in trade, `missing trade translation: ${key}`);
   }
 });
+
+test('pull to refresh labels exist in every locale', () => {
+  const keys = ['pullToRefresh', 'releaseToRefresh', 'refreshing'];
+
+  for (const language of ['ru', 'en', 'ua']) {
+    const common = loadLocale(language).common as Record<string, unknown>;
+    for (const key of keys) {
+      assert.equal(typeof common[key], 'string', `${language}.common.${key} must be a string`);
+      assert.ok((common[key] as string).trim(), `${language}.common.${key} must not be empty`);
+    }
+  }
+});

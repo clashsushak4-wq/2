@@ -14,7 +14,7 @@ export const TileModal = ({ tile, onClose }: TileModalProps) => {
   const expandBlocks = tile.content?.expand_blocks ?? [];
   const hasExpandBlocks = !!tile.content?.expandable && expandBlocks.length > 0;
   return (
-  <div className="fixed inset-0 z-50">
+  <div className="fixed inset-0 z-50" data-pull-to-refresh-ignore>
     <motion.div
       variants={simpleFade}
       initial="hidden"
