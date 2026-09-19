@@ -7,6 +7,7 @@ import { CryptoScreen, ScreenerScreen, DiaryScreen } from './pages/trade/compone
 import { useWebApp } from './hooks';
 import { useAppStore } from './store';
 import { useI18nStore } from './i18n/useTranslation';
+import { useMarketStore } from './pages/trade/components/Crypto/store/useMarketStore';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -50,6 +51,10 @@ function MainApp() {
       });
     }
   }, [user, setUser]);
+
+  useEffect(() => {
+    useMarketStore.getState().connect();
+  }, []);
 
 
 

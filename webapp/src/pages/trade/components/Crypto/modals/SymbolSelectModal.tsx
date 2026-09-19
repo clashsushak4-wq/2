@@ -6,6 +6,7 @@ import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
 import { formatInstrumentPrice, formatSignedPercent } from '../data/mockInstruments.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
+import { useMarketStore } from '../store/useMarketStore';
 
 export const SymbolSelectModal = () => {
   const isOpen = useCryptoStore(state => state.isSymbolSelectOpen);
@@ -15,6 +16,7 @@ export const SymbolSelectModal = () => {
   const instruments = useCryptoStore(state => state.instruments);
   const setSelectedSymbol = useCryptoStore(state => state.setSelectedSymbol);
   const toggleFavoriteSymbol = useCryptoStore(state => state.toggleFavoriteSymbol);
+  const tickers = useMarketStore(state => state.tickers);
   const { t } = useTranslation();
 
   useBackButton(isOpen ? onClose : null);
@@ -118,7 +120,14 @@ export const SymbolSelectModal = () => {
           {filteredAssets.map((asset) => {
             const isFavorite = favoriteSymbols.includes(asset.symbol);
             const isSelected = selectedSymbol === asset.symbol;
-            const changeColor = asset.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
+            
+            // Get live ticker data or fallback to mock asset
+            const ticker = tickers[asset.symbol];
+            const livePrice = ticker ? ticker.price : asset.price;
+            const liveChange = ticker ? ticker.change24h : asset.changePercent;
+            const liveVolume = ticker ? ticker.volume24h : 0;
+            
+            const changeColor = liveChange >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
             return (
             <div key={asset.symbol} className={`flex items-center px-4 transition-colors ${isSelected ? 'bg-zinc-900/60' : 'active:bg-zinc-900/50'}`}>
@@ -136,15 +145,20 @@ export const SymbolSelectModal = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-zinc-500">{asset.turnover24h}</span>
+                    <span className="text-[11px] text-zinc-500">
+                      {liveVolume > 0 ? `${(liveVolume / 1000000).toFixed(2)}M` : asset.turnover24h}
+                    </span>
                     {asset.tagKey && <span className="text-[10px] text-cyan-600 font-medium tracking-tight">{t(asset.tagKey)}</span>}
                   </div>
                 </div>
 
                 <div className="flex flex-col items-end">
-                  <span className="text-[16px] font-bold text-white tracking-wide">{formatInstrumentPrice(asset)}</span>
+                  <span className="text-[16px] font-bold text-white tracking-wide">
+                    {/* Format based on price size */}
+                    {livePrice >= 100 ? livePrice.toFixed(2) : livePrice >= 1 ? livePrice.toFixed(4) : livePrice.toFixed(5)}
+                  </span>
                   <span className={`text-[12px] font-medium mt-0.5 ${changeColor}`}>
-                    {formatSignedPercent(asset.changePercent)}
+                    {liveChange > 0 ? '+' : ''}{liveChange.toFixed(2)}%
                   </span>
                 </div>
               </button>
