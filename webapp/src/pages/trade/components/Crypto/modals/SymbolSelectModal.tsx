@@ -4,7 +4,7 @@ import { BottomSheet } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
-import { formatInstrumentPrice, formatSignedPercent, MOCK_INSTRUMENTS } from '../data/mockInstruments.ts';
+import { formatInstrumentPrice, formatSignedPercent } from '../data/mockInstruments.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 export const SymbolSelectModal = () => {
@@ -12,6 +12,7 @@ export const SymbolSelectModal = () => {
   const onClose = () => useCryptoStore.getState().setSymbolSelectOpen(false);
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const favoriteSymbols = useCryptoStore(state => state.favoriteSymbols);
+  const instruments = useCryptoStore(state => state.instruments);
   const setSelectedSymbol = useCryptoStore(state => state.setSelectedSymbol);
   const toggleFavoriteSymbol = useCryptoStore(state => state.toggleFavoriteSymbol);
   const { t } = useTranslation();
@@ -24,7 +25,7 @@ export const SymbolSelectModal = () => {
 
   const filteredAssets = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-    return MOCK_INSTRUMENTS.filter((instrument) => {
+    return Object.values(instruments).filter((instrument) => {
       const matchesMainTab = mainTab === 'fav' ? favoriteSymbols.includes(instrument.symbol) : true;
       const matchesSubTab = mainTab !== 'futures' || subTab === 'all' || instrument.isNew;
       const matchesSearch = !normalizedQuery
@@ -32,7 +33,7 @@ export const SymbolSelectModal = () => {
         || instrument.baseAsset.toLowerCase().includes(normalizedQuery);
       return matchesMainTab && matchesSubTab && matchesSearch;
     });
-  }, [favoriteSymbols, mainTab, searchQuery, subTab]);
+  }, [favoriteSymbols, mainTab, searchQuery, subTab, instruments]);
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} fullHeight noPadding>

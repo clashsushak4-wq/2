@@ -131,6 +131,7 @@ export interface PlacePaperOrderInput {
   marginMode: MarginMode;
   tpsl: AttachedTPSL;
   spec: InstrumentSpec;
+  isMarketableLimit?: boolean;
 }
 
 export type TradingActionCode =

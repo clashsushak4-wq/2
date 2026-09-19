@@ -100,10 +100,28 @@ export const useDemoPersistence = () => {
     const unsubscribeUi = useCryptoStore.subscribe(scheduleSave);
     const unsubscribeTrading = usePaperTradingStore.subscribe(scheduleSave);
 
+    const flushSave = () => {
+      if (timer !== null) {
+        window.clearTimeout(timer);
+        timer = null;
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(createPersistedState()));
+        } catch {
+          // ignore
+        }
+      }
+    };
+
+    const handleUnload = () => flushSave();
+    window.addEventListener('beforeunload', handleUnload);
+    window.addEventListener('pagehide', handleUnload);
+
     return () => {
       unsubscribeUi();
       unsubscribeTrading();
-      if (timer !== null) window.clearTimeout(timer);
+      window.removeEventListener('beforeunload', handleUnload);
+      window.removeEventListener('pagehide', handleUnload);
+      flushSave();
     };
   }, []);
 };

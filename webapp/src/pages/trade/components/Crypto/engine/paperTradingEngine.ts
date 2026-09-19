@@ -185,9 +185,10 @@ const applyFillToPositions = (
       ),
       unrealizedPnl: calculatePnl(existing.direction, quantity, averageEntryPrice, fillPrice),
       accumulatedFees: existing.accumulatedFees + fee,
-      tpsl: input.tpsl.takeProfitPrice !== null || input.tpsl.stopLossPrice !== null
-        ? input.tpsl
-        : existing.tpsl,
+      tpsl: {
+        takeProfitPrice: input.tpsl.takeProfitPrice !== null ? input.tpsl.takeProfitPrice : existing.tpsl.takeProfitPrice,
+        stopLossPrice: input.tpsl.stopLossPrice !== null ? input.tpsl.stopLossPrice : existing.tpsl.stopLossPrice,
+      },
       updatedAt: timestamp,
     };
     return {
@@ -355,7 +356,7 @@ export const fillOrder = ({ input, order, fillPrice, state }: FillOrderOptions):
   }
 
   const executableInput = { ...input, quantity: executableQuantity };
-  const feeRate = input.type === 'limit' ? input.spec.makerFeeRate : input.spec.takerFeeRate;
+  const feeRate = (input.type === 'limit' && !input.isMarketableLimit) ? input.spec.makerFeeRate : input.spec.takerFeeRate;
   const fee = executableQuantity * fillPrice * feeRate;
   const positionUpdate = applyFillToPositions(
     state.positions,

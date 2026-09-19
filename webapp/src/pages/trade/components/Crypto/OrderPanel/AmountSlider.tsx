@@ -9,8 +9,8 @@ import {
   amountValueFromQuantity,
   calculateOrderEstimate,
   formatByStep,
-  roundToStep,
 } from '../domain/orderCalculations';
+import { isCleanNumber, normalizeQuantity } from '../domain/orderNormalization';
 
 const getUnitLabel = (
   unit: UnitType,
@@ -53,10 +53,11 @@ export const AmountSlider = () => {
     if (!/^\d*(\.\d*)?$/.test(nextValue)) return;
     setAmountValue(nextValue);
     const numericValue = nextValue === '' ? 0 : Number(nextValue);
+    const cleanValue = isCleanNumber(numericValue) ? numericValue : 0;
     const nextEstimate = calculateOrderEstimate({
       intent: orderIntent,
       unit,
-      inputValue: Number.isFinite(numericValue) ? numericValue : 0,
+      inputValue: Math.max(0, cleanValue),
       price: parsedPrice,
       leverage,
       availableBalance,
@@ -68,7 +69,7 @@ export const AmountSlider = () => {
   };
 
   const updateSlider = (nextPercent: number) => {
-    const quantity = roundToStep(maxQuantity * (nextPercent / 100), spec.quantityStep, 'floor');
+    const quantity = normalizeQuantity(maxQuantity * (nextPercent / 100), spec);
     const nextValue = amountValueFromQuantity(unit, quantity, parsedPrice, leverage);
     const formatted = unit === 'qty_base'
       ? formatByStep(nextValue, spec.quantityStep)

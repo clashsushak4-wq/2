@@ -1,8 +1,7 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { slideUp } from '../../../../../../../shared/animations';
 import { useTranslation } from '../../../../../../../i18n';
 import type { Timeframe } from '../../types';
+import { useBackButton } from '../../../../../../../hooks';
+import { BottomSheet } from '../../../../../../../shared/ui';
 
 interface TimeframeModalProps {
   isOpen: boolean;
@@ -13,6 +12,7 @@ interface TimeframeModalProps {
 
 const TF_GROUPS = [
   { label: '1s', value: '1s' },
+  { label: '1m', value: '1m' },
   { label: '2m', value: '2m' },
   { label: '3m', value: '3m' },
   { label: '5m', value: '5m' },
@@ -35,58 +35,31 @@ const TF_GROUPS = [
 
 export const TimeframeModal = ({ isOpen, onClose, selectedTimeframe, onSelectTimeframe }: TimeframeModalProps) => {
   const { t } = useTranslation();
+  useBackButton(isOpen ? onClose : null);
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-[70]"
-            onClick={onClose}
-          />
-          <motion.div
-            variants={slideUp}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="fixed bottom-0 left-0 right-0 bg-[#121212] rounded-t-2xl z-[80] overflow-hidden flex flex-col max-h-[85vh]"
-          >
-            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-              <h2 className="text-lg font-bold text-white">{t('trade.timeframe')}</h2>
-              <button type="button" aria-label={t('common.close')} onClick={onClose} className="p-1 text-zinc-400 hover:text-white transition-colors active:scale-95">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <div className="p-4 overflow-y-auto">
-              <div className="grid grid-cols-4 gap-2">
-                {TF_GROUPS.map(tf => {
-                  const isActive = tf.value === selectedTimeframe;
-                  return (
-                    <button
-                      type="button"
-                      key={tf.value}
-                      onClick={() => {
-                        onSelectTimeframe(tf.value as Timeframe);
-                        onClose();
-                      }}
-                      className={`py-2.5 rounded-lg border text-[13px] transition-colors active:scale-95 ${
-                        isActive 
-                          ? 'bg-[#1a1a1a] border-zinc-700 text-white font-medium' 
-                          : 'bg-transparent border-zinc-800 text-zinc-400 hover:bg-zinc-900'
-                      }`}
-                    >
-                      {tf.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={t('trade.timeframe')}>
+      <div className="grid grid-cols-4 gap-2 px-2 pb-6">
+        {TF_GROUPS.map(tf => {
+          const isActive = tf.value === selectedTimeframe;
+          return (
+            <button
+              type="button"
+              key={tf.value}
+              onClick={() => {
+                onSelectTimeframe(tf.value as Timeframe);
+                onClose();
+              }}
+              className={`py-2.5 rounded-lg border text-[13px] transition-colors active:scale-95 ${
+                isActive 
+                  ? 'bg-[#1a1a1a] border-zinc-700 text-white font-medium' 
+                  : 'bg-transparent border-zinc-800 text-zinc-400 hover:bg-zinc-900'
+              }`}
+            >
+              {tf.label}
+            </button>
+          );
+        })}
+      </div>
+    </BottomSheet>
   );
 };

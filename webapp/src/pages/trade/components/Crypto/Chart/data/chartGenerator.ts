@@ -53,10 +53,10 @@ export const generateMockChartData = (
     const r3 = getSeededRandom(hash + i * 4 + 2);
     
     const trendBias = (changePercent / 100) * 0.1; 
-    const volatility = price * 0.003;
+    const volatility = price * 0.001 * Math.sqrt(intervalSeconds / 60);
     
     const close = price;
-    const change = (r1 - 0.5 - trendBias) * volatility * 2;
+    const change = (r1 - 0.5 + trendBias) * volatility * 2;
     const open = close - change;
     
     const maxBody = Math.max(open, close);

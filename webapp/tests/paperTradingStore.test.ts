@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_INSTRUMENT, toInstrumentSpec } from '../src/pages/trade/components/Crypto/data/mockInstruments.ts';
-import { calculatePaperAccount, usePaperTradingStore } from '../src/pages/trade/components/Crypto/store/usePaperTradingStore.ts';
-import type { PlacePaperOrderInput } from '../src/pages/trade/components/Crypto/domain/types.ts';
+import { DEFAULT_INSTRUMENT, toInstrumentSpec } from '../src/pages/trade/components/Crypto/data/mockInstruments';
+import { calculatePaperAccount, usePaperTradingStore } from '../src/pages/trade/components/Crypto/store/usePaperTradingStore';
+import type { PlacePaperOrderInput } from '../src/pages/trade/components/Crypto/domain/types';
 
 const spec = toInstrumentSpec(DEFAULT_INSTRUMENT);
 
@@ -364,4 +364,31 @@ test('TP/SL update returns an explicit action result', () => {
   assert.equal(result.code, 'tpsl_updated');
   assert.equal(missing.code, 'position_not_found');
   assert.equal(invalid.code, 'tpsl_invalid');
+});
+
+test('mixing leverage for the same position is rejected', () => {
+  usePaperTradingStore.getState().placeOrder(createOrder({ leverage: 5 }));
+  const result = usePaperTradingStore.getState().placeOrder(createOrder({ leverage: 10 }));
+  
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, 'invalid_leverage_for_position');
+  assert.equal(usePaperTradingStore.getState().positions[0].leverage, 5);
+});
+
+test('marketable limit order is filled immediately and acts as taker', () => {
+  const limitPrice = DEFAULT_INSTRUMENT.price + 50; // Buy price higher than market price
+  const result = usePaperTradingStore.getState().placeOrder(createOrder({
+    type: 'limit',
+    limitPrice,
+    isMarketableLimit: true,
+  }));
+  
+  const state = usePaperTradingStore.getState();
+  assert.equal(result.ok, true);
+  assert.equal(result.status, 'filled');
+  assert.equal(state.positions.length, 1);
+  
+  const order = state.orders.find(o => o.id === result.orderId);
+  const expectedTakerFee = order!.filledQuantity * order!.averageFillPrice! * spec.takerFeeRate;
+  assert.ok(Math.abs(order!.fee - expectedTakerFee) < 1e-8);
 });

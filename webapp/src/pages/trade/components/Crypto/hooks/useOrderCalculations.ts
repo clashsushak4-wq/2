@@ -3,6 +3,7 @@ import {
   calculateLiquidationPrice,
   calculateOrderEstimate,
 } from '../domain/orderCalculations';
+import { normalizePrice } from '../domain/orderNormalization';
 import { validateOrder } from '../domain/orderValidation';
 import { calculateAvailableCloseQuantity } from '../engine/paperTradingEngine';
 import { useCryptoStore, useInstrument } from '../store/useCryptoStore';
@@ -27,8 +28,8 @@ export const useOrderCalculations = () => {
 
   const instrument = useInstrument(selectedSymbol);
   const spec = toInstrumentSpec(instrument);
-  const parsedLimitPrice = price.trim() === '' ? Number.NaN : Number(price);
-  const parsedPrice = orderType === 'market' ? instrument.price : parsedLimitPrice;
+  const parsedLimitPrice = price.trim() === '' ? 0 : normalizePrice(Number(price), spec);
+  const parsedPrice = orderType === 'market' ? normalizePrice(instrument.price, spec) : parsedLimitPrice;
   const parsedAmount = amountValue.trim() === '' ? 0 : Number(amountValue);
   const account = calculatePaperAccount({
     walletBalance,
@@ -71,6 +72,7 @@ export const useOrderCalculations = () => {
     leverage,
     hasClosePosition: position !== null,
     maxCloseQuantity,
+    positionLeverage: position?.leverage,
     spec,
   });
 

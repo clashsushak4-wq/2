@@ -1,8 +1,10 @@
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
-import { formatByStep, roundToStep } from '../domain/orderCalculations';
+import { formatByStep } from '../domain/orderCalculations';
+import { normalizePrice } from '../domain/orderNormalization';
 import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore } from '../store/useCryptoStore';
+import { toInstrumentSpec } from '../data/mockInstruments';
 
 export const PriceInput = () => {
   const orderType = useCryptoStore(state => state.orderType);
@@ -11,21 +13,19 @@ export const PriceInput = () => {
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const { t } = useTranslation();
   const instrument = useInstrument(selectedSymbol);
+  const spec = toInstrumentSpec(instrument as any);
 
   const handleIncrease = () => {
-    const currentPrice = Number(price);
-    if (!Number.isFinite(currentPrice)) return;
-    setPrice(formatByStep(roundToStep(currentPrice + instrument.tickSize, instrument.tickSize), instrument.tickSize));
+    const currentPrice = normalizePrice(Number(price), spec);
+    if (currentPrice === 0) return;
+    setPrice(formatByStep(currentPrice + spec.tickSize, spec.tickSize));
     haptic.light();
   };
 
   const handleDecrease = () => {
-    const currentPrice = Number(price);
-    if (!Number.isFinite(currentPrice)) return;
-    setPrice(formatByStep(
-      Math.max(instrument.tickSize, roundToStep(currentPrice - instrument.tickSize, instrument.tickSize)),
-      instrument.tickSize,
-    ));
+    const currentPrice = normalizePrice(Number(price), spec);
+    if (currentPrice === 0) return;
+    setPrice(formatByStep(Math.max(spec.tickSize, currentPrice - spec.tickSize), spec.tickSize));
     haptic.light();
   };
 

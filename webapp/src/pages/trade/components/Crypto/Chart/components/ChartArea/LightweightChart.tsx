@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { createChart, IChartApi, ISeriesApi, ColorType, CandlestickSeries, AreaSeries } from 'lightweight-charts';
 import type { ChartData } from '../../types';
+import { useCryptoStore, useInstrument } from '../../../store/useCryptoStore';
 
 interface LightweightChartProps {
   data: ChartData;
@@ -12,6 +13,11 @@ export const LightweightChart = ({ data, chartType, livePrice }: LightweightChar
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<any> | null>(null);
+  const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
+  const instrument = useInstrument(selectedSymbol);
+  
+  const minMove = instrument.tickSize;
+  const precision = instrument.priceDecimals;
   
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -28,7 +34,7 @@ export const LightweightChart = ({ data, chartType, livePrice }: LightweightChar
       },
       timeScale: {
         timeVisible: true,
-        secondsVisible: false,
+        secondsVisible: true,
         borderVisible: false,
       },
       rightPriceScale: {
@@ -66,6 +72,8 @@ export const LightweightChart = ({ data, chartType, livePrice }: LightweightChar
 
     return () => {
       chart.remove();
+      chartRef.current = null;
+      seriesRef.current = null;
     };
   }, []);
 
@@ -76,16 +84,23 @@ export const LightweightChart = ({ data, chartType, livePrice }: LightweightChar
       chartRef.current.removeSeries(seriesRef.current);
     }
 
+    const priceFormat = {
+      type: 'price' as const,
+      precision,
+      minMove,
+    };
+
     if (chartType === 'candles') {
       const candlestickSeries = chartRef.current.addSeries(CandlestickSeries, {
-        upColor: '#2ebd85', // Terminal's native green
-        downColor: '#f6465d', // Terminal's native red
+        upColor: '#2ebd85',
+        downColor: '#f6465d',
         borderVisible: false,
         wickUpColor: '#2ebd85',
         wickDownColor: '#f6465d',
-        priceLineColor: '#ffffff', // White line for current price
+        priceLineColor: '#ffffff',
         priceLineWidth: 1,
-        priceLineStyle: 3, // Dashed
+        priceLineStyle: 3,
+        priceFormat,
       });
       candlestickSeries.setData(data.candles);
       seriesRef.current = candlestickSeries;
@@ -98,6 +113,7 @@ export const LightweightChart = ({ data, chartType, livePrice }: LightweightChar
         priceLineColor: '#ffffff',
         priceLineWidth: 1,
         priceLineStyle: 3,
+        priceFormat,
       });
       areaSeries.setData(data.area);
       seriesRef.current = areaSeries;
@@ -105,7 +121,7 @@ export const LightweightChart = ({ data, chartType, livePrice }: LightweightChar
     
     chartRef.current.timeScale().fitContent();
     
-  }, [data, chartType]);
+  }, [data, chartType, precision, minMove]);
 
   // Update last candle when livePrice changes
   useEffect(() => {

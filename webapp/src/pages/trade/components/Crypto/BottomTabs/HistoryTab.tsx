@@ -5,7 +5,7 @@ import { formatByStep } from '../domain/orderCalculations';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 export const HistoryTab = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const orders = usePaperTradingStore(state => state.orders);
   const instruments = useCryptoStore(state => state.instruments);
   const history = orders.filter((order) => order.status !== 'pending' && order.status !== 'partially_filled');
@@ -49,7 +49,15 @@ export const HistoryTab = () => {
                 {t(order.type === 'limit' ? 'trade.limitOrder' : 'trade.marketOrder')}
               </span>
             </div>
-            <span className="text-[10px] text-zinc-600">{new Date(order.updatedAt).toLocaleString()}</span>
+            <div className="text-[10px] text-zinc-500 font-mono mt-1">
+              {new Intl.DateTimeFormat(language, {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              }).format(new Date(order.updatedAt))}
+            </div>
             </div>
             <div className="text-right">
             <div className="font-mono text-zinc-200">

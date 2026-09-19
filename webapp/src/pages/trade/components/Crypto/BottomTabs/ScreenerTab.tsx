@@ -35,10 +35,19 @@ export const ScreenerTab = () => {
         type="button"
         className="mt-3 w-full rounded-lg border border-zinc-800 py-2 text-zinc-400"
         onClick={() => {
-          if (!window.confirm(t('trade.confirmResetDemo'))) return;
-          haptic.medium();
-          resetAccount();
-          resetOrderDraft();
+          const tg = (window as any).Telegram?.WebApp;
+          const onConfirm = (ok: boolean) => {
+            if (ok) {
+              haptic.medium();
+              resetAccount();
+              resetOrderDraft();
+            }
+          };
+          if (tg?.showConfirm) {
+            tg.showConfirm(t('trade.confirmResetDemo'), onConfirm);
+          } else {
+            if (window.confirm(t('trade.confirmResetDemo'))) onConfirm(true);
+          }
         }}
       >
         {t('trade.resetDemo')}

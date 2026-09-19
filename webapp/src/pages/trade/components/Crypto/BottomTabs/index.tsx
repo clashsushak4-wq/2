@@ -20,7 +20,7 @@ export const BottomTabs = () => {
   const tabs: { id: TabType; label: string; count?: number }[] = [
     { id: 'orders', label: t('trade.orders'), count: openOrderCount },
     { id: 'positions', label: t('trade.positions'), count: positionCount },
-    { id: 'screener', label: t('trade.screener') },
+    { id: 'screener', label: t('trade.analytics') },
     { id: 'history', label: t('trade.orderHistory') },
   ];
 

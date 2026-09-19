@@ -83,6 +83,10 @@ export const usePaperTradingStore = create<PaperTradingState>((set, get) => ({
     const required = openingQuantity * referencePrice * ((1 / input.leverage) + feeRate);
     const account = calculatePaperAccount(current);
     const orderId = createId('order');
+    
+    const existingPosition = current.positions.find((pos) => pos.symbol === input.symbol && pos.direction === input.direction);
+    const positionLeverage = existingPosition?.leverage;
+
     const validationErrors = validateOrder({
       intent: input.intent,
       symbol: input.symbol,
@@ -96,6 +100,7 @@ export const usePaperTradingStore = create<PaperTradingState>((set, get) => ({
       leverage: input.leverage,
       hasClosePosition,
       maxCloseQuantity,
+      positionLeverage,
       spec: input.spec,
     });
     const canPlace = validationErrors.length === 0;
@@ -140,7 +145,8 @@ export const usePaperTradingStore = create<PaperTradingState>((set, get) => ({
         ...current,
         orders: [order, ...current.orders],
       };
-      const next = fillOrder({ input, order, fillPrice, state: snapshot });
+      const executableInput = { ...input, isMarketableLimit };
+      const next = fillOrder({ input: executableInput, order, fillPrice, state: snapshot });
       set(next);
       return { ok: true, status: 'filled', orderId, reason: null };
     }
@@ -345,6 +351,15 @@ export const usePaperTradingStore = create<PaperTradingState>((set, get) => ({
         : marketPrice >= order.requestedPrice;
       if (!shouldFill) return;
 
+      const account = calculatePaperAccount(get());
+      const availableForThisOrder = account.availableBalance + order.reservedMargin;
+      const required = order.remainingQuantity * order.requestedPrice * ((1 / order.leverage) + spec.makerFeeRate);
+      
+      if (order.intent !== 'close' && !order.reduceOnly && required > availableForThisOrder + Number.EPSILON) {
+        get().cancelOrder(order.id);
+        return;
+      }
+
       const input: PlacePaperOrderInput = {
         clientOrderId: order.clientOrderId,
         symbol: order.symbol,
@@ -358,6 +373,7 @@ export const usePaperTradingStore = create<PaperTradingState>((set, get) => ({
         marginMode: order.marginMode,
         tpsl: order.tpsl,
         spec,
+        isMarketableLimit: false,
       };
       const next = fillOrder({
         input,
