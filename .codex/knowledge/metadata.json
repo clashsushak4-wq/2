@@ -2,9 +2,9 @@
   "schema_version": 1,
   "project_name": "trading-bot",
   "repo_root": "C:/Users/bob/Desktop/Projekt/bot",
-  "generated_at": "2026-09-18T01:05:58.2619876+03:00",
-  "source_revision": "7aeebc9fc1892e220a3130dbf63cbdf7ea7ef6aa",
-  "summary": "Telegram-first trading assistant: aiogram and FastAPI share SQLAlchemy/PostgreSQL, Redis, i18n and lifecycle; React/Vite WebApp provides market, support and client-side TON wallet flows.",
+  "generated_at": "2026-09-19T11:05:19.8253940+03:00",
+  "source_revision": "c227337d10cf76e211f52ce0b500a4f369cf99f9",
+  "summary": "Telegram-first assistant: aiogram and FastAPI share PostgreSQL, Redis, i18n and lifecycle; the React/Vite Mini App provides dynamic home/support, a client-side TON wallet, and a currently mock-driven trade terminal with lightweight-charts.",
   "map_file": "project-architecture.md",
   "entry_points": [
     "bot/main.py",
@@ -23,6 +23,11 @@
     "shared/database",
     "webapp/package.json",
     "webapp/src/main.tsx",
+    "webapp/src/App.tsx",
+    "webapp/src/api/client.ts",
+    "webapp/src/store",
+    "webapp/src/pages/trade/components/Crypto",
+    "webapp/src/pages/wallet/WalletView.tsx",
     "docker/docker-compose.yml"
   ]
 }

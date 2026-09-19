@@ -28,9 +28,10 @@
 ### WebApp
 
 - React 18.3, TypeScript, Vite 5, Tailwind CSS и Framer Motion.
-- Zustand — состояние приложения, торгового интерфейса и кошелька.
+- Zustand — состояние приложения, i18n, торгового интерфейса и кошелька.
 - Axios — клиент `/api`; Telegram Mini App SDK используется через `window.Telegram.WebApp`.
 - `@ton/core`, `@ton/crypto`, `@ton/ton` — локальный TON wallet flow и транзакции.
+- `lightweight-charts` — canvas-график локально сгенерированных свечей/area series; `react-qr-code` — адреса получения средств.
 - CI собирает frontend под Node.js 20.
 
 ### Инфраструктура
@@ -50,14 +51,18 @@
 | `shared/` | Общие настройки, lifecycle, константы, i18n, cache/logger/validation и cryptography service. |
 | `shared/database/` | Async SQLAlchemy engine/session, ORM models, repository layer и Alembic migrations. |
 | `shared/locales/` | JSON-переводы Telegram-бота для `ru`, `en`, `ua`, `tr`. |
-| `webapp/src/` | React Mini App: страницы, layouts/UI, hooks, API client, i18n, Zustand stores и TON utilities. |
+| `webapp/src/main.tsx`, `App.tsx` | Bootstrap React/ErrorBoundary, проверка Telegram host, верхнеуровневая навигация и полноэкранные feature overlays. |
+| `webapp/src/pages/` | Feature-модули Mini App: `home`, `wallet`, `trade`, `support`, `profile`. |
+| `webapp/src/pages/trade/components/Crypto/` | Локальное состояние и UI фьючерсного терминала: order form, синтетический стакан, селектор инструментов, модальные настройки и график. |
+| `webapp/src/api/`, `hooks/` | Axios-контракт backend API, Telegram bridge, news cache, BackButton stack и пока не подключённые Binance WebSocket hooks. |
+| `webapp/src/store/`, `i18n/` | Глобальное Zustand-состояние app/wallet/language и переводы WebApp для `ru`, `en`, `ua`. |
+| `webapp/src/shared/`, `utils/` | Layout/UI/animation primitives, pull-to-refresh, haptics, client-side cryptography и прямые TonAPI/TON операции. |
 | `tests/` | Pytest unit/integration/import/API-contract/migration tests; БД-тесты используют SQLite. |
-| `webapp/tests/` | Node test runner: состояние crypto UI и согласованность переводов. |
+| `webapp/tests/` | Node test runner: crypto store, pull-to-refresh motion и согласованность переводов. |
 | `docker/` | Compose, Dockerfiles и Caddy reverse proxy. |
 | `.github/workflows/` | Production build/deploy workflow. |
 | `scripts/` | Операционные и диагностические утилиты; не являются runtime-слоем приложения. |
 | `uploads/` | Локальное хранилище загруженных изображений/видео, раздаваемое FastAPI через `/uploads`. |
-| `audit/` | Существующие отчёты и план исправлений; не является исполняемым кодом. |
 
 Локальные `.venv/`, `webapp/node_modules/`, `webapp/dist/`, `.secret/` и `.env*` не входят в архитектурный источник истины.
 
@@ -96,14 +101,56 @@ Root router подключает `common`, `profile`, `info`, `trading`, `educat
 
 ### WebApp
 
-WebApp разрешает production UI только внутри Telegram, извлекает `initData`, отправляет его как `Authorization: tma <initData>` и загружает профиль из `/api/users/me`. Основные вкладки: home, wallet, trade, support, profile. Внутри trade открываются crypto, screener и diary screens; навигация хранится в React/Zustand state.
+#### Bootstrap, Telegram host и навигация
 
-Ключевые пользовательские потоки:
+`main.tsx` монтирует `App` внутри `ErrorBoundary`. `useWebApp` ожидает Telegram SDK, вызывает `ready()`/`expand()`, задаёт чёрный header/background, отключает vertical swipes на мобильных Telegram-платформах и блокирует browser back через history. В production UI доступен только при наличии Telegram `initData`/WebView proxy; Vite dev mode пропускает эту границу.
 
-- Home: API layout + RSS news/article content.
-- Support: создание активного тикета, сообщения и закрытие; admin endpoints обслуживают очередь тикетов.
-- Trade: список символов/OHLCV от Binance и live WebSocket ticker/order book/kline; отправка ордера пока симулируется.
-- Wallet: генерация/импорт mnemonic, клиентское AES-GCM шифрование по PIN, хранение ciphertext в Telegram CloudStorage с fallback на `localStorage`, чтение балансов/истории и отправка BOC через TonAPI.
+Отдельного router library нет:
+
+- `App.tsx` держит активную вкладку локально: `home`, `wallet`, `trade`, `support`, `profile`;
+- `useAppStore.activeMarket` открывает поверх shell полноэкранные `CryptoScreen`, `ScreenerScreen` или `DiaryScreen`;
+- `MobileLayout` использует нижнюю навигацию, `DesktopLayout` — верхнюю; переключение связано с пользовательским `isFullscreen` в store, а не с URL;
+- `useBackButton` поддерживает module-level LIFO stack обработчиков, поэтому Telegram BackButton закрывает верхний активный экран/модалку;
+- `BottomSheet`, Framer Motion и `AnimatePresence` образуют общий overlay/navigation pattern;
+- `PullToRefresh` перехватывает вертикальный touch-жест только в верхней позиции scroll container, применяет resistance/threshold и Telegram haptics. Он используется на Home, terminal и chart screens.
+
+#### Состояние WebApp
+
+| Слой | Данные и время жизни |
+| --- | --- |
+| `useAppStore` | Telegram user/profile nickname, UI-fullscreen flag, home tiles cache и текущий trade overlay; память процесса вкладки. |
+| `useI18nStore` | Язык `ru`/`en`/`ua`; сохраняется в `localStorage` под `app_language`, при первом запуске выводится из языка Telegram. |
+| `useWalletStore` | Wallet address и только зашифрованный mnemonic; Zustand persist пишет в Telegram CloudStorage с зеркалом/fallback в `localStorage`. Балансы и цена остаются runtime state. |
+| `useCryptoStore` | Symbol/favorites, order-side/type/price/unit/amount, leverage/margin/TP-SL, активный bottom tab и состояние модалок/графика; не персистится. |
+| Локальный React state | Верхнеуровневая вкладка, открытые feature-модалки, wallet state machine, news selection/filter и chart timeframe/type. |
+| Module cache | `useNews` держит crypto/forex новости 5 минут; pull-to-refresh инвалидирует выбранную категорию. |
+
+#### Backend API и внешние запросы
+
+`api/client.ts` создаёт Axios client с base URL `VITE_API_URL || /api`, timeout 10 секунд и перед каждым запросом добавляет `Authorization: tma <initData>`. Текущий frontend-контракт включает только:
+
+- `/users/me` — nickname/профиль;
+- `/home/layout` — динамические home tiles;
+- `/news/crypto`, `/news/forex`, `/news/article` — ленты и содержимое статьи;
+- `/support/my-ticket`, `/support/ticket/{id}/message|close` — пользовательская поддержка.
+
+Support hook создаёт тикет при первом 404 и обновляет переписку polling-ом каждые 5 секунд. Wallet обходится без backend: native `fetch`/Axios обращаются прямо к TonAPI для балансов, rates, событий, seqno, jetton wallet и отправки подписанного BOC.
+
+Backend предоставляет `/api/charts/crypto/symbols`, `/api/charts/crypto/ohlcv/{symbol}` и paper-trade `/api/trade/order`, но текущий WebApp их не вызывает. `useBinanceMarket.ts` содержит hooks для публичных Binance ticker/depth/kline WebSocket streams, однако в текущем component graph они не используются.
+
+#### Feature-потоки
+
+- **Home:** category `all` показывает динамические tiles из БД; `forex`/`crypto` загружают RSS-агрегацию через backend. Tile может открыть Telegram link, раскрываемые блоки или modal; статья догружается отдельным запросом. Прочитанные news IDs хранятся на клиенте.
+- **Support:** при входе загружается/создаётся активный тикет, сообщения синхронизируются polling-ом, отправка и закрытие идут через защищённый API; admin routes обслуживают противоположную сторону очереди.
+- **Profile:** показывает локальные settings/about/notifications screens. Язык и UI-layout меняются локально; Telegram/document fullscreen управляется отдельным SDK/browser API потоком. Security/referrals в WebApp пока отображают уведомление о разработке.
+- **Wallet:** state machine ведёт пользователя через создание/импорт 24-word mnemonic, backup, установку/проверку PIN, dashboard, receive/send/settings/token details. Mnemonic шифруется в браузере PBKDF2-SHA-512 (1 000 000 iterations, random salt) + AES-256-GCM; поддерживается расшифровка legacy V1. При отправке seed временно расшифровывается, TON Wallet V4R2 подписывает external message, а BOC уходит в TonAPI. Backend seed не получает.
+- **Trade hub:** открывает crypto terminal, screener или diary overlay. Screener и diary сейчас являются presentation placeholders.
+- **Crypto terminal:** `useCryptoStore` связывает order form, margin/leverage/unit/TP-SL modals, symbol/favorites selector, terminal header, synthetic order book и lower tabs. Инструменты и 24h-показатели берутся из `mockInstruments.ts`; стакан детерминированно генерируется на клиенте. Action buttons выполняют только haptic feedback, позиции/ордера/history не загружаются и не сохраняются.
+- **Chart:** отдельный overlay использует `lightweight-charts`, переключает candlestick/area series и timeframe UI. `chartGenerator.ts` создаёт 200 детерминированных mock candles вокруг цены выбранного инструмента; timeframe пока влияет на пересоздание данных, но не запрашивает backend и не меняет шаг генерации.
+
+#### Сборка и проверки WebApp
+
+Vite публикует приложение с `base: /webapp/`; dev server проксирует `/api` на `localhost:8000`. TypeScript работает в strict/no-unused режиме. `npm run lint` — локальный AST-check только для trade subtree и `BottomSheet` (запрещает user-facing Cyrillic и `console`), а не универсальный ESLint. Node tests проверяют crypto store, pull-to-refresh math и целостность trade/common переводов. Python API-contract test отдельно сопоставляет строковые frontend calls с зарегистрированными FastAPI routes.
 
 ## Потоки данных, состояние, API, база данных и авторизация
 
@@ -125,8 +172,8 @@ WebApp разрешает production UI только внутри Telegram, из
 ### Состояние
 
 - Redis хранит aiogram FSM, distributed throttling, 24-hour language cache и временные login counters. При недоступности Redis бот использует in-memory FSM, но распределённость состояния теряется.
-- Zustand хранит текущего пользователя, layout state, активный рынок, trading UI и wallet metadata.
-- Новостной сервис использует process-local TTL caches.
+- Zustand разделён на app, i18n, wallet и crypto stores; персистятся только язык и wallet metadata/ciphertext.
+- Backend news service и frontend `useNews` имеют независимые process/module-local TTL caches.
 - `uploads/` хранит медиа на локальной файловой системе; `bot_media.tg_file_id` уменьшает повторные Telegram uploads.
 
 ### Авторизация
@@ -140,7 +187,7 @@ WebApp разрешает production UI только внутри Telegram, из
 ## Внешние интеграции
 
 - Telegram Bot API и Telegram Mini App API/CloudStorage.
-- Binance public REST API и WebSocket streams; optional encrypted exchange key используется для OHLCV request.
+- Binance public REST API используется backend market-data routes; optional encrypted exchange key передаётся в OHLCV request. Frontend WebSocket hooks реализованы, но пока не подключены к торговому экрану.
 - TonAPI и TON libraries для балансов, истории, wallet contract и отправки транзакций.
 - RSS источники CoinDesk, CoinTelegraph, Bitcoin Magazine, Decrypt, ForexLive, FXStreet и MarketWatch; article pages обрабатываются BeautifulSoup.
 - PostgreSQL и Redis.
@@ -189,34 +236,40 @@ npm run build
 - API и React связаны contract test-ом, который сопоставляет frontend calls и backend routes.
 - Внешние network integrations должны рассматриваться как отказоустойчивые границы; news и market-data routes преобразуют ошибки провайдеров в контролируемые ответы/fallbacks.
 - Uploaded files и frontend dist — runtime/build artifacts, не источник истины.
-- Реальная торговля и серверное хранение wallet seed в текущую архитектуру не входят.
+- Реальная торговля и серверное хранение wallet seed в текущую архитектуру не входят. Backend order endpoint симулирует paper trade, а текущий frontend terminal не вызывает даже этот endpoint.
+- Торговый UI сейчас отделён от market-data backend: mock instruments/order book/chart являются presentation state, а не данными биржи.
 
 ## Компактная схема ключевых узлов
 
-Зафиксировано 16 архитектурных узлов:
+Зафиксировано 22 архитектурных узла:
 
 ```text
 [1 Telegram users]
    ├─ updates ─> [2 Bot runtime] ─> [3 Middleware + handler graph]
-   │                                      ├─> [8 Shared services/config]
-   │                                      ├─> [9 Data access layer] ─> [10 PostgreSQL]
-   │                                      └─> [11 Redis]
-   └─ Mini App ─> [12 React WebApp] ─> [13 Frontend state/API client]
-                         │                         ├─ tma/admin HTTP ─> [4 FastAPI app]
-                         │                         └─ live market ─> [14 Market/news providers]
-                         └─ wallet ─> [15 Client TON wallet/TonAPI]
+   │                                      ├─> [7 Shared services/config]
+   │                                      ├─> [8 Data access layer] ─> [9 PostgreSQL]
+   │                                      └─> [10 Redis]
+   └─ Mini App ─> [11 React bootstrap]
+                      ├─ host bridge ─> [12 Telegram WebApp APIs]
+                      └─> [13 Navigation/layout + BackButton stack]
+                              └─> [14 Feature pages/overlays]
+                                      ├─> [15 App/i18n state]
+                                      ├─> [16 API client + caches] ── tma HTTP ─> [4 FastAPI app]
+                                      ├─> [17 Mock trade terminal state/UI]
+                                      └─> [18 Wallet state + client cryptography] ─> [20 TonAPI/TON]
 
 [4 FastAPI app]
-   ├─> [5 API route modules] ─> [9 Data access layer]
+   ├─> [5 API route modules] ─> [8 Data access layer]
    ├─ Telegram lifecycle ─> [6 Webhook bridge] ─> [3 Middleware + handler graph]
-   ├─ static/media ─> [7 Uploads + built SPA]
-   └─ served via ─> [16 Docker/Caddy/CI deployment]
+   ├─ news/market requests ─> [19 Market/news providers]
+   ├─ static/media ─> [21 Uploads + built SPA]
+   └─ served via ─> [22 Docker/Caddy/CI deployment]
 ```
 
 ## Неизвестные или намеренно не исследованные области
 
 - Каталог `admin/` отсутствует в текущем checkout, хотя backend, Compose и deploy workflow на него ссылаются; его frontend architecture не картирована.
 - Содержимое `.env`, `.secret/`, production credentials и внешнее состояние PostgreSQL/Redis намеренно не читались.
-- `audit/` reports и все вспомогательные `scripts/` не анализировались как исходный код.
+- Вспомогательные `scripts/` не анализировались как runtime-код.
 - Каждый handler, React component, migration и тест не читался: карта отражает архитектурный каркас, а не code review.
 - Фактическая production topology Oracle Cloud, backup/restore, observability и доступность сторонних API не проверялись.
