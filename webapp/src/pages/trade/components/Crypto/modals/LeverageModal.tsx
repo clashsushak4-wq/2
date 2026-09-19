@@ -4,47 +4,51 @@ import { BottomSheet } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
-import { useCryptoStore } from '../store/useCryptoStore';
-
-const MARKS = [1, 30, 60, 90, 120, 150];
+import { useCryptoStore, useInstrument } from '../store/useCryptoStore';
 
 export const LeverageModal = () => {
   const isOpen = useCryptoStore(state => state.isLeverageOpen);
   const onClose = () => useCryptoStore.getState().setLeverageOpen(false);
   const currentLeverage = useCryptoStore(state => state.leverage);
-  const currentIsBatch = useCryptoStore(state => state.isBatchLeverage);
+  const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const onChange = useCryptoStore.getState().setLeverage;
-  const onBatchChange = useCryptoStore.getState().setIsBatchLeverage;
   const { t } = useTranslation();
+  const instrument = useInstrument(selectedSymbol);
+  const maxLeverage = instrument.maxLeverage;
+  const marks = Array.from(new Set([
+    1,
+    Math.max(2, Math.round(maxLeverage * 0.2)),
+    Math.max(2, Math.round(maxLeverage * 0.4)),
+    Math.max(2, Math.round(maxLeverage * 0.6)),
+    Math.max(2, Math.round(maxLeverage * 0.8)),
+    maxLeverage,
+  ])).sort((a, b) => a - b);
 
   useBackButton(isOpen ? onClose : null);
   const [leverage, setLeverage] = useState(currentLeverage);
-  const [isBatch, setIsBatch] = useState(false);
 
   // Sync when opened
   useEffect(() => {
     if (isOpen) {
       setLeverage(currentLeverage);
-      setIsBatch(currentIsBatch);
     }
-  }, [isOpen, currentLeverage, currentIsBatch]);
+  }, [isOpen, currentLeverage]);
 
   const handleConfirm = () => {
     haptic.medium();
     onChange(leverage);
-    onBatchChange(isBatch);
     onClose();
   };
 
   const updateLeverage = (val: number, withHaptic = true) => {
-    const newVal = Math.min(150, Math.max(1, val));
+    const newVal = Math.min(maxLeverage, Math.max(1, val));
     if (newVal !== leverage) {
       if (withHaptic) haptic.light();
       setLeverage(newVal);
     }
   };
 
-  const getPercent = (val: number) => ((val - 1) / 149) * 100;
+  const getPercent = (val: number) => ((val - 1) / Math.max(1, maxLeverage - 1)) * 100;
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title={t('trade.adjustLeverage')}>
@@ -75,7 +79,7 @@ export const LeverageModal = () => {
             <input 
               type="range"
               min="1"
-              max="150"
+              max={maxLeverage}
               value={leverage}
               onChange={(e) => updateLeverage(Number(e.target.value), false)}
               onPointerUp={() => haptic.light()}
@@ -99,7 +103,7 @@ export const LeverageModal = () => {
           
           {/* Marks */}
           <div className="absolute w-full top-6">
-            {MARKS.map((mark) => (
+            {marks.map((mark) => (
               <div 
                 key={mark} 
                 className="absolute flex flex-col items-center -translate-x-1/2 text-[10px] text-zinc-500 font-medium whitespace-nowrap"

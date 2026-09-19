@@ -1,5 +1,5 @@
 import { LineChart, BarChart2, Settings2, Edit3, ChevronDown } from 'lucide-react';
-import { Timeframe, ChartType } from '../../types';
+import type { Timeframe, ChartType } from '../../types';
 
 interface ToolbarProps {
   selectedTimeframe: Timeframe;
@@ -10,11 +10,11 @@ interface ToolbarProps {
 }
 
 const QUICK_TIMEFRAMES: { label: string; value: Timeframe }[] = [
-  { label: '1 мин.', value: '1m' },
-  { label: '15 мин.', value: '15m' },
-  { label: '1 ч.', value: '1h' },
-  { label: '4 ч.', value: '4h' },
-  { label: '1 д.', value: '1d' },
+  { label: '1m', value: '1m' },
+  { label: '15m', value: '15m' },
+  { label: '1h', value: '1h' },
+  { label: '4h', value: '4h' },
+  { label: '1d', value: '1d' },
 ];
 
 export const Toolbar = ({ 
@@ -31,6 +31,7 @@ export const Toolbar = ({
           const isActive = selectedTimeframe === tf.value;
           return (
             <button 
+              type="button"
               key={tf.value} 
               onClick={() => onSelectTimeframe(tf.value)}
               className={`shrink-0 px-2 py-1.5 rounded-[6px] text-[13px] font-medium transition-colors cursor-pointer active:opacity-70 ${
@@ -42,19 +43,20 @@ export const Toolbar = ({
           );
         })}
         <button 
+          type="button"
           onClick={onOpenTimeframeModal}
           className="flex items-center gap-1 shrink-0 px-2 py-1.5 rounded-[6px] text-[13px] font-medium text-zinc-400 hover:text-zinc-200 hover:bg-[#1e1e1e]/50 transition-colors cursor-pointer active:opacity-70"
         >
-          ТФ <ChevronDown size={14} className="mt-0.5" />
+          TF <ChevronDown size={14} className="mt-0.5" />
         </button>
       </div>
       
       <div className="flex items-center gap-3 text-zinc-400 shrink-0 border-l border-zinc-800 pl-3">
-        <button onClick={onToggleChartType} className="cursor-pointer active:opacity-70 transition-opacity">
+        <button type="button" onClick={onToggleChartType} className="cursor-pointer active:opacity-70 transition-opacity">
           {chartType === 'candles' ? <LineChart size={16} /> : <BarChart2 size={16} />}
         </button>
-        <button className="cursor-pointer active:opacity-70 transition-opacity"><Edit3 size={15} /></button>
-        <button className="cursor-pointer active:opacity-70 transition-opacity"><Settings2 size={16} /></button>
+        <button type="button" disabled className="opacity-40"><Edit3 size={15} /></button>
+        <button type="button" disabled className="opacity-40"><Settings2 size={16} /></button>
       </div>
     </div>
   );

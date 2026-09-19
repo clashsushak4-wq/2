@@ -25,6 +25,7 @@ export const TerminalHeader = () => {
           >
             <h1 className="text-[18px] font-bold text-white tracking-tight leading-none">{instrument.symbol}</h1>
             <ChevronDown size={14} className="text-zinc-500" />
+            <span className="rounded border border-amber-500/40 bg-amber-500/10 px-1 py-0.5 text-[8px] font-bold leading-none text-amber-400">DEMO</span>
           </button>
         </div>
         <span className={`${changeColor} text-[12px] font-medium leading-none tracking-tight`}>
@@ -41,7 +42,7 @@ export const TerminalHeader = () => {
         >
           <CandlestickChart size={18} />
         </button>
-        <button type="button" aria-label={t('trade.more')} className="cursor-pointer transition-opacity active:opacity-70 p-0.5" onClick={() => haptic.light()}>
+        <button type="button" disabled aria-label={t('trade.more')} className="p-0.5 opacity-40">
           <MoreHorizontal size={18} />
         </button>
       </div>

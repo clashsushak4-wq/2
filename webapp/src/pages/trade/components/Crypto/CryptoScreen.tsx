@@ -15,7 +15,8 @@ import { OrderBookCardModal } from './modals/OrderBookCardModal';
 import { OrderTypeModal } from './modals/OrderTypeModal';
 import { UnitModal } from './modals/UnitModal';
 import { ChartScreen } from './Chart/ChartScreen';
-import { useMockDataEngine } from './hooks/useMockDataEngine';
+import { runMockDataTick, useMockDataEngine } from './hooks/useMockDataEngine';
+import { useDemoPersistence } from './hooks/useDemoPersistence';
 
 interface CryptoScreenProps {
   onClose: () => void;
@@ -23,11 +24,13 @@ interface CryptoScreenProps {
 
 export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
   useBackButton(onClose);
+  useDemoPersistence();
   useMockDataEngine();
   const [refreshSequence, setRefreshSequence] = useState(0);
 
   const refreshTerminal = useCallback(async () => {
-    await new Promise<void>(resolve => window.setTimeout(resolve, 650));
+    runMockDataTick();
+    await new Promise<void>(resolve => window.setTimeout(resolve, 350));
     setRefreshSequence(sequence => sequence + 1);
   }, []);
 

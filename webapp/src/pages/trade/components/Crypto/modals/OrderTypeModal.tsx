@@ -3,7 +3,8 @@ import { BottomSheet } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
-import { useCryptoStore, OrderType } from '../store/useCryptoStore';
+import { useCryptoStore } from '../store/useCryptoStore';
+import type { OrderType } from '../store/useCryptoStore';
 
 export const OrderTypeModal = () => {
   const isOpen = useCryptoStore(state => state.isOrderTypeOpen);

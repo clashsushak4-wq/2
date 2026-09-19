@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { formatInstrumentPrice, MockInstrument } from '../data/mockInstruments.ts';
+import { formatInstrumentPrice } from '../data/mockInstruments.ts';
+import type { MockInstrument } from '../data/mockInstruments.ts';
+import { mockRandom } from '../engine/mockRandom.ts';
 import { useInstrument, useCryptoStore } from '../store/useCryptoStore';
 
 export interface MarketTrade {
@@ -63,12 +65,12 @@ export const useMarketTradesData = () => {
   // Добавление новых сделок при тиках
   useEffect(() => {
     if (trades.length === 0) return;
-    if (Math.random() > 0.4) return; // Не каждый тик порождает сделку
+    if (mockRandom(selectedSymbol, tickCounter, 3) > 0.4) return; // Не каждый тик порождает сделку
 
     const now = new Date();
     const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-    const direction = Math.random() > 0.5 ? 'buy' : 'sell';
-    const amount = (Math.random() * 5 + 0.1).toFixed(3);
+    const direction = mockRandom(selectedSymbol, tickCounter, 4) > 0.5 ? 'buy' : 'sell';
+    const amount = (mockRandom(selectedSymbol, tickCounter, 5) * 5 + 0.1).toFixed(3);
 
     const newTrade: MarketTrade = {
       id: `${selectedSymbol}-trade-${Date.now()}`,

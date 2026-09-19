@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MockInstrument } from '../data/mockInstruments.ts';
+import type { MockInstrument } from '../data/mockInstruments.ts';
 import { useInstrument, useCryptoStore } from '../store/useCryptoStore';
 
 export interface OrderBookRowData {
@@ -18,8 +18,13 @@ const generatePrecisionOptions = (decimals: number): number[] => {
 };
 
 // Генерирует 200 уровней сырого стакана для эмуляции реальной ликвидности
-const generateRawOrders = (instrument: MockInstrument, direction: 'ask' | 'bid', tickCounter: number) => {
-  const step = 10 ** -instrument.priceDecimals;
+const generateRawOrders = (
+  instrument: MockInstrument,
+  direction: 'ask' | 'bid',
+  tickCounter: number,
+  selectedTickSize: number,
+) => {
+  const step = Math.max(instrument.tickSize, selectedTickSize / 4);
   const seed = Array.from(instrument.symbol).reduce((total, char) => total + char.charCodeAt(0), 0);
   const count = 200;
 
@@ -102,8 +107,8 @@ export const useOrderBookData = () => {
   const activeTickSize = storedTickSize !== null ? storedTickSize : availablePrecisions[0];
 
   const { asks, bids } = useMemo(() => {
-    const rawAsks = generateRawOrders(instrument, 'ask', tickCounter);
-    const rawBids = generateRawOrders(instrument, 'bid', tickCounter);
+    const rawAsks = generateRawOrders(instrument, 'ask', tickCounter, activeTickSize);
+    const rawBids = generateRawOrders(instrument, 'bid', tickCounter, activeTickSize);
 
     const aggregatedAsks = aggregateOrders(rawAsks, activeTickSize, 'ask');
     const aggregatedBids = aggregateOrders(rawBids, activeTickSize, 'bid');

@@ -1,5 +1,6 @@
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
+import { formatByStep, roundToStep } from '../domain/orderCalculations';
 import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore } from '../store/useCryptoStore';
 
@@ -12,22 +13,19 @@ export const PriceInput = () => {
   const instrument = useInstrument(selectedSymbol);
 
   const handleIncrease = () => {
-    const p = parseFloat(price);
-    if (isNaN(p)) return;
-    const decimals = price.includes('.') ? price.split('.')[1].length : 0;
-    const step = decimals > 0 ? Math.pow(10, -decimals) : 1;
-    const newPrice = (p + step).toFixed(decimals);
-    setPrice(newPrice);
+    const currentPrice = Number(price);
+    if (!Number.isFinite(currentPrice)) return;
+    setPrice(formatByStep(roundToStep(currentPrice + instrument.tickSize, instrument.tickSize), instrument.tickSize));
     haptic.light();
   };
 
   const handleDecrease = () => {
-    const p = parseFloat(price);
-    if (isNaN(p)) return;
-    const decimals = price.includes('.') ? price.split('.')[1].length : 0;
-    const step = decimals > 0 ? Math.pow(10, -decimals) : 1;
-    const newPrice = Math.max(0, p - step).toFixed(decimals);
-    setPrice(newPrice);
+    const currentPrice = Number(price);
+    if (!Number.isFinite(currentPrice)) return;
+    setPrice(formatByStep(
+      Math.max(instrument.tickSize, roundToStep(currentPrice - instrument.tickSize, instrument.tickSize)),
+      instrument.tickSize,
+    ));
     haptic.light();
   };
 
@@ -50,7 +48,9 @@ export const PriceInput = () => {
           type="text"
           inputMode="decimal"
           value={price}
-          onChange={(event) => setPrice(event.target.value)}
+          onChange={(event) => {
+            if (/^\d*(\.\d*)?$/.test(event.target.value)) setPrice(event.target.value);
+          }}
           className="w-full bg-transparent text-sm font-bold leading-tight text-zinc-100 outline-none"
         />
       </div>

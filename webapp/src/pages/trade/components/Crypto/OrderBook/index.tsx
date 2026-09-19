@@ -4,7 +4,8 @@ import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
 import { formatInstrumentPrice } from '../data/mockInstruments.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
-import { useOrderBookData, OrderBookRowData } from '../hooks/useOrderBookData';
+import { useOrderBookData } from '../hooks/useOrderBookData';
+import type { OrderBookRowData } from '../hooks/useOrderBookData';
 import { MarketTrades } from './MarketTrades';
 
 interface ProcessedRow extends OrderBookRowData {
@@ -13,9 +14,10 @@ interface ProcessedRow extends OrderBookRowData {
 
 const OrderBookRow = memo(({ row, isAsk, onClick }: { row: ProcessedRow; isAsk?: boolean; onClick?: () => void }) => {
   return (
-    <div 
+    <button
+      type="button"
       onClick={onClick}
-      className="relative flex min-h-[15px] items-center justify-between leading-none cursor-pointer active:bg-zinc-800/50 group"
+      className="relative flex min-h-[15px] w-full items-center justify-between leading-none cursor-pointer active:bg-zinc-800/50 group"
     >
       <div
         className={`absolute right-0 top-0 bottom-0 transition-all duration-300 ${isAsk ? 'bg-bitget-red/15 group-hover:bg-bitget-red/25' : 'bg-bitget-green/15 group-hover:bg-bitget-green/25'}`}
@@ -23,17 +25,17 @@ const OrderBookRow = memo(({ row, isAsk, onClick }: { row: ProcessedRow; isAsk?:
       />
       <span className={`${isAsk ? 'text-bitget-red' : 'text-bitget-green'} z-10`}>{row.price}</span>
       <span className="text-zinc-300 z-10">{row.amount}</span>
-    </div>
+    </button>
   );
 });
 
 export const OrderBookView = memo(() => {
   const { t } = useTranslation();
   
-  const amountPercent = useCryptoStore(state => state.amountPercent);
-  const side = useCryptoStore(state => state.side);
+  const amountValue = useCryptoStore(state => state.amountValue);
   const isTPSL = useCryptoStore(state => state.isTPSL);
   const setPrice = useCryptoStore(state => state.setPrice);
+  const setOrderType = useCryptoStore(state => state.setOrderType);
   const isTickSizeOpen = useCryptoStore(state => state.isTickSizeOpen);
   const setTickSizeOpen = useCryptoStore(state => state.setTickSizeOpen);
   const setTickSize = useCryptoStore(state => state.setTickSize);
@@ -43,8 +45,8 @@ export const OrderBookView = memo(() => {
 
   const { instrument, asks: rawAsks, bids: rawBids, availablePrecisions, activeTickSize } = useOrderBookData();
 
-  const extraRows = (amountPercent > 0 ? 1 : 0) + (isTPSL && side === 'buy' ? 1 : 0);
-  const splitCount = (side === 'sell' ? 5 : 6) + extraRows;
+  const extraRows = (amountValue !== '' ? 1 : 0) + (isTPSL ? 2 : 0);
+  const splitCount = 6 + extraRows;
   const fullCount = splitCount * 2 + 1;
   const visibleCount = orderBookMode === 'split' ? splitCount : fullCount;
 
@@ -89,7 +91,10 @@ export const OrderBookView = memo(() => {
     });
   }, [rawBids, visibleCount]);
 
-  const buyPercent = Math.round(Math.min(70, Math.max(30, 50 + instrument.changePercent * 1.5)));
+  const bidVolume = rawBids.slice(0, visibleCount).reduce((total, row) => total + row.rawAmount, 0);
+  const askVolume = rawAsks.slice(0, visibleCount).reduce((total, row) => total + row.rawAmount, 0);
+  const displayedVolume = bidVolume + askVolume;
+  const buyPercent = displayedVolume > 0 ? Math.round((bidVolume / displayedVolume) * 100) : 50;
   const sellPercent = 100 - buyPercent;
   const priceColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
@@ -126,7 +131,10 @@ export const OrderBookView = memo(() => {
               key={`ask-level-${index}`} 
               row={ask} 
               isAsk 
-              onClick={() => setPrice(ask.price.replace(/,/g, ''))}
+              onClick={() => {
+                setOrderType('limit');
+                setPrice(ask.price.replace(/,/g, ''));
+              }}
             />
           ))}
         </div>
@@ -154,7 +162,10 @@ export const OrderBookView = memo(() => {
             <OrderBookRow 
               key={`bid-level-${index}`} 
               row={bid} 
-              onClick={() => setPrice(bid.price.replace(/,/g, ''))}
+              onClick={() => {
+                setOrderType('limit');
+                setPrice(bid.price.replace(/,/g, ''));
+              }}
             />
           ))}
         </div>
@@ -188,15 +199,16 @@ export const OrderBookView = memo(() => {
               <div className="py-1">
                 {availablePrecisions.map((p) => (
                   <button
+                    type="button"
                     key={p}
-                    className={`flex items-center justify-between w-full px-3 py-2 text-left text-sm ${activeTickSize === p ? 'text-bitget-blue bg-bitget-blue/10' : 'text-zinc-300 hover:bg-zinc-800'}`}
+                    className={`flex items-center justify-between w-full px-3 py-2 text-left text-sm ${activeTickSize === p ? 'text-cyan-400 bg-cyan-400/10' : 'text-zinc-300 hover:bg-zinc-800'}`}
                     onClick={() => {
                       haptic.light();
                       setTickSize(p);
                     }}
                   >
                     <span>{p >= 1 ? p.toFixed(0) : p.toString()}</span>
-                    {activeTickSize === p && <Check size={14} className="text-bitget-blue" />}
+                    {activeTickSize === p && <Check size={14} className="text-cyan-400" />}
                   </button>
                 ))}
               </div>
@@ -231,12 +243,14 @@ export const OrderBook = memo(() => {
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex gap-4 mb-2 shrink-0 px-1">
         <button 
+          type="button"
           onClick={() => { haptic.light(); setActiveTab('book'); }}
           className={`text-sm font-medium transition-colors ${activeTab === 'book' ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
         >
           {t('trade.orderBook')}
         </button>
         <button 
+          type="button"
           onClick={() => { haptic.light(); setActiveTab('trades'); }}
           className={`text-sm font-medium transition-colors ${activeTab === 'trades' ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
         >

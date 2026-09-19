@@ -3,22 +3,28 @@ import {
   DEFAULT_FAVORITE_SYMBOLS,
   DEFAULT_INSTRUMENT,
   toInputPrice,
-  MockInstrument,
   MOCK_INSTRUMENTS,
 } from '../data/mockInstruments.ts';
+import { mockRandom } from '../engine/mockRandom.ts';
+import type { MockInstrument } from '../data/mockInstruments.ts';
+import type {
+  MarginMode,
+  OrderIntent,
+  OrderType,
+  TPSLMode,
+  UnitType,
+} from '../domain/types';
 
-export type OrderSide = 'buy' | 'sell';
-export type OrderType = 'limit' | 'market';
-export type UnitType = 'qty_base' | 'cost_quote' | 'value_quote';
 export type TabType = 'orders' | 'positions' | 'screener' | 'history';
-export type MarginMode = 'cross' | 'isolated';
 export type OrderBookMode = 'split' | 'bids' | 'asks';
+export type { MarginMode, OrderIntent, OrderType, TPSLMode, UnitType } from '../domain/types';
 
 interface CryptoState {
   availableBalance: number;
   amountPercent: number;
+  amountValue: string;
   isTPSL: boolean;
-  side: OrderSide;
+  orderIntent: OrderIntent;
   orderType: OrderType;
   price: string;
   leverage: number;
@@ -46,8 +52,9 @@ interface CryptoState {
 
   setAvailableBalance: (val: number) => void;
   setAmountPercent: (val: number) => void;
+  setAmountValue: (val: string) => void;
   setIsTPSL: (val: boolean) => void;
-  setSide: (val: OrderSide) => void;
+  setOrderIntent: (val: OrderIntent) => void;
   setOrderType: (val: OrderType) => void;
   setPrice: (val: string) => void;
   setLeverage: (val: number) => void;
@@ -69,20 +76,28 @@ interface CryptoState {
   setTickSize: (val: number | null) => void;
   setOrderBookMode: (mode: OrderBookMode) => void;
   cycleOrderBookMode: () => void;
-  tpMode: 'price' | 'roi' | 'change' | 'pnl';
-  slMode: 'price' | 'roi' | 'change' | 'pnl';
-  setTpMode: (mode: 'price' | 'roi' | 'change' | 'pnl') => void;
-  setSlMode: (mode: 'price' | 'roi' | 'change' | 'pnl') => void;
+  tpMode: TPSLMode;
+  slMode: TPSLMode;
+  tpValue: string;
+  slValue: string;
+  setTpMode: (mode: TPSLMode) => void;
+  setSlMode: (mode: TPSLMode) => void;
+  setTpValue: (value: string) => void;
+  setSlValue: (value: string) => void;
+  resetOrderDraft: () => void;
   showToast: (message: string, type?: 'success' | 'error') => void;
   hideToast: () => void;
   tick: () => void;
 }
 
+let toastTimer: ReturnType<typeof setTimeout> | null = null;
+
 export const useCryptoStore = create<CryptoState>((set) => ({
   availableBalance: 5300,
   amountPercent: 0,
+  amountValue: '',
   isTPSL: false,
-  side: 'buy',
+  orderIntent: 'open',
   orderType: 'limit',
   price: toInputPrice(DEFAULT_INSTRUMENT),
   leverage: 3,
@@ -100,6 +115,8 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   toastType: null,
   tpMode: 'price',
   slMode: 'price',
+  tpValue: '',
+  slValue: '',
 
   isOrderTypeOpen: false,
   isLeverageOpen: false,
@@ -112,8 +129,18 @@ export const useCryptoStore = create<CryptoState>((set) => ({
 
   setAvailableBalance: (val) => set({ availableBalance: val }),
   setAmountPercent: (val) => set({ amountPercent: val }),
+  setAmountValue: (val) => set({ amountValue: val }),
   setIsTPSL: (val) => set({ isTPSL: val }),
-  setSide: (val) => set({ side: val }),
+  setOrderIntent: (val) => set((state) => state.orderIntent === val
+    ? state
+    : {
+      orderIntent: val,
+      amountPercent: 0,
+      amountValue: '',
+      tpValue: '',
+      slValue: '',
+      isTPSL: false,
+    }),
   setOrderType: (val) => set({ orderType: val }),
   setPrice: (val) => set({ price: val }),
   setLeverage: (val) => set({ leverage: val }),
@@ -127,6 +154,11 @@ export const useCryptoStore = create<CryptoState>((set) => ({
       return {
         selectedSymbol: instrument.symbol,
         price: toInputPrice(instrument),
+        leverage: Math.min(state.leverage, instrument.maxLeverage),
+        amountPercent: 0,
+        amountValue: '',
+        tpValue: '',
+        slValue: '',
         isSymbolSelectOpen: false,
         tickSize: null,
       };
@@ -155,23 +187,38 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   }),
   setTpMode: (mode) => set({ tpMode: mode }),
   setSlMode: (mode) => set({ slMode: mode }),
+  setTpValue: (value) => set({ tpValue: value }),
+  setSlValue: (value) => set({ slValue: value }),
+  resetOrderDraft: () => set({
+    amountPercent: 0,
+    amountValue: '',
+    tpValue: '',
+    slValue: '',
+    isTPSL: false,
+  }),
   showToast: (message, type = 'success') => {
+    if (toastTimer) clearTimeout(toastTimer);
     set({ toastMessage: message, toastType: type });
-    setTimeout(() => {
+    toastTimer = setTimeout(() => {
       set({ toastMessage: null, toastType: null });
+      toastTimer = null;
     }, 3000);
   },
-  hideToast: () => set({ toastMessage: null, toastType: null }),
+  hideToast: () => {
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = null;
+    set({ toastMessage: null, toastType: null });
+  },
   tick: () => set((state) => {
     const newInstruments = { ...state.instruments };
     let hasChanges = false;
     for (const sym in newInstruments) {
-      if (Math.random() > 0.6) continue;
+      if (mockRandom(sym, state.tickCounter, 0) > 0.6) continue;
       
       const inst = { ...newInstruments[sym] };
       const step = 10 ** -inst.priceDecimals;
-      const direction = Math.random() > 0.5 ? 1 : -1;
-      const ticks = Math.floor(Math.random() * 3) + 1;
+      const direction = mockRandom(sym, state.tickCounter, 1) > 0.5 ? 1 : -1;
+      const ticks = Math.floor(mockRandom(sym, state.tickCounter, 2) * 3) + 1;
       
       inst.price = Math.max(step, inst.price + (step * direction * ticks));
       if (inst.price > inst.high24h) inst.high24h = inst.price;

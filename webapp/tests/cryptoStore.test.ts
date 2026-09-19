@@ -14,7 +14,7 @@ test.beforeEach(() => {
     price: '76941.7',
     leverage: 3,
     isBatchLeverage: false,
-    side: 'buy',
+    orderIntent: 'open',
     orderType: 'limit',
     unit: 'value_quote',
     activeTab: 'orders',
@@ -35,14 +35,14 @@ test('crypto store keeps editable order values', () => {
   assert.equal(state.isBatchLeverage, true);
 });
 
-test('crypto store keeps tab, side and unit selections', () => {
-  useCryptoStore.getState().setSide('sell');
+test('crypto store keeps tab, intent and unit selections', () => {
+  useCryptoStore.getState().setOrderIntent('close');
   useCryptoStore.getState().setOrderType('market');
   useCryptoStore.getState().setUnit('qty_base');
   useCryptoStore.getState().setActiveTab('positions');
 
   const state = useCryptoStore.getState();
-  assert.equal(state.side, 'sell');
+  assert.equal(state.orderIntent, 'close');
   assert.equal(state.orderType, 'market');
   assert.equal(state.unit, 'qty_base');
   assert.equal(state.activeTab, 'positions');

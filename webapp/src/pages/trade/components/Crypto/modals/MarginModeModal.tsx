@@ -3,7 +3,8 @@ import { BottomSheet } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
-import { useCryptoStore, MarginMode } from '../store/useCryptoStore';
+import { useCryptoStore } from '../store/useCryptoStore';
+import type { MarginMode } from '../store/useCryptoStore';
 
 export const MarginModeModal = () => {
   const isOpen = useCryptoStore(state => state.isMarginModeOpen);
@@ -43,12 +44,10 @@ export const MarginModeModal = () => {
           {/* Cross */}
           <button
             type="button"
-            onClick={() => handleSelect('cross')}
-            className={`flex flex-col px-3 py-2 rounded-xl border text-left transition-colors cursor-pointer ${
-              mode === 'cross' ? 'border-white bg-zinc-900' : 'border-zinc-800 bg-transparent'
-            }`}
+            disabled
+            className="flex flex-col px-3 py-2 rounded-xl border border-zinc-800 bg-transparent text-left opacity-50"
           >
-            <span className="text-[15px] font-bold mb-0.5">{t('trade.cross')}</span>
+            <span className="text-[15px] font-bold mb-0.5">{t('trade.cross')} · {t('trade.comingSoon')}</span>
             <span className="text-[10px] text-zinc-400 leading-tight">
               {t('trade.crossDescription')}
             </span>

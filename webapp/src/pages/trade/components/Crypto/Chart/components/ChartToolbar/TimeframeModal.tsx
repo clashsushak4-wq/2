@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { slideUp } from '../../../../../../../shared/animations';
-import { Timeframe } from '../../types';
+import { useTranslation } from '../../../../../../../i18n';
+import type { Timeframe } from '../../types';
 
 interface TimeframeModalProps {
   isOpen: boolean;
@@ -11,28 +12,29 @@ interface TimeframeModalProps {
 }
 
 const TF_GROUPS = [
-  { label: '1 с.', value: '1s' },
-  { label: '2 мин.', value: '2m' },
-  { label: '3 мин.', value: '3m' },
-  { label: '5 мин.', value: '5m' },
-  { label: '15 мин.', value: '15m' },
-  { label: '30м', value: '30m' },
-  { label: '1 ч.', value: '1h' },
-  { label: '2 ч.', value: '2h' },
-  { label: '4 ч.', value: '4h' },
-  { label: '6 ч.', value: '6h' },
-  { label: '8ч', value: '8h' },
-  { label: '12 ч.', value: '12h' },
-  { label: '1 д.', value: '1d' },
-  { label: '2 дн.', value: '2d' },
-  { label: '3 д.', value: '3d' },
-  { label: '5 дн.', value: '5d' },
-  { label: '1 нед.', value: '1w' },
-  { label: '1 мес.', value: '1M' },
-  { label: '3 мес.', value: '3M' },
+  { label: '1s', value: '1s' },
+  { label: '2m', value: '2m' },
+  { label: '3m', value: '3m' },
+  { label: '5m', value: '5m' },
+  { label: '15m', value: '15m' },
+  { label: '30m', value: '30m' },
+  { label: '1h', value: '1h' },
+  { label: '2h', value: '2h' },
+  { label: '4h', value: '4h' },
+  { label: '6h', value: '6h' },
+  { label: '8h', value: '8h' },
+  { label: '12h', value: '12h' },
+  { label: '1d', value: '1d' },
+  { label: '2d', value: '2d' },
+  { label: '3d', value: '3d' },
+  { label: '5d', value: '5d' },
+  { label: '1w', value: '1w' },
+  { label: '1M', value: '1M' },
+  { label: '3M', value: '3M' },
 ] as const;
 
 export const TimeframeModal = ({ isOpen, onClose, selectedTimeframe, onSelectTimeframe }: TimeframeModalProps) => {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {isOpen && (
@@ -52,8 +54,8 @@ export const TimeframeModal = ({ isOpen, onClose, selectedTimeframe, onSelectTim
             className="fixed bottom-0 left-0 right-0 bg-[#121212] rounded-t-2xl z-[80] overflow-hidden flex flex-col max-h-[85vh]"
           >
             <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-              <h2 className="text-lg font-bold text-white">Период времени</h2>
-              <button onClick={onClose} className="p-1 text-zinc-400 hover:text-white transition-colors active:scale-95">
+              <h2 className="text-lg font-bold text-white">{t('trade.timeframe')}</h2>
+              <button type="button" aria-label={t('common.close')} onClick={onClose} className="p-1 text-zinc-400 hover:text-white transition-colors active:scale-95">
                 <X size={20} />
               </button>
             </div>
@@ -64,6 +66,7 @@ export const TimeframeModal = ({ isOpen, onClose, selectedTimeframe, onSelectTim
                   const isActive = tf.value === selectedTimeframe;
                   return (
                     <button
+                      type="button"
                       key={tf.value}
                       onClick={() => {
                         onSelectTimeframe(tf.value as Timeframe);

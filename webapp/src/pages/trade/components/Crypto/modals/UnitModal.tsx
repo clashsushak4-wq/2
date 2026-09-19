@@ -2,8 +2,11 @@ import { BottomSheet } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
+import { amountValueFromQuantity, formatByStep } from '../domain/orderCalculations';
+import { useOrderCalculations } from '../hooks/useOrderCalculations';
 import { useInstrument } from '../store/useCryptoStore';
-import { useCryptoStore, UnitType } from '../store/useCryptoStore';
+import { useCryptoStore } from '../store/useCryptoStore';
+import type { UnitType } from '../store/useCryptoStore';
 
 export const UnitModal = () => {
   const isOpen = useCryptoStore(state => state.isUnitOpen);
@@ -11,8 +14,11 @@ export const UnitModal = () => {
   const currentUnit = useCryptoStore(state => state.unit);
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const onChange = useCryptoStore.getState().setUnit;
+  const setAmountValue = useCryptoStore.getState().setAmountValue;
+  const leverage = useCryptoStore(state => state.leverage);
   const { t } = useTranslation();
   const instrument = useInstrument(selectedSymbol);
+  const { baseAmount, parsedPrice, spec } = useOrderCalculations();
   const options: { id: UnitType; title: string; description: string }[] = [
     {
       id: 'qty_base',
@@ -35,6 +41,10 @@ export const UnitModal = () => {
 
   const handleSelect = (val: UnitType) => {
     haptic.medium();
+    const converted = amountValueFromQuantity(val, baseAmount, parsedPrice, leverage);
+    setAmountValue(baseAmount > 0
+      ? (val === 'qty_base' ? formatByStep(converted, spec.quantityStep) : converted.toFixed(2))
+      : '');
     onChange(val);
     onClose();
   };

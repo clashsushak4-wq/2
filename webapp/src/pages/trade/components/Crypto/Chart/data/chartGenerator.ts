@@ -1,5 +1,5 @@
-import { OHLC, AreaData, ChartData } from '../types';
-import { Time } from 'lightweight-charts';
+import type { OHLC, AreaData, ChartData, Timeframe } from '../types';
+import type { Time } from 'lightweight-charts';
 
 const getSeededRandom = (seed: number) => {
   let x = Math.sin(seed) * 10000;
@@ -10,6 +10,7 @@ export const generateMockChartData = (
   symbol: string, 
   currentPrice: number, 
   changePercent: number, 
+  timeframe: Timeframe,
   numCandles: number = 200
 ): ChartData => {
   let hash = 0;
@@ -21,7 +22,30 @@ export const generateMockChartData = (
   const rawCandles: OHLC[] = [];
   
   // We generate backwards from current time
-  const now = Math.floor(Date.now() / 1000);
+  const timeframeSeconds: Record<Timeframe, number> = {
+    '1s': 1,
+    '1m': 60,
+    '2m': 120,
+    '3m': 180,
+    '5m': 300,
+    '15m': 900,
+    '30m': 1_800,
+    '1h': 3_600,
+    '2h': 7_200,
+    '4h': 14_400,
+    '6h': 21_600,
+    '8h': 28_800,
+    '12h': 43_200,
+    '1d': 86_400,
+    '2d': 172_800,
+    '3d': 259_200,
+    '5d': 432_000,
+    '1w': 604_800,
+    '1M': 2_592_000,
+    '3M': 7_776_000,
+  };
+  const intervalSeconds = timeframeSeconds[timeframe];
+  const now = Math.floor((Date.now() / 1000) / intervalSeconds) * intervalSeconds;
   
   for (let i = 0; i < numCandles; i++) {
     const r1 = getSeededRandom(hash + i * 4);
@@ -42,7 +66,7 @@ export const generateMockChartData = (
     const low = minBody - (r3 * volatility);
     
     // time should be in seconds (Unix timestamp)
-    const time = (now - (i * 60)) as Time;
+    const time = (now - (i * intervalSeconds)) as Time;
     
     // unshift means the array will be sorted from oldest to newest (index 0 is oldest)
     rawCandles.unshift({ 

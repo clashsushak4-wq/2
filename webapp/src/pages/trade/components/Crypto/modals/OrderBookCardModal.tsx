@@ -11,6 +11,8 @@ export const OrderBookCardModal = () => {
   const isOpen = useCryptoStore(state => state.isOrderBookCardOpen);
   const onClose = () => useCryptoStore.getState().setOrderBookCardOpen(false);
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
+  const setPrice = useCryptoStore(state => state.setPrice);
+  const setOrderType = useCryptoStore(state => state.setOrderType);
   
   const instrument = useInstrument(selectedSymbol);
   const { asks: rawAsks, bids: rawBids } = useOrderBookData();
@@ -20,7 +22,10 @@ export const OrderBookCardModal = () => {
   const priceColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
   // Buy/Sell Ratio
-  const buyPercent = Math.round(Math.min(70, Math.max(30, 50 + instrument.changePercent * 1.5)));
+  const bidVolume = rawBids.reduce((total, row) => total + row.rawAmount, 0);
+  const askVolume = rawAsks.reduce((total, row) => total + row.rawAmount, 0);
+  const displayedVolume = bidVolume + askVolume;
+  const buyPercent = displayedVolume > 0 ? Math.round((bidVolume / displayedVolume) * 100) : 50;
   const sellPercent = 100 - buyPercent;
 
   const ROW_COUNT = 30;
@@ -111,28 +116,46 @@ export const OrderBookCardModal = () => {
           {/* Bids Column */}
           <div className="flex-1 flex flex-col pr-1">
             {visibleBids.map((bid, i) => (
-              <div key={i} className="relative flex min-h-[22px] items-center justify-between">
+              <button
+                type="button"
+                key={i}
+                className="relative flex min-h-[22px] items-center justify-between"
+                onClick={() => {
+                  setOrderType('limit');
+                  setPrice(bid.price.replace(/,/g, ''));
+                  onClose();
+                }}
+              >
                 <div 
                   className="absolute right-0 top-0 bottom-0 bg-bitget-green/15"
                   style={{ width: bid.width }}
                 />
                 <span className="text-zinc-300 z-10 pl-1">{bid.amount}</span>
                 <span className="text-bitget-green z-10 pr-1">{bid.price}</span>
-              </div>
+              </button>
             ))}
           </div>
           
           {/* Asks Column */}
           <div className="flex-1 flex flex-col pl-1">
             {visibleAsks.map((ask, i) => (
-              <div key={i} className="relative flex min-h-[22px] items-center justify-between">
+              <button
+                type="button"
+                key={i}
+                className="relative flex min-h-[22px] items-center justify-between"
+                onClick={() => {
+                  setOrderType('limit');
+                  setPrice(ask.price.replace(/,/g, ''));
+                  onClose();
+                }}
+              >
                 <div 
                   className="absolute left-0 top-0 bottom-0 bg-bitget-red/15"
                   style={{ width: ask.width }}
                 />
                 <span className="text-bitget-red z-10 pl-1">{ask.price}</span>
                 <span className="text-zinc-300 z-10 pr-1">{ask.amount}</span>
-              </div>
+              </button>
             ))}
           </div>
         </div>

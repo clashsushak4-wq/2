@@ -10,7 +10,7 @@
 - общие конфигурацию, локализацию, модели, репозитории и lifecycle;
 - PostgreSQL, Redis и Docker/Caddy-инфраструктуру.
 
-В текущих границах реальные биржевые ордера не исполняются: `POST /api/trade/order` возвращает результат симулированной paper-trade операции. TON-кошелёк работает на клиенте и напрямую взаимодействует с TON/TonAPI. Исходники административного SPA в текущем рабочем дереве отсутствуют, хотя backend, Docker и CI ожидают каталог `admin/`.
+В текущих границах реальные биржевые ордера не исполняются. Backend `POST /api/trade/order` возвращает отдельный симулированный ответ, но WebApp его не вызывает: криптотерминал содержит собственный клиентский paper-trading engine, хранит демо-счёт в `localStorage` и получает цены только из детерминированного mock stream. TON-кошелёк также работает на клиенте и напрямую взаимодействует с TON/TonAPI. Исходники административного SPA в текущем рабочем дереве отсутствуют, хотя backend, Docker и CI ожидают каталог `admin/`.
 
 ## Стек и ключевые зависимости
 
@@ -28,7 +28,7 @@
 ### WebApp
 
 - React 18.3, TypeScript, Vite 5, Tailwind CSS и Framer Motion.
-- Zustand — состояние приложения, i18n, торгового интерфейса и кошелька.
+- Zustand — состояние приложения, i18n, кошелька, торгового UI и отдельного paper-trading account/store.
 - Axios — клиент `/api`; Telegram Mini App SDK используется через `window.Telegram.WebApp`.
 - `@ton/core`, `@ton/crypto`, `@ton/ton` — локальный TON wallet flow и транзакции.
 - `lightweight-charts` — canvas-график локально сгенерированных свечей/area series; `react-qr-code` — адреса получения средств.
@@ -53,12 +53,14 @@
 | `shared/locales/` | JSON-переводы Telegram-бота для `ru`, `en`, `ua`, `tr`. |
 | `webapp/src/main.tsx`, `App.tsx` | Bootstrap React/ErrorBoundary, проверка Telegram host, верхнеуровневая навигация и полноэкранные feature overlays. |
 | `webapp/src/pages/` | Feature-модули Mini App: `home`, `wallet`, `trade`, `support`, `profile`. |
-| `webapp/src/pages/trade/components/Crypto/` | Локальное состояние и UI фьючерсного терминала: order form, синтетический стакан, селектор инструментов, модальные настройки и график. |
+| `webapp/src/pages/trade/components/Crypto/` | Клиентский фьючерсный демо-терминал: UI/draft store, чистый доменный слой расчётов и валидации, paper-trading engine/store, mock market stream, `localStorage` persistence, заявки, позиции, история и график. |
+| `webapp/src/pages/trade/components/Crypto/domain/` | Типы и чистые функции для размера/маржи/комиссий/PnL/ликвидации, валидации заявок, частичного закрытия и преобразования TP/SL. |
+| `webapp/src/pages/trade/components/Crypto/engine/` | Детерминированный генератор тиков и переходы paper-trading snapshot: fills, netting/reversal, reduce-only reconciliation, ledger и account aggregation. |
 | `webapp/src/api/`, `hooks/` | Axios-контракт backend API, Telegram bridge, news cache, BackButton stack и пока не подключённые Binance WebSocket hooks. |
 | `webapp/src/store/`, `i18n/` | Глобальное Zustand-состояние app/wallet/language и переводы WebApp для `ru`, `en`, `ua`. |
 | `webapp/src/shared/`, `utils/` | Layout/UI/animation primitives, pull-to-refresh, haptics, client-side cryptography и прямые TonAPI/TON операции. |
 | `tests/` | Pytest unit/integration/import/API-contract/migration tests; БД-тесты используют SQLite. |
-| `webapp/tests/` | Node test runner: crypto store, pull-to-refresh motion и согласованность переводов. |
+| `webapp/tests/` | Node test runner: trade UI store, paper-trading store/engine, доменные расчёты, mock chart/random, pull-to-refresh и согласованность переводов. |
 | `docker/` | Compose, Dockerfiles и Caddy reverse proxy. |
 | `.github/workflows/` | Production build/deploy workflow. |
 | `scripts/` | Операционные и диагностические утилиты; не являются runtime-слоем приложения. |
@@ -121,7 +123,9 @@ Root router подключает `common`, `profile`, `info`, `trading`, `educat
 | `useAppStore` | Telegram user/profile nickname, UI-fullscreen flag, home tiles cache и текущий trade overlay; память процесса вкладки. |
 | `useI18nStore` | Язык `ru`/`en`/`ua`; сохраняется в `localStorage` под `app_language`, при первом запуске выводится из языка Telegram. |
 | `useWalletStore` | Wallet address и только зашифрованный mnemonic; Zustand persist пишет в Telegram CloudStorage с зеркалом/fallback в `localStorage`. Балансы и цена остаются runtime state. |
-| `useCryptoStore` | Symbol/favorites, order-side/type/price/unit/amount, leverage/margin/TP-SL, активный bottom tab и состояние модалок/графика; не персистится. |
+| `useCryptoStore` | Draft/UI терминала: instrument map и mock tick counter, symbol/favorites, open/close intent, type/price/unit/amount, leverage/margin/TP-SL, tabs, overlays и toast. |
+| `usePaperTradingStore` | Демо-счёт с начальным балансом 5300: orders, fills, one-way positions, ledger, realized PnL и paid fees; выполняет place/cancel/close/TP-SL/tick/reset actions. |
+| `useDemoPersistence` | При входе восстанавливает часть UI и весь paper snapshot из `localStorage` `crypto_terminal_demo_v1`; изменения обоих trade stores сохраняются с debounce 150 мс. |
 | Локальный React state | Верхнеуровневая вкладка, открытые feature-модалки, wallet state machine, news selection/filter и chart timeframe/type. |
 | Module cache | `useNews` держит crypto/forex новости 5 минут; pull-to-refresh инвалидирует выбранную категорию. |
 
@@ -145,8 +149,10 @@ Backend предоставляет `/api/charts/crypto/symbols`, `/api/charts/cr
 - **Profile:** показывает локальные settings/about/notifications screens. Язык и UI-layout меняются локально; Telegram/document fullscreen управляется отдельным SDK/browser API потоком. Security/referrals в WebApp пока отображают уведомление о разработке.
 - **Wallet:** state machine ведёт пользователя через создание/импорт 24-word mnemonic, backup, установку/проверку PIN, dashboard, receive/send/settings/token details. Mnemonic шифруется в браузере PBKDF2-SHA-512 (1 000 000 iterations, random salt) + AES-256-GCM; поддерживается расшифровка legacy V1. При отправке seed временно расшифровывается, TON Wallet V4R2 подписывает external message, а BOC уходит в TonAPI. Backend seed не получает.
 - **Trade hub:** открывает crypto terminal, screener или diary overlay. Screener и diary сейчас являются presentation placeholders.
-- **Crypto terminal:** `useCryptoStore` связывает order form, margin/leverage/unit/TP-SL modals, symbol/favorites selector, terminal header, synthetic order book и lower tabs. Инструменты и 24h-показатели берутся из `mockInstruments.ts`; стакан детерминированно генерируется на клиенте. Action buttons выполняют только haptic feedback, позиции/ордера/history не загружаются и не сохраняются.
-- **Chart:** отдельный overlay использует `lightweight-charts`, переключает candlestick/area series и timeframe UI. `chartGenerator.ts` создаёт 200 детерминированных mock candles вокруг цены выбранного инструмента; timeframe пока влияет на пересоздание данных, но не запрашивает backend и не меняет шаг генерации.
+- **Crypto terminal:** `useCryptoStore` связывает order form, open/close intent, margin/leverage/unit/TP-SL modals, symbol/favorites selector, header, synthetic order book и нижние tabs. `domain/` считает quantity/notional/margin/fee/PnL/liquidation и валидирует instrument/step/minimum/balance/price band/reduce-only limits. `usePaperTradingStore` выполняет market и limit orders, резервирует margin, создаёт fills, сводит противоположные заявки в one-way position, поддерживает reversal, cancel/cancel-all, частичное и полное закрытие, редактирование TP/SL, realized/unrealized PnL, fees и ledger. Orders, positions и history tabs читают это состояние напрямую.
+- **Mock execution loop:** `useMockDataEngine` раз в секунду вызывает детерминированный `useCryptoStore.tick()`, строит prices/specs и передаёт их в `processMarketTick`. Тик обновляет mark/PnL, исполняет пересечённые limit orders и закрывает позиции при TP, SL или расчётной ликвидации. Close/reduce-only заявки не могут открыть обратную позицию; устаревшие close orders автоматически согласуются с оставшимся объёмом.
+- **Trade persistence:** `useDemoPersistence` восстанавливает favorites/leverage/margin/unit и paper account из versioned `localStorage`; некорректный snapshot игнорируется. Это локальная демо-персистентность вкладки, не синхронизация с backend или биржей.
+- **Chart:** отдельный overlay использует `lightweight-charts`, переключает candlestick/area series и timeframe UI. `chartGenerator.ts` создаёт 200 детерминированных mock candles вокруг текущей mock-цены; выбранный timeframe задаёт Unix-шаг от `1s` до `3M`, но данные не запрашиваются у backend.
 
 #### Сборка и проверки WebApp
 
@@ -172,7 +178,7 @@ Vite публикует приложение с `base: /webapp/`; dev server п�
 ### Состояние
 
 - Redis хранит aiogram FSM, distributed throttling, 24-hour language cache и временные login counters. При недоступности Redis бот использует in-memory FSM, но распределённость состояния теряется.
-- Zustand разделён на app, i18n, wallet и crypto stores; персистятся только язык и wallet metadata/ciphertext.
+- Zustand разделён на app, i18n, wallet, crypto UI/draft и paper-trading stores. Язык и wallet metadata/ciphertext используют свои persist-механизмы; trade UI subset и paper snapshot сохраняются вручную в versioned `localStorage`.
 - Backend news service и frontend `useNews` имеют независимые process/module-local TTL caches.
 - `uploads/` хранит медиа на локальной файловой системе; `bot_media.tg_file_id` уменьшает повторные Telegram uploads.
 
@@ -236,12 +242,13 @@ npm run build
 - API и React связаны contract test-ом, который сопоставляет frontend calls и backend routes.
 - Внешние network integrations должны рассматриваться как отказоустойчивые границы; news и market-data routes преобразуют ошибки провайдеров в контролируемые ответы/fallbacks.
 - Uploaded files и frontend dist — runtime/build artifacts, не источник истины.
-- Реальная торговля и серверное хранение wallet seed в текущую архитектуру не входят. Backend order endpoint симулирует paper trade, а текущий frontend terminal не вызывает даже этот endpoint.
-- Торговый UI сейчас отделён от market-data backend: mock instruments/order book/chart являются presentation state, а не данными биржи.
+- Реальная торговля и серверное хранение wallet seed в текущую архитектуру не входят. Backend order endpoint и клиентский paper engine — два независимых симулятора; текущий frontend terminal не вызывает `/api/trade/order`.
+- Торговый UI отделён от market-data backend: instruments, ticker, order book, trades и chart генерируются локально. Paper orders и positions функциональны только внутри локального демо-счёта и не являются данными биржи.
+- Paper engine использует one-way position на symbol; противоположный open order сначала уменьшает текущую позицию и может развернуть остаток. Close intent/reduce-only ограничен незарезервированным объёмом позиции.
 
 ## Компактная схема ключевых узлов
 
-Зафиксировано 22 архитектурных узла:
+Зафиксировано 26 архитектурных узлов:
 
 ```text
 [1 Telegram users]
@@ -255,15 +262,20 @@ npm run build
                               └─> [14 Feature pages/overlays]
                                       ├─> [15 App/i18n state]
                                       ├─> [16 API client + caches] ── tma HTTP ─> [4 FastAPI app]
-                                      ├─> [17 Mock trade terminal state/UI]
-                                      └─> [18 Wallet state + client cryptography] ─> [20 TonAPI/TON]
+                                      ├─> [17 Trade UI/draft store]
+                                      │       ├─> [18 Domain calculations/validation]
+                                      │       ├─ actions ─> [19 Paper engine/store]
+                                      │       │                 └─ snapshot ─> [20 Demo localStorage]
+                                      │       └─ ticks ─> [21 Mock market/chart data]
+                                      │                         └─ prices/specs ─> [19 Paper engine/store]
+                                      └─> [22 Wallet state + client cryptography] ─> [23 TonAPI/TON]
 
 [4 FastAPI app]
    ├─> [5 API route modules] ─> [8 Data access layer]
    ├─ Telegram lifecycle ─> [6 Webhook bridge] ─> [3 Middleware + handler graph]
-   ├─ news/market requests ─> [19 Market/news providers]
-   ├─ static/media ─> [21 Uploads + built SPA]
-   └─ served via ─> [22 Docker/Caddy/CI deployment]
+   ├─ news/market requests ─> [24 Market/news providers]
+   ├─ static/media ─> [25 Uploads + built SPA]
+   └─ served via ─> [26 Docker/Caddy/CI deployment]
 ```
 
 ## Неизвестные или намеренно не исследованные области
@@ -273,3 +285,4 @@ npm run build
 - Вспомогательные `scripts/` не анализировались как runtime-код.
 - Каждый handler, React component, migration и тест не читался: карта отражает архитектурный каркас, а не code review.
 - Фактическая production topology Oracle Cloud, backup/restore, observability и доступность сторонних API не проверялись.
+- Раздел paper trading отражает текущие незакоммиченные изменения рабочего дерева поверх commit `5059b2d`; их production deployment не проверялся.

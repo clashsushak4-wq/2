@@ -13,9 +13,31 @@ export interface MockInstrument {
   isNew: boolean;
   isFavoriteByDefault: boolean;
   tagKey?: string;
+  tickSize: number;
+  quantityStep: number;
+  minQuantity: number;
+  minNotional: number;
+  maxLeverage: number;
+  maintenanceMarginRate: number;
+  makerFeeRate: number;
+  takerFeeRate: number;
+  priceBandPercent: number;
 }
 
-export const MOCK_INSTRUMENTS: MockInstrument[] = [
+type InstrumentSeed = Omit<
+  MockInstrument,
+  | 'tickSize'
+  | 'quantityStep'
+  | 'minQuantity'
+  | 'minNotional'
+  | 'maxLeverage'
+  | 'maintenanceMarginRate'
+  | 'makerFeeRate'
+  | 'takerFeeRate'
+  | 'priceBandPercent'
+>;
+
+const INSTRUMENT_SEEDS: InstrumentSeed[] = [
   {
     symbol: 'BTCUSDT',
     baseAsset: 'BTC',
@@ -172,6 +194,29 @@ export const MOCK_INSTRUMENTS: MockInstrument[] = [
   },
 ];
 
+const getQuantityStep = (price: number): number => {
+  if (price >= 10_000) return 0.001;
+  if (price >= 1_000) return 0.01;
+  if (price >= 10) return 0.1;
+  return 1;
+};
+
+export const MOCK_INSTRUMENTS: MockInstrument[] = INSTRUMENT_SEEDS.map((instrument) => {
+  const quantityStep = getQuantityStep(instrument.price);
+  return {
+    ...instrument,
+    tickSize: 10 ** -instrument.priceDecimals,
+    quantityStep,
+    minQuantity: quantityStep,
+    minNotional: 5,
+    maxLeverage: instrument.symbol === 'BTCUSDT' ? 125 : 100,
+    maintenanceMarginRate: 0.005,
+    makerFeeRate: 0.0002,
+    takerFeeRate: 0.0004,
+    priceBandPercent: 0.1,
+  };
+});
+
 export const DEFAULT_INSTRUMENT = MOCK_INSTRUMENTS[0];
 
 export const DEFAULT_FAVORITE_SYMBOLS = MOCK_INSTRUMENTS
@@ -205,3 +250,20 @@ export const formatApproximateFiat = (instrument: MockInstrument): string => {
     maximumFractionDigits: 2,
   })}`;
 };
+
+export const toInstrumentSpec = (instrument: MockInstrument): InstrumentSpec => ({
+  symbol: instrument.symbol,
+  baseAsset: instrument.baseAsset,
+  quoteAsset: instrument.quoteAsset,
+  marginAsset: instrument.quoteAsset,
+  tickSize: instrument.tickSize,
+  quantityStep: instrument.quantityStep,
+  minQuantity: instrument.minQuantity,
+  minNotional: instrument.minNotional,
+  maxLeverage: instrument.maxLeverage,
+  maintenanceMarginRate: instrument.maintenanceMarginRate,
+  makerFeeRate: instrument.makerFeeRate,
+  takerFeeRate: instrument.takerFeeRate,
+  priceBandPercent: instrument.priceBandPercent,
+});
+import type { InstrumentSpec } from '../domain/types';

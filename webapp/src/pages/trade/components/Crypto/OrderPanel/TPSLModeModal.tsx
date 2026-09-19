@@ -1,8 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { slideUp } from '../../../../../shared/animations';
 import { haptic } from '../../../../../utils';
+import { useTranslation } from '../../../../../i18n';
+import type { TPSLMode } from '../domain/types';
 
-export type TPSLMode = 'price' | 'roi' | 'change' | 'pnl';
+export type { TPSLMode } from '../domain/types';
 
 interface TPSLModeModalProps {
   isOpen: boolean;
@@ -12,30 +14,15 @@ interface TPSLModeModalProps {
   type: 'tp' | 'sl';
 }
 
-const MODES = [
-  { 
-    id: 'price', 
-    title: 'Цена (USDT)', 
-    description: 'Установите цены срабатывания TP/SL на цену монеты.' 
-  },
-  { 
-    id: 'roi', 
-    title: 'ROI (%)', 
-    description: 'Установите цены срабатывания TP/SL на основе предполагаемого ROI.' 
-  },
-  { 
-    id: 'change', 
-    title: 'Изменение (%)', 
-    description: 'Установите цены срабатывания TP/SL на основе процентного изменения цены ордера.' 
-  },
-  { 
-    id: 'pnl', 
-    title: 'PnL (USDT)', 
-    description: 'Установите цены срабатывания TP/SL на основе расчетного PnL.' 
-  }
+const MODES: { id: TPSLMode; titleKey: string; descriptionKey: string }[] = [
+  { id: 'price', titleKey: 'trade.tpslModePrice', descriptionKey: 'trade.tpslModePriceDescription' },
+  { id: 'roi', titleKey: 'trade.tpslModeRoi', descriptionKey: 'trade.tpslModeRoiDescription' },
+  { id: 'change', titleKey: 'trade.tpslModeChange', descriptionKey: 'trade.tpslModeChangeDescription' },
+  { id: 'pnl', titleKey: 'trade.tpslModePnl', descriptionKey: 'trade.tpslModePnlDescription' },
 ] as const;
 
-export const TPSLModeModal = ({ isOpen, onClose, selectedMode, onSelectMode }: TPSLModeModalProps) => {
+export const TPSLModeModal = ({ isOpen, onClose, selectedMode, onSelectMode, type }: TPSLModeModalProps) => {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {isOpen && (
@@ -60,7 +47,9 @@ export const TPSLModeModal = ({ isOpen, onClose, selectedMode, onSelectMode }: T
             </div>
             
             <div className="px-4 pb-6">
-              <h2 className="text-[17px] font-bold text-white mb-4">Настройки TP/SL</h2>
+              <h2 className="text-[17px] font-bold text-white mb-4">
+                {t('trade.tpslSettings')} · {type.toUpperCase()}
+              </h2>
               
               <div className="flex flex-col gap-3">
                 {MODES.map((mode) => {
@@ -68,9 +57,10 @@ export const TPSLModeModal = ({ isOpen, onClose, selectedMode, onSelectMode }: T
                   return (
                     <button
                       key={mode.id}
+                      type="button"
                       onClick={() => {
                         haptic.light();
-                        onSelectMode(mode.id as TPSLMode);
+                        onSelectMode(mode.id);
                         onClose();
                       }}
                       className={`text-left p-4 rounded-xl border transition-colors active:scale-[0.98] ${
@@ -80,10 +70,10 @@ export const TPSLModeModal = ({ isOpen, onClose, selectedMode, onSelectMode }: T
                       }`}
                     >
                       <div className={`font-semibold text-[15px] mb-1 ${isActive ? 'text-white' : 'text-zinc-200'}`}>
-                        {mode.title}
+                        {t(mode.titleKey)}
                       </div>
                       <div className="text-zinc-400 text-[13px] leading-[1.3]">
-                        {mode.description}
+                        {t(mode.descriptionKey)}
                       </div>
                     </button>
                   );

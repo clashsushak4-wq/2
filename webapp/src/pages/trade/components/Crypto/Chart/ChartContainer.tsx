@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useInstrument, useCryptoStore } from '../store/useCryptoStore';
-import { Timeframe, ChartType } from './types';
+import type { Timeframe, ChartType } from './types';
 import { generateMockChartData } from './data/chartGenerator';
 import { Toolbar } from './components/ChartToolbar/Toolbar';
 import { TimeframeModal } from './components/ChartToolbar/TimeframeModal';
@@ -16,7 +16,7 @@ export const ChartContainer = () => {
 
   // Generate historical data only once per symbol/timeframe
   const chartData = useMemo(() => {
-    return generateMockChartData(instrument.symbol, instrument.price, instrument.changePercent, 200);
+    return generateMockChartData(instrument.symbol, instrument.price, instrument.changePercent, selectedTimeframe, 200);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instrument.symbol, selectedTimeframe]);
 

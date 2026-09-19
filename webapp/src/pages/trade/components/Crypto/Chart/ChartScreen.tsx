@@ -12,6 +12,7 @@ import {
   formatSignedPercent,
 } from '../data/mockInstruments.ts';
 import { useInstrument, useCryptoStore } from '../store/useCryptoStore';
+import { runMockDataTick } from '../hooks/useMockDataEngine';
 import { ChartContainer } from './ChartContainer';
 
 export const ChartScreen = () => {
@@ -25,8 +26,9 @@ export const ChartScreen = () => {
   const changeColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
   const onClose = () => setChartOpen(false);
   const refreshChart = useCallback(async () => {
+    runMockDataTick();
     setRefreshSequence(sequence => sequence + 1);
-    await new Promise<void>(resolve => window.setTimeout(resolve, 650));
+    await new Promise<void>(resolve => window.setTimeout(resolve, 350));
   }, []);
 
   // Bind to Telegram Native BackButton
@@ -58,9 +60,9 @@ export const ChartScreen = () => {
                 </button>
                 <button
                   type="button"
+                  disabled
                   aria-label={t('trade.chartSettings')}
-                  className="p-1 cursor-pointer transition-opacity active:opacity-70"
-                  onClick={() => haptic.light()}
+                  className="p-1 opacity-40"
                 >
                   <Settings size={18} className="text-zinc-300" />
                 </button>

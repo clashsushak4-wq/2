@@ -1,48 +1,95 @@
-import { useCryptoStore } from '../store/useCryptoStore';
-import { useInstrument } from '../store/useCryptoStore';
+import { toInstrumentSpec } from '../data/mockInstruments';
+import {
+  calculateLiquidationPrice,
+  calculateOrderEstimate,
+} from '../domain/orderCalculations';
+import { validateOrder } from '../domain/orderValidation';
+import { calculateAvailableCloseQuantity } from '../engine/paperTradingEngine';
+import { useCryptoStore, useInstrument } from '../store/useCryptoStore';
+import { calculatePaperAccount, usePaperTradingStore } from '../store/usePaperTradingStore';
 
 export const useOrderCalculations = () => {
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
-  const availableBalance = useCryptoStore(state => state.availableBalance);
   const leverage = useCryptoStore(state => state.leverage);
+  const orderType = useCryptoStore(state => state.orderType);
   const price = useCryptoStore(state => state.price);
-  const amountPercent = useCryptoStore(state => state.amountPercent);
+  const unit = useCryptoStore(state => state.unit);
+  const amountValue = useCryptoStore(state => state.amountValue);
+  const orderIntent = useCryptoStore(state => state.orderIntent);
+
+  const walletBalance = usePaperTradingStore(state => state.walletBalance);
+  const realizedPnl = usePaperTradingStore(state => state.realizedPnl);
+  const paidFees = usePaperTradingStore(state => state.paidFees);
+  const orders = usePaperTradingStore(state => state.orders);
+  const fills = usePaperTradingStore(state => state.fills);
+  const positions = usePaperTradingStore(state => state.positions);
+  const ledger = usePaperTradingStore(state => state.ledger);
 
   const instrument = useInstrument(selectedSymbol);
-  const parsedPrice = parseFloat(price) || instrument.price;
-
-  // Макс. для открытия = (Доступный баланс * Плечо) / Цена
-  const maxToOpen = (availableBalance * leverage) / parsedPrice;
-
-  // Объем базового актива
-  const baseAmount = maxToOpen * (amountPercent / 100);
-
-  // Требуемая маржа (Cost) = (Объем * Цена) / Плечо
-  // Это должно быть примерно равно: availableBalance * (amountPercent / 100)
-  const quoteCost = (baseAmount * parsedPrice) / leverage;
-
-  // Примерная комиссия (Maker/Taker усредненно 0.04% для мока) от НОМИНАЛЬНОГО объема (с учетом плеча)
-  const fee = baseAmount * parsedPrice * 0.0004;
-
-  // Ориентировочная цена ликвидации для лонга и шорта (Isolated Margin, simplified)
-  let liqPriceLong = 0;
-  let liqPriceShort = 0;
-  if (baseAmount > 0) {
-    liqPriceLong = parsedPrice * (1 - 1 / leverage);
-    liqPriceShort = parsedPrice * (1 + 1 / leverage);
-  }
-
-  // Валидация: объем не 0 и хватает средств на маржу + комиссию
-  const isValid = amountPercent > 0 && (quoteCost + fee) <= availableBalance && quoteCost > 0;
+  const spec = toInstrumentSpec(instrument);
+  const parsedLimitPrice = price.trim() === '' ? Number.NaN : Number(price);
+  const parsedPrice = orderType === 'market' ? instrument.price : parsedLimitPrice;
+  const parsedAmount = amountValue.trim() === '' ? 0 : Number(amountValue);
+  const account = calculatePaperAccount({
+    walletBalance,
+    realizedPnl,
+    paidFees,
+    orders,
+    fills,
+    positions,
+    ledger,
+  });
+  const position = positions.find((item) => item.symbol === selectedSymbol) ?? null;
+  const maxCloseQuantity = position
+    ? calculateAvailableCloseQuantity(
+      positions,
+      orders,
+      selectedSymbol,
+      position.direction,
+    )
+    : 0;
+  const estimate = calculateOrderEstimate({
+    intent: orderIntent,
+    unit,
+    inputValue: Number.isFinite(parsedAmount) ? parsedAmount : 0,
+    price: parsedPrice,
+    leverage,
+    availableBalance: account.availableBalance,
+    orderType,
+    maxCloseQuantity,
+    spec,
+  });
+  const validationErrors = validateOrder({
+    intent: orderIntent,
+    orderType,
+    price: parsedPrice,
+    marketPrice: instrument.price,
+    quantity: estimate.quantity,
+    notional: estimate.notional,
+    totalRequired: estimate.totalRequired,
+    availableBalance: account.availableBalance,
+    leverage,
+    hasClosePosition: position !== null,
+    maxCloseQuantity,
+    spec,
+  });
 
   return {
-    maxToOpen,
-    baseAmount,
-    quoteCost,
-    fee,
+    ...estimate,
+    spec,
+    account,
+    position,
+    availableBalance: account.availableBalance,
+    maxToOpen: estimate.maxQuantity,
+    maxToClose: maxCloseQuantity,
+    maxToCloseLong: position?.direction === 'long' ? maxCloseQuantity : 0,
+    maxToCloseShort: position?.direction === 'short' ? maxCloseQuantity : 0,
+    baseAmount: estimate.quantity,
+    quoteCost: estimate.requiredMargin,
     parsedPrice,
-    liqPriceLong,
-    liqPriceShort,
-    isValid,
+    liqPriceLong: calculateLiquidationPrice('long', parsedPrice, leverage, spec.maintenanceMarginRate),
+    liqPriceShort: calculateLiquidationPrice('short', parsedPrice, leverage, spec.maintenanceMarginRate),
+    validationErrors,
+    isValid: validationErrors.length === 0,
   };
 };
