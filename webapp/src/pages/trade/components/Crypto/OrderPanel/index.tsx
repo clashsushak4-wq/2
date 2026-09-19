@@ -4,6 +4,7 @@ import { OrderTypeSelect } from './OrderTypeSelect';
 import { PriceInput } from './PriceInput';
 import { AmountSlider } from './AmountSlider';
 import { TPSLSettings } from './TPSLSettings';
+import { BalanceInfo } from './BalanceInfo';
 import { ActionButtons } from './ActionButtons';
 
 export const OrderPanel = () => {
@@ -15,6 +16,7 @@ export const OrderPanel = () => {
       <PriceInput />
       <AmountSlider />
       <TPSLSettings />
+      <BalanceInfo />
       <ActionButtons />
     </div>
   );

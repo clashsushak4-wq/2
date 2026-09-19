@@ -30,7 +30,7 @@ export const AmountSlider = () => {
   return (
     <>
       {/* Amount Input */}
-      <div className={`bg-zinc-900 rounded px-2 py-2.5 flex items-center justify-between ${amountPercent > 0 ? 'mb-1' : 'mb-2'}`}>
+      <div className="mb-1 flex items-center justify-between rounded bg-zinc-900 px-2 py-1.5">
         <div className="flex items-center gap-2">
           <span className="text-sm text-zinc-500 font-medium">{unitInfo.left}</span>
           {amountPercent > 0 && <span className="text-sm text-zinc-100 font-bold ml-1">{amountPercent}%</span>}
@@ -48,7 +48,7 @@ export const AmountSlider = () => {
       </div>
 
       {amountPercent > 0 && (
-        <div className="text-[10px] text-zinc-500 mb-2 h-[26px] flex items-center font-mono">
+        <div className="mb-1 flex h-5 items-center font-mono text-[10px] text-zinc-500">
           ≈ <span className="text-zinc-300 ml-1">{quoteValue.toFixed(2)} {instrument.quoteAsset}</span>
           <span className="text-zinc-600 mx-1">/</span>
           <span className="text-zinc-300">{baseAmount.toFixed(4)} {instrument.baseAsset}</span>
@@ -56,7 +56,7 @@ export const AmountSlider = () => {
       )}
 
       {/* Slider */}
-      <div className="px-1 mb-2 relative flex items-center h-4 group">
+      <div className="relative mb-1 flex h-4 items-center px-1 group">
         <input
           type="range"
           min="0"

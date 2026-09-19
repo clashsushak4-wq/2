@@ -14,7 +14,7 @@ export const OrderTypeSelect = () => {
       type="button"
       aria-haspopup="dialog"
       aria-expanded={isOpen}
-      className="flex items-center justify-between bg-zinc-900 rounded px-2 py-1.5 mb-2 cursor-pointer" 
+      className="mb-1 flex items-center justify-between rounded bg-zinc-900 px-2 py-1 cursor-pointer"
       onClick={() => { haptic.light(); setOrderTypeOpen(true); }}
     >
       <div className="flex items-center gap-1.5">

@@ -40,10 +40,14 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
           <div key={refreshSequence} className="contents">
             <TerminalHeader />
 
-            {/* Main Content (2 columns) */}
-            <div className="flex px-2 pt-2">
-              <OrderPanel />
-              <OrderBook />
+            {/* The order form defines the shared terminal height. */}
+            <div className="relative mx-2 mt-1">
+              <div className="w-[58.333%] min-w-0">
+                <OrderPanel />
+              </div>
+              <div className="absolute inset-y-0 right-0 w-[41.667%] min-h-0 overflow-hidden">
+                <OrderBook />
+              </div>
             </div>
 
             <BottomTabs />

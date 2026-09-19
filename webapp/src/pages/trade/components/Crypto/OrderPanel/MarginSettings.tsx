@@ -10,11 +10,11 @@ export const MarginSettings = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center gap-1 mb-2">
+    <div className="mb-1 flex items-center gap-1">
       <button 
         type="button" 
         aria-haspopup="dialog"
-        className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1.5 rounded truncate flex-1 flex items-center justify-center cursor-pointer" 
+        className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded truncate flex-1 flex items-center justify-center cursor-pointer"
         onClick={() => { haptic.light(); setMarginModeOpen(true); }}
       >
         {t(marginMode === 'cross' ? 'trade.cross' : 'trade.isolated')}
@@ -22,7 +22,7 @@ export const MarginSettings = () => {
       <button 
         type="button" 
         aria-haspopup="dialog" 
-        className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1.5 rounded truncate flex-1 flex items-center justify-center cursor-pointer" 
+        className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded truncate flex-1 flex items-center justify-center cursor-pointer"
         onClick={() => { haptic.light(); setLeverageOpen(true); }}
       >
         {leverage}x

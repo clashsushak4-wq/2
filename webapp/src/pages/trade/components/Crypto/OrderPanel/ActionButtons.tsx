@@ -10,11 +10,11 @@ export const ActionButtons = () => {
   const instrument = getMockInstrument(selectedSymbol);
 
   return (
-    <div className="flex flex-col gap-2 mt-2">
+    <div className="mt-1 flex flex-col gap-1">
       <button
         type="button"
         onClick={() => haptic.medium()}
-        className="w-full py-2.5 bg-bitget-green text-white rounded-lg flex flex-col items-center justify-center transition-transform active:scale-95"
+        className="flex min-h-11 w-full flex-col items-center justify-center rounded-xl bg-bitget-green px-2 py-1.5 text-white transition-transform active:scale-95"
       >
         <span className="font-bold text-base leading-tight">{t(side === 'buy' ? 'trade.openLong' : 'trade.closeLong')}</span>
         <span className="text-[10px] text-white/70 font-medium -mt-0.5">0.00 {instrument.quoteAsset}</span>
@@ -23,7 +23,7 @@ export const ActionButtons = () => {
       <button
         type="button"
         onClick={() => haptic.medium()}
-        className="w-full py-2.5 bg-bitget-red text-white rounded-lg flex flex-col items-center justify-center transition-transform active:scale-95"
+        className="flex min-h-11 w-full flex-col items-center justify-center rounded-xl bg-bitget-red px-2 py-1.5 text-white transition-transform active:scale-95"
       >
         <span className="font-bold text-base leading-tight">{t(side === 'buy' ? 'trade.openShort' : 'trade.closeShort')}</span>
         <span className="text-[10px] text-white/70 font-medium -mt-0.5">0.00 {instrument.quoteAsset}</span>
