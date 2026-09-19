@@ -39,6 +39,7 @@ export const OrderBookView = memo(() => {
   const setTickSize = useCryptoStore(state => state.setTickSize);
   const orderBookMode = useCryptoStore(state => state.orderBookMode);
   const cycleOrderBookMode = useCryptoStore(state => state.cycleOrderBookMode);
+  const setOrderBookCardOpen = useCryptoStore(state => state.setOrderBookCardOpen);
 
   const { instrument, asks: rawAsks, bids: rawBids, availablePrecisions, activeTickSize } = useOrderBookData();
 
@@ -132,12 +133,16 @@ export const OrderBookView = memo(() => {
       )}
 
       {/* Current Price */}
-      <div className="my-0.5 flex shrink-0 flex-col py-1">
+      <button 
+        type="button"
+        onClick={() => { haptic.medium(); setOrderBookCardOpen(true); }}
+        className="my-0.5 flex shrink-0 flex-col py-1 transition-transform active:scale-95 cursor-pointer text-left"
+      >
         <div className="flex items-center justify-between">
           <span className={`text-lg font-bold ${priceColor}`}>{formatInstrumentPrice(instrument)}</span>
           <span className="text-zinc-500 rotate-180">›</span>
         </div>
-      </div>
+      </button>
 
       {/* Bids Grid */}
       {(orderBookMode === 'split' || orderBookMode === 'bids') && (

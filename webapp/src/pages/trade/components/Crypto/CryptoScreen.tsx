@@ -4,12 +4,14 @@ import { useBackButton } from '../../../../hooks';
 import { slideFromRight } from '../../../../shared/animations';
 import { PullToRefresh } from '../../../../shared/ui';
 import { TerminalHeader } from './layout/TerminalHeader';
+import { ToastProvider } from './layout/ToastProvider';
 import { BottomTabs } from './BottomTabs';
 import { OrderPanel } from './OrderPanel/index';
 import { OrderBook } from './OrderBook/index';
 import { LeverageModal } from './modals/LeverageModal';
 import { MarginModeModal } from './modals/MarginModeModal';
 import { SymbolSelectModal } from './modals/SymbolSelectModal';
+import { OrderBookCardModal } from './modals/OrderBookCardModal';
 import { OrderTypeModal } from './modals/OrderTypeModal';
 import { UnitModal } from './modals/UnitModal';
 import { ChartScreen } from './Chart/ChartScreen';
@@ -40,6 +42,7 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
       >
         <PullToRefresh onRefresh={refreshTerminal}>
           <div key={refreshSequence} className="contents">
+            <ToastProvider />
             <TerminalHeader />
 
             {/* The order form defines the shared terminal height. */}
@@ -61,6 +64,7 @@ export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
         <LeverageModal />
         <MarginModeModal />
         <SymbolSelectModal />
+        <OrderBookCardModal />
         <OrderTypeModal />
         <UnitModal />
         <ChartScreen />

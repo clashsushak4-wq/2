@@ -32,6 +32,8 @@ interface CryptoState {
   orderBookMode: OrderBookMode;
   instruments: Record<string, MockInstrument>;
   tickCounter: number;
+  toastMessage: string | null;
+  toastType: 'success' | 'error' | null;
 
   isOrderTypeOpen: boolean;
   isLeverageOpen: boolean;
@@ -39,6 +41,7 @@ interface CryptoState {
   isMarginModeOpen: boolean;
   isSymbolSelectOpen: boolean;
   isChartOpen: boolean;
+  isOrderBookCardOpen: boolean;
   isTickSizeOpen: boolean;
 
   setAvailableBalance: (val: number) => void;
@@ -61,6 +64,7 @@ interface CryptoState {
   setMarginModeOpen: (isOpen: boolean) => void;
   setSymbolSelectOpen: (isOpen: boolean) => void;
   setChartOpen: (isOpen: boolean) => void;
+  setOrderBookCardOpen: (isOpen: boolean) => void;
   setTickSizeOpen: (isOpen: boolean) => void;
   setTickSize: (val: number | null) => void;
   setOrderBookMode: (mode: OrderBookMode) => void;
@@ -69,6 +73,8 @@ interface CryptoState {
   slMode: 'price' | 'roi' | 'change' | 'pnl';
   setTpMode: (mode: 'price' | 'roi' | 'change' | 'pnl') => void;
   setSlMode: (mode: 'price' | 'roi' | 'change' | 'pnl') => void;
+  showToast: (message: string, type?: 'success' | 'error') => void;
+  hideToast: () => void;
   tick: () => void;
 }
 
@@ -90,6 +96,8 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   orderBookMode: 'split',
   instruments: Object.fromEntries(MOCK_INSTRUMENTS.map((i) => [i.symbol, i])),
   tickCounter: 0,
+  toastMessage: null,
+  toastType: null,
   tpMode: 'price',
   slMode: 'price',
 
@@ -99,6 +107,7 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   isMarginModeOpen: false,
   isSymbolSelectOpen: false,
   isChartOpen: false,
+  isOrderBookCardOpen: false,
   isTickSizeOpen: false,
 
   setAvailableBalance: (val) => set({ availableBalance: val }),
@@ -135,6 +144,7 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   setMarginModeOpen: (isOpen) => set({ isMarginModeOpen: isOpen }),
   setSymbolSelectOpen: (isOpen) => set({ isSymbolSelectOpen: isOpen }),
   setChartOpen: (isOpen) => set({ isChartOpen: isOpen }),
+  setOrderBookCardOpen: (isOpen) => set({ isOrderBookCardOpen: isOpen }),
   setTickSizeOpen: (isOpen) => set({ isTickSizeOpen: isOpen }),
   setTickSize: (val) => set({ tickSize: val, isTickSizeOpen: false }),
   setOrderBookMode: (mode) => set({ orderBookMode: mode }),
@@ -145,6 +155,13 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   }),
   setTpMode: (mode) => set({ tpMode: mode }),
   setSlMode: (mode) => set({ slMode: mode }),
+  showToast: (message, type = 'success') => {
+    set({ toastMessage: message, toastType: type });
+    setTimeout(() => {
+      set({ toastMessage: null, toastType: null });
+    }, 3000);
+  },
+  hideToast: () => set({ toastMessage: null, toastType: null }),
   tick: () => set((state) => {
     const newInstruments = { ...state.instruments };
     let hasChanges = false;

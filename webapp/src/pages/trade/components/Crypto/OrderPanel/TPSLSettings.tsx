@@ -9,7 +9,6 @@ import { TPSLModeModal, TPSLMode } from './TPSLModeModal';
 export const TPSLSettings = () => {
   const isTPSL = useCryptoStore(state => state.isTPSL);
   const setIsTPSL = useCryptoStore.getState().setIsTPSL;
-  const side = useCryptoStore(state => state.side);
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   
   const tpMode = useCryptoStore(state => state.tpMode);
@@ -22,7 +21,6 @@ export const TPSLSettings = () => {
 
   const [modalType, setModalType] = useState<'tp' | 'sl' | null>(null);
 
-  if (side === 'sell') return null;
 
   const getModeLabel = (mode: string) => {
     switch (mode) {

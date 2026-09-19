@@ -21,8 +21,19 @@ export const useOrderCalculations = () => {
   // Это должно быть примерно равно: availableBalance * (amountPercent / 100)
   const quoteCost = (baseAmount * parsedPrice) / leverage;
 
-  // Примерная комиссия (Maker/Taker усредненно 0.04% для мока)
+  // Примерная комиссия (Maker/Taker усредненно 0.04% для мока) от НОМИНАЛЬНОГО объема (с учетом плеча)
   const fee = baseAmount * parsedPrice * 0.0004;
+
+  // Ориентировочная цена ликвидации для лонга и шорта (Isolated Margin, simplified)
+  let liqPriceLong = 0;
+  let liqPriceShort = 0;
+  if (baseAmount > 0) {
+    liqPriceLong = parsedPrice * (1 - 1 / leverage);
+    liqPriceShort = parsedPrice * (1 + 1 / leverage);
+  }
+
+  // Валидация: объем не 0 и хватает средств на маржу + комиссию
+  const isValid = amountPercent > 0 && (quoteCost + fee) <= availableBalance && quoteCost > 0;
 
   return {
     maxToOpen,
@@ -30,5 +41,8 @@ export const useOrderCalculations = () => {
     quoteCost,
     fee,
     parsedPrice,
+    liqPriceLong,
+    liqPriceShort,
+    isValid,
   };
 };
