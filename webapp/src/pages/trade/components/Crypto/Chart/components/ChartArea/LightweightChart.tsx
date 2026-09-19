@@ -5,9 +5,10 @@ import { ChartData } from '../../types';
 interface LightweightChartProps {
   data: ChartData;
   chartType: 'candles' | 'area';
+  livePrice?: number;
 }
 
-export const LightweightChart = ({ data, chartType }: LightweightChartProps) => {
+export const LightweightChart = ({ data, chartType, livePrice }: LightweightChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<any> | null>(null);
@@ -105,6 +106,28 @@ export const LightweightChart = ({ data, chartType }: LightweightChartProps) => 
     chartRef.current.timeScale().fitContent();
     
   }, [data, chartType]);
+
+  // Update last candle when livePrice changes
+  useEffect(() => {
+    if (!seriesRef.current || !livePrice) return;
+    
+    if (chartType === 'candles' && data.candles.length > 0) {
+      const last = data.candles[data.candles.length - 1];
+      seriesRef.current.update({
+        time: last.time,
+        open: last.open,
+        high: Math.max(last.high, livePrice),
+        low: Math.min(last.low, livePrice),
+        close: livePrice,
+      });
+    } else if (chartType === 'area' && data.area.length > 0) {
+      const last = data.area[data.area.length - 1];
+      seriesRef.current.update({
+        time: last.time,
+        value: livePrice,
+      });
+    }
+  }, [livePrice, chartType, data]);
 
   useEffect(() => {
     const handleResize = () => {

@@ -1,6 +1,6 @@
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
-import { getMockInstrument } from '../data/mockInstruments.ts';
+import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 export const PriceInput = () => {
@@ -9,7 +9,7 @@ export const PriceInput = () => {
   const setPrice = useCryptoStore(state => state.setPrice);
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const { t } = useTranslation();
-  const instrument = getMockInstrument(selectedSymbol);
+  const instrument = useInstrument(selectedSymbol);
 
   const handleIncrease = () => {
     const p = parseFloat(price);

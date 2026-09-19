@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
-import { getMockInstrument } from '../data/mockInstruments.ts';
+import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore } from '../store/useCryptoStore';
 import { TPSLModeModal, TPSLMode } from './TPSLModeModal';
 
@@ -18,7 +18,7 @@ export const TPSLSettings = () => {
   const setSlMode = useCryptoStore.getState().setSlMode;
   
   const { t } = useTranslation();
-  const instrument = getMockInstrument(selectedSymbol);
+  const instrument = useInstrument(selectedSymbol);
 
   const [modalType, setModalType] = useState<'tp' | 'sl' | null>(null);
 

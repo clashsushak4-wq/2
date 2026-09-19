@@ -2,7 +2,7 @@ import { BottomSheet } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
-import { getMockInstrument } from '../data/mockInstruments.ts';
+import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore, UnitType } from '../store/useCryptoStore';
 
 export const UnitModal = () => {
@@ -12,7 +12,7 @@ export const UnitModal = () => {
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const onChange = useCryptoStore.getState().setUnit;
   const { t } = useTranslation();
-  const instrument = getMockInstrument(selectedSymbol);
+  const instrument = useInstrument(selectedSymbol);
   const options: { id: UnitType; title: string; description: string }[] = [
     {
       id: 'qty_base',

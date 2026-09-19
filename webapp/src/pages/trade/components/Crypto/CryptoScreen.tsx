@@ -13,6 +13,7 @@ import { SymbolSelectModal } from './modals/SymbolSelectModal';
 import { OrderTypeModal } from './modals/OrderTypeModal';
 import { UnitModal } from './modals/UnitModal';
 import { ChartScreen } from './Chart/ChartScreen';
+import { useMockDataEngine } from './hooks/useMockDataEngine';
 
 interface CryptoScreenProps {
   onClose: () => void;
@@ -20,6 +21,7 @@ interface CryptoScreenProps {
 
 export const CryptoScreen = ({ onClose }: CryptoScreenProps) => {
   useBackButton(onClose);
+  useMockDataEngine();
   const [refreshSequence, setRefreshSequence] = useState(0);
 
   const refreshTerminal = useCallback(async () => {

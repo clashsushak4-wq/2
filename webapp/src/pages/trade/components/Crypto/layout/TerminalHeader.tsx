@@ -1,7 +1,8 @@
 import { ChevronDown, CandlestickChart, MoreHorizontal } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
-import { formatSignedPercent, getMockInstrument } from '../data/mockInstruments.ts';
+import { formatSignedPercent } from '../data/mockInstruments.ts';
+import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 export const TerminalHeader = () => {
@@ -9,7 +10,7 @@ export const TerminalHeader = () => {
   const setChartOpen = useCryptoStore(state => state.setChartOpen);
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const { t } = useTranslation();
-  const instrument = getMockInstrument(selectedSymbol);
+  const instrument = useInstrument(selectedSymbol);
   const changeColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
   return (

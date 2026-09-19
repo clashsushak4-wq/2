@@ -10,9 +10,8 @@ import {
   formatApproximateFiat,
   formatInstrumentPrice,
   formatSignedPercent,
-  getMockInstrument,
 } from '../data/mockInstruments.ts';
-import { useCryptoStore } from '../store/useCryptoStore';
+import { useInstrument, useCryptoStore } from '../store/useCryptoStore';
 import { ChartContainer } from './ChartContainer';
 
 export const ChartScreen = () => {
@@ -22,7 +21,7 @@ export const ChartScreen = () => {
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const [refreshSequence, setRefreshSequence] = useState(0);
   const { t } = useTranslation();
-  const instrument = getMockInstrument(selectedSymbol);
+  const instrument = useInstrument(selectedSymbol);
   const changeColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
   const onClose = () => setChartOpen(false);
   const refreshChart = useCallback(async () => {

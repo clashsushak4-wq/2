@@ -1,87 +1,135 @@
-import { memo, useMemo } from 'react';
-import { ChevronDown, ListFilter } from 'lucide-react';
+import { memo, useMemo, useRef, useEffect, useState } from 'react';
+import { ChevronDown, Check, LayoutList, ArrowUp, ArrowDown } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
-import { formatInstrumentPrice, getMockInstrument, MockInstrument } from '../data/mockInstruments.ts';
+import { formatInstrumentPrice } from '../data/mockInstruments.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
+import { useOrderBookData, OrderBookRowData } from '../hooks/useOrderBookData';
+import { MarketTrades } from './MarketTrades';
 
-const VISIBLE_ROWS_PER_SIDE = 7;
+interface ProcessedRow extends OrderBookRowData {
+  width: string;
+}
 
-// Хеш-функция для генерации псевдослучайной стабильной ширины бара на основе цены
-const getStableWidth = (price: string) => {
-  let hash = 0;
-  for (let i = 0; i < price.length; i++) {
-    hash = price.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const val = Math.abs(hash) % 90 + 10; // От 10% до 100%
-  return `${val}%`;
-};
-
-const OrderBookRow = memo(({ price, amount, isAsk }: { price: string; amount: string; isAsk?: boolean }) => {
-  const width = useMemo(() => getStableWidth(price), [price]);
+const OrderBookRow = memo(({ row, isAsk, onClick }: { row: ProcessedRow; isAsk?: boolean; onClick?: () => void }) => {
   return (
-    <div className="relative flex min-h-[15px] items-center justify-between leading-none">
+    <div 
+      onClick={onClick}
+      className="relative flex min-h-[15px] items-center justify-between leading-none cursor-pointer active:bg-zinc-800/50 group"
+    >
       <div
-        className={`absolute right-0 top-0 bottom-0 ${isAsk ? 'bg-bitget-red/15' : 'bg-bitget-green/15'}`}
-        style={{ width }}
+        className={`absolute right-0 top-0 bottom-0 transition-all duration-300 ${isAsk ? 'bg-bitget-red/15 group-hover:bg-bitget-red/25' : 'bg-bitget-green/15 group-hover:bg-bitget-green/25'}`}
+        style={{ width: row.width }}
       />
-      <span className={`${isAsk ? 'text-bitget-red' : 'text-bitget-green'} z-10`}>{price}</span>
-      <span className="text-zinc-300 z-10">{amount}</span>
+      <span className={`${isAsk ? 'text-bitget-red' : 'text-bitget-green'} z-10`}>{row.price}</span>
+      <span className="text-zinc-300 z-10">{row.amount}</span>
     </div>
   );
 });
 
-const createBookRows = (
-  instrument: MockInstrument,
-  direction: 'ask' | 'bid',
-  count: number,
-  amountMultiplier: number,
-) => {
-  const step = 10 ** -instrument.priceDecimals;
-  const seed = Array.from(instrument.symbol).reduce((total, char) => total + char.charCodeAt(0), 0);
-
-  return Array.from({ length: count }, (_, index) => {
-    const level = direction === 'ask' ? count - index : index + 1;
-    const price = instrument.price + (direction === 'ask' ? step * level : -step * level);
-    const amount = ((seed % 37 + 18) * (index + 1) * amountMultiplier / 10).toFixed(2);
-    return {
-      price: formatInstrumentPrice(instrument, Math.max(0, price)),
-      amount: `${amount}K`,
-    };
-  });
-};
-
-export const OrderBook = memo(() => {
-  const amountPercent = useCryptoStore(state => state.amountPercent);
-  const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
+export const OrderBookView = memo(() => {
   const { t } = useTranslation();
-  const instrument = getMockInstrument(selectedSymbol);
+  
+  const amountPercent = useCryptoStore(state => state.amountPercent);
+  const side = useCryptoStore(state => state.side);
+  const isTPSL = useCryptoStore(state => state.isTPSL);
+  const setPrice = useCryptoStore(state => state.setPrice);
+  const isTickSizeOpen = useCryptoStore(state => state.isTickSizeOpen);
+  const setTickSizeOpen = useCryptoStore(state => state.setTickSizeOpen);
+  const setTickSize = useCryptoStore(state => state.setTickSize);
+  const orderBookMode = useCryptoStore(state => state.orderBookMode);
+  const cycleOrderBookMode = useCryptoStore(state => state.cycleOrderBookMode);
 
-  const asks = useMemo(
-    () => createBookRows(instrument, 'ask', VISIBLE_ROWS_PER_SIDE, 1 + amountPercent / 100),
-    [amountPercent, instrument],
-  );
-  const bids = useMemo(
-    () => createBookRows(instrument, 'bid', VISIBLE_ROWS_PER_SIDE, 1.15 + amountPercent / 120),
-    [amountPercent, instrument],
-  );
+  const { instrument, asks: rawAsks, bids: rawBids, availablePrecisions, activeTickSize } = useOrderBookData();
+
+  const extraRows = (amountPercent > 0 ? 1 : 0) + (isTPSL && side === 'buy' ? 1 : 0);
+  const splitCount = (side === 'sell' ? 5 : 6) + extraRows;
+  const fullCount = splitCount * 2 + 1;
+  const visibleCount = orderBookMode === 'split' ? splitCount : fullCount;
+
+  // Обрабатываем Asks
+  const visibleAsks = useMemo(() => {
+    // rawAsks отсортированы от меньшей цены к большей (от спреда наружу)
+    const sliced = rawAsks.slice(0, visibleCount);
+    
+    let totalVol = 0;
+    sliced.forEach(r => totalVol += r.rawAmount);
+
+    let cumulative = 0;
+    const processed = sliced.map(row => {
+      cumulative += row.rawAmount;
+      return {
+        ...row,
+        // Для Asks рендеринг будет перевернут (вверху - самые дорогие). 
+        // Кумулятивность считается от спреда, поэтому мы просто суммируем по порядку.
+        width: `${Math.min(100, Math.max(10, (cumulative / totalVol) * 100))}%`
+      };
+    });
+
+    // Переворачиваем массив, чтобы вверху были самые дорогие аски, а внизу (ближе к спреду) самые дешевые
+    return processed.reverse();
+  }, [rawAsks, visibleCount]);
+
+  // Обрабатываем Bids
+  const visibleBids = useMemo(() => {
+    // rawBids отсортированы от большей цены к меньшей (от спреда наружу)
+    const sliced = rawBids.slice(0, visibleCount);
+    
+    let totalVol = 0;
+    sliced.forEach(r => totalVol += r.rawAmount);
+
+    let cumulative = 0;
+    return sliced.map(row => {
+      cumulative += row.rawAmount;
+      return {
+        ...row,
+        width: `${Math.min(100, Math.max(10, (cumulative / totalVol) * 100))}%`
+      };
+    });
+  }, [rawBids, visibleCount]);
+
   const buyPercent = Math.round(Math.min(70, Math.max(30, 50 + instrument.changePercent * 1.5)));
   const sellPercent = 100 - buyPercent;
   const priceColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  // Закрытие меню по клику вне
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setTickSizeOpen(false);
+      }
+    };
+    if (isTickSizeOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isTickSizeOpen, setTickSizeOpen]);
+
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden pl-1 text-xs font-mono select-none">
-      <div className="mb-1 flex shrink-0 items-center justify-between">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden pl-1 text-xs font-mono select-none">
+      <div className="mb-1 flex shrink-0 items-center justify-between relative">
         <span className="text-zinc-500 font-sans">{t('trade.price')}<br />({instrument.quoteAsset})</span>
         <span className="text-zinc-500 text-right font-sans">{t('trade.amount')}<br />({instrument.baseAsset})</span>
       </div>
 
-      {/* Asks */}
-      <div className="grid min-h-0 flex-1 grid-rows-7 pb-1">
-        {asks.map((ask) => (
-          <OrderBookRow key={`ask-${ask.price}`} price={ask.price} amount={ask.amount} isAsk />
-        ))}
-      </div>
+      {/* Asks Grid */}
+      {(orderBookMode === 'split' || orderBookMode === 'asks') && (
+        <div 
+          className="grid min-h-0 flex-1 pb-1"
+          style={{ gridTemplateRows: `repeat(${orderBookMode === 'split' ? splitCount : fullCount}, minmax(0, 1fr))` }}
+        >
+          {visibleAsks.map((ask, index) => (
+            <OrderBookRow 
+              key={`ask-level-${index}`} 
+              row={ask} 
+              isAsk 
+              onClick={() => setPrice(ask.price.replace(/,/g, ''))}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Current Price */}
       <div className="my-0.5 flex shrink-0 flex-col py-1">
@@ -91,12 +139,21 @@ export const OrderBook = memo(() => {
         </div>
       </div>
 
-      {/* Bids */}
-      <div className="grid min-h-0 flex-1 grid-rows-7 pt-1">
-        {bids.map((bid) => (
-          <OrderBookRow key={`bid-${bid.price}`} price={bid.price} amount={bid.amount} />
-        ))}
-      </div>
+      {/* Bids Grid */}
+      {(orderBookMode === 'split' || orderBookMode === 'bids') && (
+        <div 
+          className="grid min-h-0 flex-1 pt-1"
+          style={{ gridTemplateRows: `repeat(${orderBookMode === 'split' ? splitCount : fullCount}, minmax(0, 1fr))` }}
+        >
+          {visibleBids.map((bid, index) => (
+            <OrderBookRow 
+              key={`bid-level-${index}`} 
+              row={bid} 
+              onClick={() => setPrice(bid.price.replace(/,/g, ''))}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Buy/Sell Ratio and Precision */}
       <div className="mt-auto flex shrink-0 flex-col gap-1 pt-1">
@@ -109,11 +166,86 @@ export const OrderBook = memo(() => {
           <span>{sellPercent}% S</span>
         </div>
 
-        <button type="button" aria-label={t('trade.orderBookPrecision')} className="flex items-center justify-between bg-zinc-900 rounded p-1 cursor-pointer" onClick={() => haptic.light()}>
-          <ListFilter size={14} className="text-zinc-400" />
-          <span className="text-zinc-300">{(10 ** -instrument.priceDecimals).toFixed(instrument.priceDecimals)}</span>
-          <ChevronDown size={14} className="text-zinc-500" />
+        <div className="flex gap-2 relative" ref={menuRef}>
+          <button 
+            type="button"
+            aria-label="Toggle OrderBook Mode"
+            onClick={() => { haptic.light(); cycleOrderBookMode(); }}
+            className="flex shrink-0 items-center justify-center bg-zinc-900 hover:bg-zinc-800 rounded p-1 cursor-pointer w-7 transition-colors"
+          >
+            {orderBookMode === 'split' && <LayoutList size={14} className="text-zinc-400" />}
+            {orderBookMode === 'bids' && <ArrowUp size={14} className="text-bitget-green" />}
+            {orderBookMode === 'asks' && <ArrowDown size={14} className="text-bitget-red" />}
+          </button>
+
+          {isTickSizeOpen && (
+            <div className="absolute bottom-full right-0 mb-1.5 w-32 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden z-50 origin-bottom animate-in fade-in slide-in-from-bottom-2 duration-200">
+              <div className="py-1">
+                {availablePrecisions.map((p) => (
+                  <button
+                    key={p}
+                    className={`flex items-center justify-between w-full px-3 py-2 text-left text-sm ${activeTickSize === p ? 'text-bitget-blue bg-bitget-blue/10' : 'text-zinc-300 hover:bg-zinc-800'}`}
+                    onClick={() => {
+                      haptic.light();
+                      setTickSize(p);
+                    }}
+                  >
+                    <span>{p >= 1 ? p.toFixed(0) : p.toString()}</span>
+                    {activeTickSize === p && <Check size={14} className="text-bitget-blue" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button 
+            type="button" 
+            aria-label={t('trade.orderBookPrecision')} 
+            className={`flex flex-1 items-center justify-between bg-zinc-900 rounded p-1 cursor-pointer transition-colors ${isTickSizeOpen ? 'bg-zinc-800' : ''}`}
+            onClick={() => {
+              haptic.light();
+              setTickSizeOpen(!isTickSizeOpen);
+            }}
+          >
+            <span className="text-zinc-300 font-mono ml-1">
+              {activeTickSize >= 1 ? activeTickSize.toFixed(0) : activeTickSize.toString()}
+            </span>
+            <ChevronDown size={14} className={`text-zinc-500 transition-transform ${isTickSizeOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+export const OrderBook = memo(() => {
+  const [activeTab, setActiveTab] = useState<'book' | 'trades'>('book');
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex gap-4 mb-2 shrink-0 px-1">
+        <button 
+          onClick={() => { haptic.light(); setActiveTab('book'); }}
+          className={`text-sm font-medium transition-colors ${activeTab === 'book' ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
+        >
+          {t('trade.orderBook')}
         </button>
+        <button 
+          onClick={() => { haptic.light(); setActiveTab('trades'); }}
+          className={`text-sm font-medium transition-colors ${activeTab === 'trades' ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
+        >
+          {t('trade.trades')}
+        </button>
+      </div>
+
+      <div className="flex-1 min-h-0 relative">
+        <div className={`absolute inset-0 transition-opacity duration-200 ${activeTab === 'book' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
+          <OrderBookView />
+        </div>
+        <div className={`absolute inset-0 transition-opacity duration-200 ${activeTab === 'trades' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
+          <MarketTrades />
+        </div>
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 import { ChevronDown } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
-import { getMockInstrument } from '../data/mockInstruments.ts';
+import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore, UnitType } from '../store/useCryptoStore';
+import { useOrderCalculations } from '../hooks/useOrderCalculations';
 
 const getUnitLabel = (
   unit: UnitType,
@@ -22,10 +23,9 @@ export const AmountSlider = () => {
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
   const setUnitOpen = useCryptoStore.getState().setUnitOpen;
   const { t } = useTranslation();
-  const instrument = getMockInstrument(selectedSymbol);
+  const instrument = useInstrument(selectedSymbol);
   const unitInfo = getUnitLabel(unit, instrument.baseAsset, instrument.quoteAsset, t);
-  const baseAmount = amountPercent * 0.0005;
-  const quoteValue = baseAmount * instrument.price;
+  const { baseAmount, quoteCost } = useOrderCalculations();
 
   return (
     <>
@@ -49,7 +49,7 @@ export const AmountSlider = () => {
 
       {amountPercent > 0 && (
         <div className="mb-1 flex h-5 items-center font-mono text-[10px] text-zinc-500">
-          ≈ <span className="text-zinc-300 ml-1">{quoteValue.toFixed(2)} {instrument.quoteAsset}</span>
+          ≈ <span className="text-zinc-300 ml-1">{quoteCost.toFixed(2)} {instrument.quoteAsset}</span>
           <span className="text-zinc-600 mx-1">/</span>
           <span className="text-zinc-300">{baseAmount.toFixed(4)} {instrument.baseAsset}</span>
         </div>
