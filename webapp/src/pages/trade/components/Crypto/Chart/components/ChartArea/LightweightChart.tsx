@@ -1,14 +1,16 @@
 import { useEffect, useRef } from 'react';
-import { createChart, IChartApi, ISeriesApi, ColorType, CandlestickSeries, AreaSeries } from 'lightweight-charts';
+import { createChart, IChartApi, ISeriesApi, ColorType, CandlestickSeries, AreaSeries, UTCTimestamp } from 'lightweight-charts';
 import type { ChartData } from '../../types';
 import { useCryptoStore, useInstrument } from '../../../store/useCryptoStore';
+import type { MarketCandle } from '../../../data/marketData';
 
 interface LightweightChartProps {
   data: ChartData;
+  liveCandle?: MarketCandle;
   chartType: 'candles' | 'area';
 }
 
-export const LightweightChart = ({ data, chartType }: LightweightChartProps) => {
+export const LightweightChart = ({ data, liveCandle, chartType }: LightweightChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<any> | null>(null);
@@ -135,6 +137,15 @@ export const LightweightChart = ({ data, chartType }: LightweightChartProps) => 
     previousLength.current = data.candles.length;
     previousFirst.current = first;
   }, [data, chartType, precision, minMove]);
+
+  useEffect(() => {
+    if (!seriesRef.current || !chartRef.current || !liveCandle) return;
+    
+    seriesRef.current.update(chartType === 'candles' 
+      ? { ...liveCandle, time: liveCandle.time as UTCTimestamp } 
+      : { time: liveCandle.time as UTCTimestamp, value: liveCandle.close }
+    );
+  }, [liveCandle, chartType]);
 
   useEffect(() => {
     const handleResize = () => {

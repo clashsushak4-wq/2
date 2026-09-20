@@ -34,6 +34,7 @@ let heartbeat: ReturnType<typeof setInterval> | null = null;
 let enabled = false;
 let retry = 1000;
 let subscription: { symbol: string; timeframe: string } | null = null;
+let refreshInFlight = false;
 
 export const marketWebSocketUrl = (): string => {
   const api = new URL(apiClient.defaults.baseURL || '/api', window.location.origin);
@@ -48,31 +49,94 @@ function sendSubscription() {
   }
 }
 
+let queuedMessages: MarketMessage[] = [];
+let updateTimer: ReturnType<typeof setTimeout> | null = null;
+
 export const useMarketStore = create<MarketState>((set, get) => {
-  const apply = (message: MarketMessage) => {
-    if (!message || typeof message.version !== 'string' || !Number.isFinite(message.sequence)) return;
+  const flush = () => {
+    const messages = queuedMessages;
+    queuedMessages = [];
+    updateTimer = null;
+    if (!messages.length) return;
+
     const previous = get();
-    const changed = previous.version !== message.version;
-    if (changed && message.type !== 'snapshot') return;
-    if (!changed && message.sequence < previous.sequence) return;
-    const snapshot = message.type === 'snapshot';
-    const instruments = snapshot ? {} : { ...previous.instruments };
-    for (const item of message.instruments ?? []) instruments[item.symbol] = item;
-    const reset = changed || snapshot;
+    let nextVersion = previous.version;
+    let nextSequence = previous.sequence;
+    let nextSource = previous.source;
+    let nextStatus = previous.status;
+    let nextError = previous.error;
+    let nextReceivedAt = previous.receivedAt;
+    let nextServerOffset = previous.serverOffset;
+
+    let instruments = { ...previous.instruments };
+    let books = { ...previous.books };
+    let trades = { ...previous.trades };
+    let candles = { ...previous.candles };
+    let requireReset = false;
+    let shouldFetchSnapshot = false;
+
+    for (const message of messages) {
+      if (!message || typeof message.version !== 'string' || !Number.isFinite(message.sequence)) continue;
+      const changed = nextVersion !== null && nextVersion !== message.version;
+      
+      if (changed && message.type !== 'snapshot') continue;
+      if (!changed && message.sequence < nextSequence) continue;
+      if (!changed && nextSequence !== -1 && message.sequence > nextSequence + 1) {
+        shouldFetchSnapshot = true;
+        continue;
+      }
+
+      const snapshot = message.type === 'snapshot';
+      if (snapshot || changed) {
+        instruments = snapshot ? {} : { ...instruments };
+        requireReset = true;
+      }
+
+      for (const item of message.instruments ?? []) {
+        if (snapshot || !instruments[item.symbol]) {
+          instruments[item.symbol] = item;
+        } else {
+          instruments[item.symbol] = { ...instruments[item.symbol], ...item };
+        }
+      }
+
+      if (message.type === 'orderbook' && message.symbol && message.book) {
+        books[message.symbol] = message.book;
+      }
+      if (message.type === 'trades' && message.symbol && message.trades) {
+        trades[message.symbol] = message.trades;
+      }
+      if (message.type === 'candle' && message.symbol && message.timeframe && message.candle) {
+        candles[message.symbol + ':' + message.timeframe] = message.candle;
+      }
+
+      nextVersion = message.version;
+      nextSequence = message.sequence;
+      nextSource = message.source;
+      nextStatus = message.status;
+      nextError = message.error;
+      nextReceivedAt = Date.now();
+      nextServerOffset = message.serverTime - Date.now();
+    }
+
+    if (shouldFetchSnapshot) {
+      setTimeout(() => get().refresh(), 0);
+    }
+
+    const hasChanges = nextSequence !== previous.sequence || requireReset;
+    if (!hasChanges) return;
+
     set({
-      instruments, source: message.source, version: message.version, sequence: message.sequence,
-      status: message.status, error: message.error, receivedAt: Date.now(),
-      serverOffset: message.serverTime - Date.now(),
-      ...(reset ? { books: {}, trades: {}, candles: {} } : {}),
-      ...(message.type === 'orderbook' && message.symbol && message.book
-        ? { books: { ...previous.books, [message.symbol]: message.book } } : {}),
-      ...(message.type === 'trades' && message.symbol && message.trades
-        ? { trades: { ...previous.trades, [message.symbol]: message.trades } } : {}),
-      ...(message.type === 'candle' && message.symbol && message.timeframe && message.candle
-        ? { candles: { ...previous.candles, [message.symbol + ':' + message.timeframe]: message.candle } } : {}),
+      instruments, source: nextSource, version: nextVersion, sequence: nextSequence,
+      status: nextStatus, error: nextError, receivedAt: nextReceivedAt,
+      serverOffset: nextServerOffset,
+      ...(requireReset ? { books: {}, trades: {}, candles: {} } : { books, trades, candles }),
     });
+
+    const changed = previous.version !== null && previous.version !== nextVersion;
     const draft = useCryptoStore.getState();
     if (changed) useCryptoStore.setState({ selectedSymbol: '', price: '', priceDirty: false, amountValue: '', amountPercent: 0, tpValue: '', slValue: '' });
+    
     const selected = useCryptoStore.getState().selectedSymbol;
     if (!instruments[selected] || instruments[selected].price === null) {
       const first = instruments.BTCUSDT?.price ? instruments.BTCUSDT
@@ -81,7 +145,15 @@ export const useMarketStore = create<MarketState>((set, get) => {
     } else if (!draft.priceDirty && draft.price === '' && instruments[selected].price !== null) {
       useCryptoStore.setState({ price: instruments[selected].price!.toFixed(instruments[selected].priceDecimals) });
     }
-    if (snapshot) sendSubscription();
+
+    if (requireReset) sendSubscription();
+  };
+
+  const apply = (message: MarketMessage) => {
+    queuedMessages.push(message);
+    if (!updateTimer) {
+      updateTimer = setTimeout(flush, 100);
+    }
   };
   return {
     instruments: {}, books: {}, trades: {}, candles: {}, source: null, version: null, sequence: -1,
@@ -129,11 +201,14 @@ export const useMarketStore = create<MarketState>((set, get) => {
       set({ isConnected: false, status: 'stale' });
     },
     refresh: async () => {
+      if (refreshInFlight) return;
+      refreshInFlight = true;
       const version = get().version;
       try {
         const response = await apiClient.get<MarketMessage>('/market/snapshot');
         if (version === get().version) apply(response.data);
       } catch { set({ error: 'market_refresh_failed' }); }
+      finally { refreshInFlight = false; }
     },
     subscribe: (symbol, timeframe) => { subscription = { symbol, timeframe }; sendSubscription(); },
     unsubscribe: () => {

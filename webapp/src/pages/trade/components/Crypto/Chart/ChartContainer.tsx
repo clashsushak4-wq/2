@@ -43,16 +43,6 @@ export const ChartContainer = () => {
     return () => { controller.abort(); requestId.current += 1; };
   }, [symbol, timeframe, version]);
 
-  useEffect(() => {
-    if (!candle) return;
-    setHistory(previous => {
-      if (!previous.length || candle.time < previous[previous.length - 1].time) return previous;
-      const byTime = new Map(previous.map(item => [item.time, item]));
-      byTime.set(candle.time, candle);
-      return [...byTime.values()].sort((a, b) => a.time - b.time);
-    });
-  }, [candle]);
-
   const loadEarlier = async () => {
     if (loading || !history.length) return;
     const request = requestId.current;
@@ -67,6 +57,7 @@ export const ChartContainer = () => {
     } catch { if (request === requestId.current) setError('trade.market.emptyChart'); }
     finally { if (request === requestId.current) setLoading(false); }
   };
+
   const data = useMemo(() => ({
     candles: history.map(row => ({ ...row, time: row.time as UTCTimestamp })),
     area: history.map(row => ({ time: row.time as UTCTimestamp, value: row.close })),
@@ -77,7 +68,7 @@ export const ChartContainer = () => {
       onToggleChartType={() => setChartType(value => value === 'candles' ? 'area' : 'candles')} onOpenTimeframeModal={() => setModal(true)} />
     {error && <p role="alert" className="p-3 text-xs text-amber-400">{t(error)}</p>}
     <div className="h-[340px] w-full bg-[#0a0a0a]">
-      <LightweightChart key={symbol + timeframe + version} data={data} chartType={chartType} />
+      <LightweightChart key={symbol + timeframe + version} data={data} liveCandle={candle} chartType={chartType} />
     </div>
     {hasEarlier && <button disabled={loading || !history.length} onClick={() => void loadEarlier()}
       className="p-3 text-xs text-zinc-400 disabled:opacity-40">{t('trade.market.loadEarlier')}</button>}

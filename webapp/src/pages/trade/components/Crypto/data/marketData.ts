@@ -66,6 +66,14 @@ export const TIMEFRAMES = ['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h
 export const toInputPrice = (instrument: MarketInstrument): string =>
   instrument.price === null ? '' : instrument.price.toFixed(instrument.priceDecimals);
 
+export const formatWithSpaces = (value: string | number): string => {
+  if (value === '' || value === null || value === undefined) return '';
+  const str = String(value);
+  const parts = str.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return parts.join('.');
+};
+
 export const formatInstrumentPrice = (instrument: Pick<MarketInstrument, 'price' | 'priceDecimals'>, value = instrument.price): string =>
   value === null || !Number.isFinite(value) ? '—' : value.toLocaleString('en-US', {
     minimumFractionDigits: instrument.priceDecimals, maximumFractionDigits: instrument.priceDecimals,

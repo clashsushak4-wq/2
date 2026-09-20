@@ -98,7 +98,7 @@ export const calculateOrderEstimate = ({
   let rawQuantity = 0;
   if (safePrice > 0 && inputValue > 0) {
     if (unit === 'qty_base') rawQuantity = inputValue;
-    if (unit === 'cost_quote') rawQuantity = (inputValue * safeLeverage) / safePrice;
+    if (unit === 'cost_quote') rawQuantity = inputValue / (safePrice * ((1 / safeLeverage) + feeRate));
     if (unit === 'value_quote') rawQuantity = inputValue / safePrice;
   }
 
@@ -129,9 +129,10 @@ export const amountValueFromQuantity = (
   quantity: number,
   price: number,
   leverage: number,
+  feeRate: number = 0,
 ): number => {
   if (unit === 'qty_base') return quantity;
   const notional = quantity * price;
-  if (unit === 'cost_quote') return leverage > 0 ? notional / leverage : 0;
+  if (unit === 'cost_quote') return leverage > 0 ? notional / leverage + notional * feeRate : 0;
   return notional;
 };

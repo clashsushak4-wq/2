@@ -5,14 +5,9 @@ import { useTranslation } from '../../../../../i18n';
 import { formatInstrumentPrice } from '../data/marketData.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
 import { useOrderBookData } from '../hooks/useOrderBookData';
-import type { OrderBookRowData } from '../hooks/useOrderBookData';
 import { MarketTrades } from './MarketTrades';
 
-interface ProcessedRow extends OrderBookRowData {
-  width: string;
-}
-
-const OrderBookRow = memo(({ row, isAsk, onClick }: { row: ProcessedRow; isAsk?: boolean; onClick?: () => void }) => {
+const OrderBookRow = memo(({ price, amount, width, isAsk, onClick }: { price: string; amount: string; width: string; isAsk?: boolean; onClick?: () => void }) => {
   return (
     <button
       type="button"
@@ -20,11 +15,11 @@ const OrderBookRow = memo(({ row, isAsk, onClick }: { row: ProcessedRow; isAsk?:
       className="relative flex min-h-[15px] w-full items-center justify-between leading-none cursor-pointer active:bg-zinc-800/50 group"
     >
       <div
-        className={`absolute right-0 top-0 bottom-0 transition-all duration-300 ${isAsk ? 'bg-bitget-red/15 group-hover:bg-bitget-red/25' : 'bg-bitget-green/15 group-hover:bg-bitget-green/25'}`}
-        style={{ width: row.width }}
+        className={`absolute right-0 top-0 bottom-0 ${isAsk ? 'bg-bitget-red/15 group-hover:bg-bitget-red/25' : 'bg-bitget-green/15 group-hover:bg-bitget-green/25'}`}
+        style={{ width }}
       />
-      <span className={`${isAsk ? 'text-bitget-red' : 'text-bitget-green'} z-10`}>{row.price}</span>
-      <span className="text-zinc-300 z-10">{row.amount}</span>
+      <span className={`${isAsk ? 'text-bitget-red' : 'text-bitget-green'} z-10`}>{price}</span>
+      <span className="text-zinc-300 z-10">{amount}</span>
     </button>
   );
 });
@@ -130,7 +125,9 @@ export const OrderBookView = memo(() => {
           {visibleAsks.map((ask, index) => (
             <OrderBookRow 
               key={`ask-level-${index}`} 
-              row={ask} 
+              price={ask.price}
+              amount={ask.amount}
+              width={ask.width}
               isAsk 
               onClick={() => {
                 setOrderType('limit');
@@ -148,8 +145,11 @@ export const OrderBookView = memo(() => {
         className="my-0.5 flex shrink-0 flex-col py-1 transition-transform active:scale-95 cursor-pointer text-left"
       >
         <div className="flex items-center justify-between">
-          <span className={`text-lg font-bold ${priceColor}`}>{formatInstrumentPrice(instrument)}</span>
+          <span className={`text-lg font-bold leading-none ${priceColor}`}>{formatInstrumentPrice(instrument)}</span>
           <span className="text-zinc-500 rotate-180">›</span>
+        </div>
+        <div className="text-[11px] font-medium text-zinc-500 mt-0.5">
+          Mark: {instrument.markPrice !== null ? formatInstrumentPrice(instrument, instrument.markPrice) : '—'}
         </div>
       </button>
 
@@ -162,7 +162,9 @@ export const OrderBookView = memo(() => {
           {visibleBids.map((bid, index) => (
             <OrderBookRow 
               key={`bid-level-${index}`} 
-              row={bid} 
+              price={bid.price}
+              amount={bid.amount}
+              width={bid.width}
               onClick={() => {
                 setOrderType('limit');
                 setPrice(bid.price.replace(/,/g, ''));

@@ -30,7 +30,7 @@ from backend.main import app
 # ── Paths ────────────────────────────────────────────────────
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _WEBAPP_CLIENT = _REPO_ROOT / "webapp" / "src" / "api" / "client.ts"
-_ADMIN_CLIENT = _REPO_ROOT / "admin" / "src" / "api" / "client.ts"
+_ADMIN_CLIENT = _REPO_ROOT.parent / "admin-project" / "webapp-admin" / "src" / "api" / "client.ts"
 
 
 # ── URL нормализация ──────────────────────────────────────────
@@ -102,17 +102,12 @@ def _extract_client_calls(ts_file: Path) -> list[tuple[str, str, int]]:
 def _collect_fastapi_routes() -> set[tuple[str, str]]:
     """Возвращает {(METHOD, NORMALIZED_PATH), ...} для всех роутов backend.main.app."""
     result: set[tuple[str, str]] = set()
-    for route in app.routes:
-        # Только HTTP-роуты с атрибутами `methods` и `path`.
-        methods = getattr(route, "methods", None) or set()
-        path = getattr(route, "path", None)
-        if not path or not methods:
-            continue
+    schema = app.openapi()
+    for path, path_item in schema.get("paths", {}).items():
         normalized = _normalize_url(path)
-        for m in methods:
-            if m in {"HEAD", "OPTIONS"}:
-                continue
-            result.add((m, normalized))
+        for method in path_item.keys():
+            if method.upper() in {"GET", "POST", "PUT", "PATCH", "DELETE"}:
+                result.add((method.upper(), normalized))
     return result
 
 

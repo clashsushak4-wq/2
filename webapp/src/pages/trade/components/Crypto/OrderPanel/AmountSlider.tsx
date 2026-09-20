@@ -11,6 +11,7 @@ import {
   formatByStep,
 } from '../domain/orderCalculations';
 import { isCleanNumber, normalizeQuantity } from '../domain/orderNormalization';
+import { formatWithSpaces } from '../data/marketData';
 
 const getUnitLabel = (
   unit: UnitType,
@@ -50,9 +51,10 @@ export const AmountSlider = () => {
   const sliderPercent = Math.round(percent);
 
   const updateManualAmount = (nextValue: string) => {
-    if (!/^\d*(\.\d*)?$/.test(nextValue)) return;
-    setAmountValue(nextValue);
-    const numericValue = nextValue === '' ? 0 : Number(nextValue);
+    const raw = nextValue.replace(/\s/g, '');
+    if (!/^\d*(\.\d*)?$/.test(raw)) return;
+    setAmountValue(raw);
+    const numericValue = raw === '' ? 0 : Number(raw);
     const cleanValue = isCleanNumber(numericValue) ? numericValue : 0;
     const nextEstimate = calculateOrderEstimate({
       intent: orderIntent,
@@ -70,7 +72,8 @@ export const AmountSlider = () => {
 
   const updateSlider = (nextPercent: number) => {
     const quantity = normalizeQuantity(maxQuantity * (nextPercent / 100), spec);
-    const nextValue = amountValueFromQuantity(unit, quantity, parsedPrice, leverage);
+    const feeRate = orderType === 'limit' ? spec.makerFeeRate : spec.takerFeeRate;
+    const nextValue = amountValueFromQuantity(unit, quantity, parsedPrice, leverage, feeRate);
     const formatted = unit === 'qty_base'
       ? formatByStep(nextValue, spec.quantityStep)
       : nextValue.toFixed(2);
@@ -89,7 +92,7 @@ export const AmountSlider = () => {
             id="trade-order-amount"
             type="text"
             inputMode="decimal"
-            value={amountValue}
+            value={formatWithSpaces(amountValue)}
             placeholder="0"
             onChange={(event) => updateManualAmount(event.target.value)}
             className="w-full bg-transparent text-sm font-bold leading-tight text-zinc-100 outline-none"

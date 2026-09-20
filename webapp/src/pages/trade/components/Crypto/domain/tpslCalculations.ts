@@ -43,3 +43,32 @@ export const isValidTriggerPrice = (
   return kind === 'tp' ? triggerPrice < entryPrice : triggerPrice > entryPrice;
 };
 
+export const calculateProjection = (
+  mode: TPSLMode,
+  value: number,
+  entryPrice: number,
+  leverage: number,
+  quantity: number,
+  direction: TradeDirection = 'long',
+): { price: number; roi: number; pnl: number } | null => {
+  if (!Number.isFinite(value) || value <= 0 || entryPrice <= 0 || quantity <= 0) return null;
+  
+  let price = 0;
+  if (mode === 'price') {
+    price = value;
+  } else {
+    const sign = direction === 'long' ? 1 : -1;
+    if (mode === 'change') price = entryPrice * (1 + sign * (value / 100));
+    else if (mode === 'roi') price = entryPrice * (1 + sign * (value / Math.max(1, leverage) / 100));
+    else if (mode === 'pnl') price = entryPrice + sign * (value / quantity);
+  }
+
+  if (price <= 0) return null;
+
+  const sign = direction === 'long' ? 1 : -1;
+  const pnl = (price - entryPrice) * sign * quantity;
+  const roi = ((price - entryPrice) / entryPrice) * sign * Math.max(1, leverage) * 100;
+
+  return { price, roi, pnl };
+};
+

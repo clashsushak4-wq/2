@@ -4,7 +4,7 @@ import { formatByStep } from '../domain/orderCalculations';
 import { normalizePrice } from '../domain/orderNormalization';
 import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore } from '../store/useCryptoStore';
-import { toInstrumentSpec } from '../data/marketData';
+import { toInstrumentSpec, formatWithSpaces } from '../data/marketData';
 
 export const PriceInput = () => {
   const orderType = useCryptoStore(state => state.orderType);
@@ -16,14 +16,14 @@ export const PriceInput = () => {
   const spec = toInstrumentSpec(instrument as any);
 
   const handleIncrease = () => {
-    const currentPrice = normalizePrice(Number(price), spec);
+    const currentPrice = normalizePrice(Number(price.replace(/\s/g, '')), spec);
     if (currentPrice === 0) return;
     setPrice(formatByStep(currentPrice + spec.tickSize, spec.tickSize));
     haptic.light();
   };
 
   const handleDecrease = () => {
-    const currentPrice = normalizePrice(Number(price), spec);
+    const currentPrice = normalizePrice(Number(price.replace(/\s/g, '')), spec);
     if (currentPrice === 0) return;
     setPrice(formatByStep(Math.max(spec.tickSize, currentPrice - spec.tickSize), spec.tickSize));
     haptic.light();
@@ -47,9 +47,10 @@ export const PriceInput = () => {
           id="trade-limit-price"
           type="text"
           inputMode="decimal"
-          value={price}
+          value={formatWithSpaces(price)}
           onChange={(event) => {
-            if (/^\d*(\.\d*)?$/.test(event.target.value)) setPrice(event.target.value);
+            const raw = event.target.value.replace(/\s/g, '');
+            if (/^\d*(\.\d*)?$/.test(raw)) setPrice(raw);
           }}
           className="w-full bg-transparent text-sm font-bold leading-tight text-zinc-100 outline-none"
         />

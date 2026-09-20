@@ -1,4 +1,4 @@
-import { ChevronDown, CandlestickChart, MoreHorizontal } from 'lucide-react';
+import { ChevronDown, CandlestickChart } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
 import { formatSignedPercent } from '../data/marketData.ts';
@@ -42,9 +42,7 @@ export const TerminalHeader = () => {
         >
           <CandlestickChart size={18} />
         </button>
-        <button type="button" disabled aria-label={t('trade.more')} className="p-0.5 opacity-40">
-          <MoreHorizontal size={18} />
-        </button>
+
       </div>
     </div>
   );

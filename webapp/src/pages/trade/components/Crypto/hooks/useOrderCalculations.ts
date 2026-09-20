@@ -75,6 +75,7 @@ export const useOrderCalculations = () => {
     baseAmount: estimate.quantity,
     quoteCost: estimate.requiredMargin,
     parsedPrice,
+    leverage,
     validationErrors,
     isValid: validationErrors.length === 0,
   };
