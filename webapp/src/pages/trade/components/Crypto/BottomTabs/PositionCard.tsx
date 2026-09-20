@@ -1,8 +1,7 @@
 import { useRef } from 'react';
 import { useTranslation } from '../../../../../i18n';
 import { haptic } from '../../../../../utils';
-import type { MockInstrument } from '../data/mockInstruments';
-import { toInstrumentSpec } from '../data/mockInstruments';
+import type { MarketInstrument } from '../data/marketData';
 import { formatByStep } from '../domain/orderCalculations';
 import { calculateCloseQuantityByPercent } from '../domain/positionCalculations';
 import type { PaperPosition } from '../domain/types';
@@ -10,7 +9,7 @@ import { useCryptoStore } from '../store/useCryptoStore';
 import { usePaperTradingStore } from '../store/usePaperTradingStore';
 
 interface PositionCardProps {
-  instrument: MockInstrument;
+  instrument: MarketInstrument;
   onEditTPSL: () => void;
   position: PaperPosition;
 }
@@ -25,7 +24,7 @@ export const PositionCard = ({ instrument, onEditTPSL, position }: PositionCardP
     : 0;
   const pnlColor = position.unrealizedPnl >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
-  const handleClose = (percent: number) => {
+  const handleClose = async (percent: number) => {
     if (closeLock.current) return;
     const quantity = calculateCloseQuantityByPercent(
       position.quantity,
@@ -39,17 +38,12 @@ export const PositionCard = ({ instrument, onEditTPSL, position }: PositionCardP
 
     closeLock.current = true;
     haptic.medium();
-    const result = closePosition(
-      position.symbol,
-      instrument.price,
-      toInstrumentSpec(instrument),
-      quantity,
-    );
+    const result = await closePosition(position.symbol, quantity);
+    closeLock.current = false;
     const quantitySuffix = result.quantity
       ? `: ${formatByStep(result.quantity, instrument.quantityStep)} ${instrument.baseAsset}`
       : '';
     showToast(`${t(`trade.action_${result.code}`)}${quantitySuffix}`, result.ok ? 'success' : 'error');
-    window.setTimeout(() => { closeLock.current = false; }, 350);
   };
 
   return (

@@ -1,69 +1,69 @@
+"""Bounded per-client writers isolate browsers from the exchange reader."""
+
 import asyncio
-import json
-from loguru import logger
+from contextlib import suppress
+
 from fastapi import WebSocket
+
 
 class ConnectionManager:
     def __init__(self):
-        # List of active client connections
-        self.active_connections: list[WebSocket] = []
-        # Cache of the latest market data snapshot (symbol -> data)
-        self.market_cache: dict[str, dict] = {}
+        self.connections: dict[WebSocket, asyncio.Queue] = {}
+        self.writers: dict[WebSocket, asyncio.Task] = {}
+        self.subscriptions: dict[WebSocket, tuple[str, str]] = {}
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket, snapshot):
         await websocket.accept()
-        self.active_connections.append(websocket)
-        logger.info(f"Client connected. Total clients: {len(self.active_connections)}")
-        
-        # Send the latest snapshot immediately upon connection
-        if self.market_cache:
-            try:
-                await websocket.send_json({
-                    "type": "snapshot",
-                    "data": list(self.market_cache.values())
-                })
-            except Exception as e:
-                logger.error(f"Error sending snapshot to new client: {e}")
+        queue = asyncio.Queue(maxsize=32)
+        self.connections[websocket] = queue
+        queue.put_nowait(snapshot)
+        self.writers[websocket] = asyncio.create_task(self._write(websocket, queue))
 
-    def disconnect(self, websocket: WebSocket):
-        if websocket in self.active_connections:
-            self.active_connections.remove(websocket)
-            logger.info(f"Client disconnected. Total clients: {len(self.active_connections)}")
+    async def _write(self, websocket, queue):
+        try:
+            while True:
+                await asyncio.wait_for(websocket.send_json(await queue.get()), timeout=5)
+        except (Exception, asyncio.CancelledError):
+            pass
+        finally:
+            self.connections.pop(websocket, None)
+            self.subscriptions.pop(websocket, None)
+            self.writers.pop(websocket, None)
+            with suppress(Exception):
+                await websocket.close(code=1013)
 
-    async def broadcast_market_update(self, updates: list[dict]):
-        """
-        updates: list of dicts with normalized market data
-        Updates the internal cache and broadcasts to all clients.
-        """
-        if not updates:
+    def disconnect(self, websocket):
+        self.connections.pop(websocket, None)
+        self.subscriptions.pop(websocket, None)
+        task = self.writers.pop(websocket, None)
+        if task:
+            task.cancel()
+
+    def send(self, websocket, message):
+        queue = self.connections.get(websocket)
+        if queue is None:
             return
+        try:
+            queue.put_nowait(message)
+        except asyncio.QueueFull:
+            self.disconnect(websocket)
 
-        # Update cache
-        for item in updates:
-            self.market_cache[item["symbol"]] = item
+    def publish(self, message):
+        for websocket in list(self.connections):
+            if message["type"] in {"orderbook", "trades", "candle"}:
+                subscription = self.subscriptions.get(websocket)
+                if not subscription or subscription[0] != message["symbol"]:
+                    continue
+                if message["type"] == "candle" and subscription[1] != message["timeframe"]:
+                    continue
+            self.send(websocket, message)
 
-        if not self.active_connections:
-            return
+    async def stop(self):
+        tasks = list(self.writers.values())
+        for websocket in list(self.connections):
+            self.disconnect(websocket)
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
 
-        message = {
-            "type": "update",
-            "data": updates
-        }
-        
-        # Serialize once
-        msg_str = json.dumps(message)
 
-        # Broadcast to all
-        disconnected = []
-        for connection in self.active_connections:
-            try:
-                await connection.send_text(msg_str)
-            except Exception:
-                disconnected.append(connection)
-
-        # Cleanup dead connections
-        for dead_conn in disconnected:
-            self.disconnect(dead_conn)
-
-# Global instance
 ws_manager = ConnectionManager()

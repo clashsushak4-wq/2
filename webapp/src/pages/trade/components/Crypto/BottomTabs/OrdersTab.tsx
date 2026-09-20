@@ -1,14 +1,15 @@
+import { useMarketStore } from '../store/useMarketStore';
 import { useTranslation } from '../../../../../i18n';
 import { haptic } from '../../../../../utils';
 import { usePaperTradingStore } from '../store/usePaperTradingStore';
-import { oppositeDirection } from '../engine/paperTradingEngine';
+import { oppositeDirection } from '../domain/demoAccount';
 import { formatByStep } from '../domain/orderCalculations';
 import { useCryptoStore } from '../store/useCryptoStore';
 
 export const OrdersTab = () => {
   const { t } = useTranslation();
   const orders = usePaperTradingStore(state => state.orders);
-  const instruments = useCryptoStore(state => state.instruments);
+  const instruments = useMarketStore(state => state.instruments);
   const showToast = useCryptoStore.getState().showToast;
   const cancelOrder = usePaperTradingStore.getState().cancelOrder;
   const cancelAllOrders = usePaperTradingStore.getState().cancelAllOrders;
@@ -28,9 +29,9 @@ export const OrdersTab = () => {
         <button
           type="button"
           className="text-xs text-zinc-400"
-          onClick={() => {
+          onClick={async () => {
             haptic.medium();
-            const result = cancelAllOrders();
+            const result = await cancelAllOrders();
             const suffix = result.affectedCount > 0 ? `: ${result.affectedCount}` : '';
             showToast(`${t(`trade.action_${result.code}`)}${suffix}`, result.ok ? 'success' : 'error');
           }}
@@ -77,9 +78,9 @@ export const OrdersTab = () => {
             <button
               type="button"
               className="mt-2 w-full rounded-md bg-zinc-900 py-1.5 font-medium text-zinc-200"
-              onClick={() => {
+              onClick={async () => {
                 haptic.light();
-                const result = cancelOrder(order.id);
+                const result = await cancelOrder(order.id);
                 showToast(t(`trade.action_${result.code}`), result.ok ? 'success' : 'error');
               }}
             >

@@ -1,13 +1,13 @@
+import { useMarketStore } from '../store/useMarketStore';
 import { useTranslation } from '../../../../../i18n';
 import { usePaperTradingStore } from '../store/usePaperTradingStore';
-import { oppositeDirection } from '../engine/paperTradingEngine';
+import { oppositeDirection } from '../domain/demoAccount';
 import { formatByStep } from '../domain/orderCalculations';
-import { useCryptoStore } from '../store/useCryptoStore';
 
 export const HistoryTab = () => {
   const { t, language } = useTranslation();
   const orders = usePaperTradingStore(state => state.orders);
-  const instruments = useCryptoStore(state => state.instruments);
+  const instruments = useMarketStore(state => state.instruments);
   const history = orders.filter((order) => order.status !== 'pending' && order.status !== 'partially_filled');
 
   if (history.length === 0) {

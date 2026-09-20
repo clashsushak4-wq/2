@@ -4,7 +4,7 @@ import { formatByStep } from '../domain/orderCalculations';
 import { normalizePrice } from '../domain/orderNormalization';
 import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore } from '../store/useCryptoStore';
-import { toInstrumentSpec } from '../data/mockInstruments';
+import { toInstrumentSpec } from '../data/marketData';
 
 export const PriceInput = () => {
   const orderType = useCryptoStore(state => state.orderType);

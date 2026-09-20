@@ -1,13 +1,12 @@
 import { useTranslation } from '../../../../../i18n';
-import { haptic } from '../../../../../utils';
-import { useCryptoStore } from '../store/useCryptoStore';
 import { calculatePaperAccount, usePaperTradingStore } from '../store/usePaperTradingStore';
 
 export const ScreenerTab = () => {
   const { t } = useTranslation();
   const state = usePaperTradingStore();
-  const resetAccount = usePaperTradingStore.getState().resetAccount;
-  const resetOrderDraft = useCryptoStore.getState().resetOrderDraft;
+  const reset = async () => {
+    if (window.confirm(t('trade.confirmResetDemo'))) await state.resetAccount();
+  };
   const account = calculatePaperAccount(state);
   const filledOrders = state.orders.filter((order) => order.status === 'filled' || order.status === 'liquidated');
   const profitableEntries = state.ledger.filter((entry) => entry.type === 'realized_pnl' && entry.amount > 0).length;
@@ -21,6 +20,7 @@ export const ScreenerTab = () => {
           [t('trade.totalPnl'), account.realizedPnl.toFixed(2)],
           [t('trade.unrealizedPnl'), account.unrealizedPnl.toFixed(2)],
           [t('trade.paidFees'), account.paidFees.toFixed(2)],
+          [t('trade.market.funding'), account.fundingPaid.toFixed(2)],
           [t('trade.winRate'), `${winRate.toFixed(1)}%`],
           [t('trade.filledOrders'), String(filledOrders.length)],
           [t('trade.equity'), account.equity.toFixed(2)],
@@ -31,27 +31,13 @@ export const ScreenerTab = () => {
           </div>
         ))}
       </div>
-      <button
-        type="button"
-        className="mt-3 w-full rounded-lg border border-zinc-800 py-2 text-zinc-400"
-        onClick={() => {
-          const tg = (window as any).Telegram?.WebApp;
-          const onConfirm = (ok: boolean) => {
-            if (ok) {
-              haptic.medium();
-              resetAccount();
-              resetOrderDraft();
-            }
-          };
-          if (tg?.showConfirm) {
-            tg.showConfirm(t('trade.confirmResetDemo'), onConfirm);
-          } else {
-            if (window.confirm(t('trade.confirmResetDemo'))) onConfirm(true);
-          }
-        }}
-      >
+      <button disabled={state.busy} onClick={() => void reset()}
+        className="mt-3 w-full rounded-lg border border-zinc-800 py-2 text-zinc-400 disabled:opacity-40">
         {t('trade.resetDemo')}
       </button>
+      <p className="mt-3 text-zinc-500">{t('trade.market.accountInfo')}</p>
+      <p className="mt-2 text-zinc-500">{t('trade.market.executionModel')}</p>
+
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { BottomSheet } from '../../../../../shared/ui';
 import { useBackButton } from '../../../../../hooks';
 import { useCryptoStore, useInstrument } from '../store/useCryptoStore';
 import { useOrderBookData } from '../hooks/useOrderBookData';
-import { formatInstrumentPrice } from '../data/mockInstruments.ts';
+import { formatInstrumentPrice } from '../data/marketData.ts';
 
 export const OrderBookCardModal = () => {
   const { t } = useTranslation();
@@ -19,7 +19,7 @@ export const OrderBookCardModal = () => {
 
   useBackButton(isOpen ? onClose : null);
 
-  const priceColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
+  const priceColor = (instrument.changePercent ?? 0) >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
   // Buy/Sell Ratio
   const bidVolume = rawBids.reduce((total, row) => total + row.rawAmount, 0);

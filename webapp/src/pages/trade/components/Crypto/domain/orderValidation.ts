@@ -37,7 +37,6 @@ export const validateOrder = ({
   symbol,
   orderType,
   price,
-  marketPrice,
   quantity,
   notional,
   totalRequired,
@@ -72,11 +71,6 @@ export const validateOrder = ({
     if (positionLeverage !== undefined && leverage !== positionLeverage) {
       errors.push('invalid_leverage_for_position');
     }
-  }
-
-  if (orderType === 'limit' && isCleanNumber(price) && price > 0 && marketPrice > 0) {
-    const distance = Math.abs(price - marketPrice) / marketPrice;
-    if (distance > spec.priceBandPercent) errors.push('price_out_of_band');
   }
 
   return [...new Set(errors)];

@@ -2,7 +2,7 @@
 
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
-from .base import Base
+from .base import Base, JsonType
 
 
 class Exchange(Base):
@@ -19,3 +19,5 @@ class Exchange(Base):
 
     # Активна ли
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    market_settings: Mapped[dict | None] = mapped_column(JsonType, nullable=True)

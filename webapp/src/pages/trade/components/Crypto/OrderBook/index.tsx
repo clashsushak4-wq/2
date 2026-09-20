@@ -2,7 +2,7 @@ import { memo, useMemo, useRef, useEffect, useState } from 'react';
 import { ChevronDown, Check, LayoutList, ArrowUp, ArrowDown } from 'lucide-react';
 import { haptic } from '../../../../../utils';
 import { useTranslation } from '../../../../../i18n';
-import { formatInstrumentPrice } from '../data/mockInstruments.ts';
+import { formatInstrumentPrice } from '../data/marketData.ts';
 import { useCryptoStore } from '../store/useCryptoStore';
 import { useOrderBookData } from '../hooks/useOrderBookData';
 import type { OrderBookRowData } from '../hooks/useOrderBookData';
@@ -94,9 +94,9 @@ export const OrderBookView = memo(() => {
   const bidVolume = rawBids.slice(0, visibleCount).reduce((total, row) => total + row.rawAmount, 0);
   const askVolume = rawAsks.slice(0, visibleCount).reduce((total, row) => total + row.rawAmount, 0);
   const displayedVolume = bidVolume + askVolume;
-  const buyPercent = displayedVolume > 0 ? Math.round((bidVolume / displayedVolume) * 100) : 50;
-  const sellPercent = 100 - buyPercent;
-  const priceColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
+  const buyPercent = displayedVolume > 0 ? Math.round((bidVolume / displayedVolume) * 100) : 0;
+  const sellPercent = displayedVolume > 0 ? 100 - buyPercent : 0;
+  const priceColor = (instrument.changePercent ?? 0) >= 0 ? 'text-bitget-green' : 'text-bitget-red';
 
   const menuRef = useRef<HTMLDivElement>(null);
   
@@ -120,6 +120,7 @@ export const OrderBookView = memo(() => {
         <span className="text-zinc-500 text-right font-sans">{t('trade.amount')}<br />({instrument.baseAsset})</span>
       </div>
 
+      {!rawAsks.length && !rawBids.length && <p className="p-2 text-xs text-zinc-500">{t('trade.market.emptyBook')}</p>}
       {/* Asks Grid */}
       {(orderBookMode === 'split' || orderBookMode === 'asks') && (
         <div 
@@ -178,8 +179,8 @@ export const OrderBookView = memo(() => {
           <div className="absolute right-0 top-0 bottom-0 bg-bitget-red" style={{ width: `${sellPercent}%` }} />
         </div>
         <div className="flex justify-between text-[10px] text-zinc-500 font-sans">
-          <span>B {buyPercent}%</span>
-          <span>{sellPercent}% S</span>
+          <span>B {displayedVolume ? buyPercent + '%' : '—'}</span>
+          <span>{displayedVolume ? sellPercent + '%' : '—'} S</span>
         </div>
 
         <div className="flex gap-2 relative" ref={menuRef}>

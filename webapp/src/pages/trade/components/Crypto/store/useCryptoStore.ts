@@ -1,12 +1,8 @@
 import { create } from 'zustand';
-import {
-  DEFAULT_FAVORITE_SYMBOLS,
-  DEFAULT_INSTRUMENT,
-  toInputPrice,
-  MOCK_INSTRUMENTS,
-} from '../data/mockInstruments.ts';
-import { mockRandom } from '../engine/mockRandom.ts';
-import type { MockInstrument } from '../data/mockInstruments.ts';
+import { toInputPrice } from '../data/marketData';
+import type { PricedInstrument } from '../data/marketData';
+import { useMarketStore } from './useMarketStore';
+
 import type {
   MarginMode,
   OrderIntent,
@@ -20,13 +16,14 @@ export type OrderBookMode = 'split' | 'bids' | 'asks';
 export type { MarginMode, OrderIntent, OrderType, TPSLMode, UnitType } from '../domain/types';
 
 interface CryptoState {
-  availableBalance: number;
+
   amountPercent: number;
   amountValue: string;
   isTPSL: boolean;
   orderIntent: OrderIntent;
   orderType: OrderType;
   price: string;
+  priceDirty: boolean;
   leverage: number;
   isBatchLeverage: boolean;
   unit: UnitType;
@@ -36,8 +33,8 @@ interface CryptoState {
   favoriteSymbols: string[];
   tickSize: number | null;
   orderBookMode: OrderBookMode;
-  instruments: Record<string, MockInstrument>;
-  tickCounter: number;
+
+
   toastMessage: string | null;
   toastType: 'success' | 'error' | null;
 
@@ -46,11 +43,13 @@ interface CryptoState {
   isUnitOpen: boolean;
   isMarginModeOpen: boolean;
   isSymbolSelectOpen: boolean;
+  chartTimeframe: string;
+  setChartTimeframe: (value: string) => void;
   isChartOpen: boolean;
   isOrderBookCardOpen: boolean;
   isTickSizeOpen: boolean;
 
-  setAvailableBalance: (val: number) => void;
+
   setAmountPercent: (val: number) => void;
   setAmountValue: (val: string) => void;
   setIsTPSL: (val: boolean) => void;
@@ -87,30 +86,31 @@ interface CryptoState {
   resetOrderDraft: () => void;
   showToast: (message: string, type?: 'success' | 'error') => void;
   hideToast: () => void;
-  tick: () => void;
+
 }
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
 export const useCryptoStore = create<CryptoState>((set) => ({
-  availableBalance: 5300,
+
   amountPercent: 0,
   amountValue: '',
   isTPSL: false,
   orderIntent: 'open',
   orderType: 'limit',
-  price: toInputPrice(DEFAULT_INSTRUMENT),
+  price: '',
+  priceDirty: false,
   leverage: 3,
   isBatchLeverage: false,
   unit: 'value_quote',
   activeTab: 'orders',
   marginMode: 'isolated',
-  selectedSymbol: DEFAULT_INSTRUMENT.symbol,
-  favoriteSymbols: DEFAULT_FAVORITE_SYMBOLS,
+  selectedSymbol: '',
+  favoriteSymbols: [],
   tickSize: null,
   orderBookMode: 'split',
-  instruments: Object.fromEntries(MOCK_INSTRUMENTS.map((i) => [i.symbol, i])),
-  tickCounter: 0,
+
+
   toastMessage: null,
   toastType: null,
   tpMode: 'price',
@@ -123,11 +123,13 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   isUnitOpen: false,
   isMarginModeOpen: false,
   isSymbolSelectOpen: false,
+  chartTimeframe: '1m',
+  setChartTimeframe: value => set({ chartTimeframe: value }),
   isChartOpen: false,
   isOrderBookCardOpen: false,
   isTickSizeOpen: false,
 
-  setAvailableBalance: (val) => set({ availableBalance: val }),
+
   setAmountPercent: (val) => set({ amountPercent: val }),
   setAmountValue: (val) => set({ amountValue: val }),
   setIsTPSL: (val) => set({ isTPSL: val }),
@@ -142,7 +144,7 @@ export const useCryptoStore = create<CryptoState>((set) => ({
       isTPSL: false,
     }),
   setOrderType: (val) => set({ orderType: val }),
-  setPrice: (val) => set({ price: val }),
+  setPrice: (val) => set({ price: val, priceDirty: true }),
   setLeverage: (val) => set({ leverage: val }),
   setIsBatchLeverage: (val) => set({ isBatchLeverage: val }),
   setUnit: (val) => set({ unit: val }),
@@ -150,10 +152,12 @@ export const useCryptoStore = create<CryptoState>((set) => ({
   setMarginMode: (val) => set({ marginMode: val }),
   setSelectedSymbol: (symbol) => {
     set((state) => {
-      const instrument = state.instruments[symbol] ?? state.instruments[DEFAULT_INSTRUMENT.symbol];
+      const instrument = useMarketStore.getState().instruments[symbol];
+      if (!instrument) return state;
       return {
         selectedSymbol: instrument.symbol,
         price: toInputPrice(instrument),
+        priceDirty: false,
         leverage: Math.min(state.leverage, instrument.maxLeverage),
         amountPercent: 0,
         amountValue: '',
@@ -209,33 +213,10 @@ export const useCryptoStore = create<CryptoState>((set) => ({
     toastTimer = null;
     set({ toastMessage: null, toastType: null });
   },
-  tick: () => set((state) => {
-    const newInstruments = { ...state.instruments };
-    let hasChanges = false;
-    for (const sym in newInstruments) {
-      if (mockRandom(sym, state.tickCounter, 0) > 0.6) continue;
-      
-      const inst = { ...newInstruments[sym] };
-      const step = 10 ** -inst.priceDecimals;
-      const direction = mockRandom(sym, state.tickCounter, 1) > 0.5 ? 1 : -1;
-      const ticks = Math.floor(mockRandom(sym, state.tickCounter, 2) * 3) + 1;
-      
-      inst.price = Math.max(step, inst.price + (step * direction * ticks));
-      if (inst.price > inst.high24h) inst.high24h = inst.price;
-      if (inst.price < inst.low24h) inst.low24h = inst.price;
-      inst.changePercent += direction * 0.01 * ticks;
-      
-      newInstruments[sym] = inst;
-      hasChanges = true;
-    }
-    return { 
-      instruments: hasChanges ? newInstruments : state.instruments,
-      tickCounter: state.tickCounter + 1 
-    };
-  }),
 }));
 
-export const useInstrument = (symbol?: string) => {
+// Terminal children mount only after the selected instrument has a real price.
+export const useInstrument = (symbol?: string): PricedInstrument => {
   const selectedSymbol = useCryptoStore(state => state.selectedSymbol);
-  return useCryptoStore(state => state.instruments[symbol || selectedSymbol] || state.instruments[DEFAULT_INSTRUMENT.symbol]);
+  return useMarketStore(state => state.instruments[symbol || selectedSymbol]) as PricedInstrument;
 };

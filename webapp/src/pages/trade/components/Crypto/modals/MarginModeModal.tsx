@@ -41,18 +41,6 @@ export const MarginModeModal = () => {
         </p>
 
         <div className="flex flex-col gap-2 mb-4">
-          {/* Cross */}
-          <button
-            type="button"
-            disabled
-            className="flex flex-col px-3 py-2 rounded-xl border border-zinc-800 bg-transparent text-left opacity-50"
-          >
-            <span className="text-[15px] font-bold mb-0.5">{t('trade.cross')} · {t('trade.comingSoon')}</span>
-            <span className="text-[10px] text-zinc-400 leading-tight">
-              {t('trade.crossDescription')}
-            </span>
-          </button>
-
           {/* Isolated */}
           <button
             type="button"

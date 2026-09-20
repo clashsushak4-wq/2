@@ -19,6 +19,7 @@ from backend.api.routes.uploads import router as uploads_router
 from backend.bot_webhook import router as telegram_webhook_router
 from backend.bot_webhook import shutdown_bot_webhook, startup_bot_webhook
 from backend.services.exchange_manager import exchange_manager
+from backend.services.demo_service import demo_service
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +30,13 @@ _BASE = os.path.dirname(__file__)
 async def lifespan(application: FastAPI):
     await startup_bot_webhook()
     await exchange_manager.start()
-    yield
-    await exchange_manager.stop()
-    await shutdown_bot_webhook()
+    await demo_service.start()
+    try:
+        yield
+    finally:
+        await demo_service.stop()
+        await exchange_manager.stop()
+        await shutdown_bot_webhook()
 
 
 app = FastAPI(title="Trading Bot API", version="1.0.0", lifespan=lifespan)
@@ -74,7 +79,8 @@ app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(telegram_webhook_router, prefix="/api/telegram", tags=["telegram-webhook"])
 app.include_router(trade.router, prefix="/api/trade", tags=["trade"])
 app.include_router(broadcast.router, prefix="/api", tags=["broadcast"])
-app.include_router(market.router, prefix="/ws/market", tags=["market"])
+app.include_router(market.router, prefix="/api/market", tags=["market"])
+app.include_router(market.ws_router, prefix="/ws/market", tags=["market"])
 
 
 # ── Error / 404 handlers ─────────────────────────────────────

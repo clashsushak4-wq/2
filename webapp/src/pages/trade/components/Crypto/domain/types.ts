@@ -26,7 +26,8 @@ export interface InstrumentSpec {
   maintenanceMarginRate: number;
   makerFeeRate: number;
   takerFeeRate: number;
-  priceBandPercent: number;
+  buyLimit: number | null;
+  sellLimit: number | null;
 }
 
 export interface AttachedTPSL {
@@ -69,7 +70,10 @@ export interface PaperFill {
   createdAt: number;
 }
 
+import type { MarketInstrument } from '../data/marketData';
+
 export interface PaperPosition {
+  spec: MarketInstrument;
   id: string;
   symbol: string;
   direction: TradeDirection;
@@ -90,6 +94,7 @@ export interface PaperPosition {
 }
 
 export type LedgerEntryType =
+  | 'funding'
   | 'fee'
   | 'realized_pnl'
   | 'order_cancelled'
@@ -107,6 +112,7 @@ export interface PaperLedgerEntry {
 }
 
 export interface PaperAccount {
+  fundingPaid: number;
   startingBalance: number;
   walletBalance: number;
   reservedMargin: number;
@@ -134,7 +140,7 @@ export interface PlacePaperOrderInput {
   isMarketableLimit?: boolean;
 }
 
-export type TradingActionCode =
+export type TradingActionCode = string
   | 'order_cancelled'
   | 'orders_cancelled'
   | 'order_not_found'

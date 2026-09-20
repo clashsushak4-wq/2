@@ -6,10 +6,9 @@ import { useCryptoStore, useInstrument } from '../../../store/useCryptoStore';
 interface LightweightChartProps {
   data: ChartData;
   chartType: 'candles' | 'area';
-  livePrice?: number;
 }
 
-export const LightweightChart = ({ data, chartType, livePrice }: LightweightChartProps) => {
+export const LightweightChart = ({ data, chartType }: LightweightChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<any> | null>(null);
@@ -102,7 +101,7 @@ export const LightweightChart = ({ data, chartType, livePrice }: LightweightChar
         priceLineStyle: 3,
         priceFormat,
       });
-      candlestickSeries.setData(data.candles);
+
       seriesRef.current = candlestickSeries;
     } else {
       const areaSeries = chartRef.current.addSeries(AreaSeries, {
@@ -115,35 +114,27 @@ export const LightweightChart = ({ data, chartType, livePrice }: LightweightChar
         priceLineStyle: 3,
         priceFormat,
       });
-      areaSeries.setData(data.area);
+
       seriesRef.current = areaSeries;
     }
     
-    chartRef.current.timeScale().fitContent();
-    
-  }, [data, chartType, precision, minMove]);
+  }, [chartType, precision, minMove]);
 
-  // Update last candle when livePrice changes
+  const previousLength = useRef(0);
+  const previousFirst = useRef<unknown>(null);
   useEffect(() => {
-    if (!seriesRef.current || !livePrice) return;
-    
-    if (chartType === 'candles' && data.candles.length > 0) {
-      const last = data.candles[data.candles.length - 1];
-      seriesRef.current.update({
-        time: last.time,
-        open: last.open,
-        high: Math.max(last.high, livePrice),
-        low: Math.min(last.low, livePrice),
-        close: livePrice,
-      });
-    } else if (chartType === 'area' && data.area.length > 0) {
-      const last = data.area[data.area.length - 1];
-      seriesRef.current.update({
-        time: last.time,
-        value: livePrice,
-      });
+    if (!seriesRef.current || !chartRef.current) return;
+    const range = chartRef.current.timeScale().getVisibleLogicalRange();
+    seriesRef.current.setData(chartType === 'candles' ? data.candles : data.area);
+    const first = data.candles[0]?.time;
+    if (!previousLength.current && data.candles.length) chartRef.current.timeScale().fitContent();
+    else if (range && first !== previousFirst.current && data.candles.length > previousLength.current) {
+      const added = data.candles.length - previousLength.current;
+      chartRef.current.timeScale().setVisibleLogicalRange({ from: range.from + added, to: range.to + added });
     }
-  }, [livePrice, chartType, data]);
+    previousLength.current = data.candles.length;
+    previousFirst.current = first;
+  }, [data, chartType, precision, minMove]);
 
   useEffect(() => {
     const handleResize = () => {

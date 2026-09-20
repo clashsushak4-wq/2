@@ -4,7 +4,7 @@ import { useTranslation } from '../../../../../i18n';
 import { roundToStep } from '../domain/orderCalculations';
 import { calculateTriggerPrice, isValidTriggerPrice } from '../domain/tpslCalculations';
 import type { TradeDirection } from '../domain/types';
-import { oppositeDirection } from '../engine/paperTradingEngine';
+import { oppositeDirection } from '../domain/demoAccount';
 import { useInstrument } from '../store/useCryptoStore';
 import { useCryptoStore } from '../store/useCryptoStore';
 import { usePaperTradingStore } from '../store/usePaperTradingStore';
@@ -28,6 +28,7 @@ export const ActionButtons = () => {
   const instrument = useInstrument(selectedSymbol);
   const { t } = useTranslation();
   const submitLock = useRef(false);
+  const busy = usePaperTradingStore(state => state.busy);
   const {
     baseAmount,
     fee,
@@ -38,14 +39,12 @@ export const ActionButtons = () => {
     maxToCloseShort,
     position,
     parsedPrice,
-    liqPriceLong,
-    liqPriceShort,
     spec,
     validationErrors,
     isValid,
   } = useOrderCalculations();
 
-  const handleAction = (targetDirection: TradeDirection) => {
+  const handleAction = async (targetDirection: TradeDirection) => {
     if (submitLock.current) return;
     haptic.medium();
     const maxCloseQuantity = targetDirection === 'long' ? maxToCloseLong : maxToCloseShort;
@@ -98,8 +97,8 @@ export const ActionButtons = () => {
     }
 
     submitLock.current = true;
-    window.setTimeout(() => { submitLock.current = false; }, 350);
-    const result = placeOrder({
+
+    const result = await placeOrder({
       clientOrderId: `terminal-${Date.now()}-${orderIntent}-${targetDirection}`,
       symbol: instrument.symbol,
       direction: orderIntent === 'close' ? oppositeDirection(targetDirection) : targetDirection,
@@ -117,6 +116,7 @@ export const ActionButtons = () => {
       spec,
     });
 
+    submitLock.current = false;
     if (!result.ok) {
       showToast(
         result.reason ? t(`trade.validation_${result.reason}`) : t('trade.orderRejected'),
@@ -128,9 +128,8 @@ export const ActionButtons = () => {
     resetOrderDraft();
   };
 
-  const hasAmount = baseAmount > 0;
-  const isLongValid = isValid && (orderIntent === 'open' || maxToCloseLong > 0);
-  const isShortValid = isValid && (orderIntent === 'open' || maxToCloseShort > 0);
+  const isLongValid = !busy && isValid && (orderIntent === 'open' || maxToCloseLong > 0);
+  const isShortValid = !busy && isValid && (orderIntent === 'open' || maxToCloseShort > 0);
   const maxLabel = orderIntent === 'open' ? t('trade.maxToOpen') : t('trade.maxToClose');
   const orderSummary = orderIntent === 'open'
     ? `${quoteCost.toFixed(2)} + ${fee.toFixed(2)} ${instrument.quoteAsset}`
@@ -156,12 +155,7 @@ export const ActionButtons = () => {
             {(orderIntent === 'open' ? maxToOpen : maxToCloseLong).toFixed(4)} {instrument.baseAsset}
           </span>
         </div>
-        {orderIntent === 'open' && hasAmount && (
-          <div className="flex justify-between items-center text-[11px] text-zinc-400 px-1">
-            <span>{t('trade.liquidationPrice')}</span>
-            <span className="text-zinc-200 font-medium font-mono">{liqPriceLong.toFixed(instrument.priceDecimals)} {instrument.quoteAsset}</span>
-          </div>
-        )}
+
         <button
           type="button"
           disabled={!isLongValid}
@@ -185,12 +179,7 @@ export const ActionButtons = () => {
             {(orderIntent === 'open' ? maxToOpen : maxToCloseShort).toFixed(4)} {instrument.baseAsset}
           </span>
         </div>
-        {orderIntent === 'open' && hasAmount && (
-          <div className="flex justify-between items-center text-[11px] text-zinc-400 px-1">
-            <span>{t('trade.liquidationPrice')}</span>
-            <span className="text-zinc-200 font-medium font-mono">{liqPriceShort.toFixed(instrument.priceDecimals)} {instrument.quoteAsset}</span>
-          </div>
-        )}
+
         <button
           type="button"
           disabled={!isShortValid}

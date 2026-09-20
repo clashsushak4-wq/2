@@ -1,3 +1,4 @@
+import { useMarketStore } from '../store/useMarketStore';
 import { useEffect, useState } from 'react';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
@@ -15,7 +16,7 @@ interface PositionTPSLModalProps {
 
 export const PositionTPSLModal = ({ symbol, onClose }: PositionTPSLModalProps) => {
   const { t } = useTranslation();
-  const instrument = useCryptoStore(state => symbol ? state.instruments[symbol] : undefined);
+  const instrument = useMarketStore(state => symbol ? state.instruments[symbol] : undefined);
   const position = usePaperTradingStore(state => state.positions.find((item) => item.symbol === symbol));
   const updatePositionTPSL = usePaperTradingStore.getState().updatePositionTPSL;
   const showToast = useCryptoStore.getState().showToast;
@@ -44,7 +45,7 @@ export const PositionTPSLModal = ({ symbol, onClose }: PositionTPSLModalProps) =
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const tpPrice = takeProfit === '' ? null : Number(takeProfit);
     const slPrice = stopLoss === '' ? null : Number(stopLoss);
     if (tpPrice !== null && !isValidTriggerPrice('tp', position.direction, tpPrice, position.averageEntryPrice)) {
@@ -57,7 +58,7 @@ export const PositionTPSLModal = ({ symbol, onClose }: PositionTPSLModalProps) =
     }
 
     haptic.medium();
-    const result = updatePositionTPSL(position.symbol, {
+    const result = await updatePositionTPSL(position.symbol, {
       takeProfitPrice: tpPrice === null ? null : roundToStep(tpPrice, instrument.tickSize),
       stopLossPrice: slPrice === null ? null : roundToStep(slPrice, instrument.tickSize),
     });

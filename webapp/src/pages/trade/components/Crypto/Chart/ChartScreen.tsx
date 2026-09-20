@@ -1,18 +1,18 @@
 import { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Settings } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useBackButton } from '../../../../../hooks';
 import { useTranslation } from '../../../../../i18n';
 import { slideFromRight } from '../../../../../shared/animations';
 import { PullToRefresh } from '../../../../../shared/ui';
 import { haptic } from '../../../../../utils';
 import {
-  formatApproximateFiat,
+  formatVolume,
   formatInstrumentPrice,
   formatSignedPercent,
-} from '../data/mockInstruments.ts';
+} from '../data/marketData.ts';
 import { useInstrument, useCryptoStore } from '../store/useCryptoStore';
-import { runMockDataTick } from '../hooks/useMockDataEngine';
+import { useMarketStore } from '../store/useMarketStore';
 import { ChartContainer } from './ChartContainer';
 
 export const ChartScreen = () => {
@@ -23,12 +23,11 @@ export const ChartScreen = () => {
   const [refreshSequence, setRefreshSequence] = useState(0);
   const { t } = useTranslation();
   const instrument = useInstrument(selectedSymbol);
-  const changeColor = instrument.changePercent >= 0 ? 'text-bitget-green' : 'text-bitget-red';
+  const changeColor = (instrument.changePercent ?? 0) >= 0 ? 'text-bitget-green' : 'text-bitget-red';
   const onClose = () => setChartOpen(false);
   const refreshChart = useCallback(async () => {
-    runMockDataTick();
+    await useMarketStore.getState().refresh();
     setRefreshSequence(sequence => sequence + 1);
-    await new Promise<void>(resolve => window.setTimeout(resolve, 350));
   }, []);
 
   // Bind to Telegram Native BackButton
@@ -58,14 +57,7 @@ export const ChartScreen = () => {
                   <h1 className="text-[18px] font-bold text-white tracking-tight leading-none">{instrument.symbol}</h1>
                   <ChevronDown size={14} className="text-zinc-500" />
                 </button>
-                <button
-                  type="button"
-                  disabled
-                  aria-label={t('trade.chartSettings')}
-                  className="p-1 opacity-40"
-                >
-                  <Settings size={18} className="text-zinc-300" />
-                </button>
+
               </div>
 
               {/* Ticker Data Card */}
@@ -78,7 +70,6 @@ export const ChartScreen = () => {
                   </div>
 
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[14px] text-zinc-200 font-medium">≈ {formatApproximateFiat(instrument)}</span>
                     <span className={`text-[14px] ${changeColor} font-medium`}>
                       {formatSignedPercent(instrument.changePercent)}
                     </span>
@@ -86,7 +77,7 @@ export const ChartScreen = () => {
 
                   <div className="flex items-center gap-1.5 mt-1">
                     <span className="text-[13px] text-zinc-400">{t('trade.markPrice')}</span>
-                    <span className="text-[13px] text-zinc-300">{formatInstrumentPrice(instrument)}</span>
+                    <span className="text-[13px] text-zinc-300">{formatInstrumentPrice(instrument, instrument.markPrice)}</span>
                   </div>
                 </div>
 
@@ -102,11 +93,11 @@ export const ChartScreen = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-zinc-500">{t('trade.volume24h')}</span>
-                    <span className="text-white font-medium tracking-wide">{instrument.volume24h}</span>
+                    <span className="text-white font-medium tracking-wide">{formatVolume(instrument.volume24h)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-zinc-500">{t('trade.turnover24h')} ({instrument.quoteAsset})</span>
-                    <span className="text-white font-medium tracking-wide">{instrument.turnover24h}</span>
+                    <span className="text-white font-medium tracking-wide">{formatVolume(instrument.turnover24h)}</span>
                   </div>
 
                 </div>

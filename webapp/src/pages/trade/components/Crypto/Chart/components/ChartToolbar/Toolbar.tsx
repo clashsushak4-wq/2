@@ -1,4 +1,4 @@
-import { LineChart, BarChart2, Settings2, Edit3, ChevronDown } from 'lucide-react';
+import { LineChart, BarChart2, ChevronDown } from 'lucide-react';
 import type { Timeframe, ChartType } from '../../types';
 
 interface ToolbarProps {
@@ -55,8 +55,6 @@ export const Toolbar = ({
         <button type="button" onClick={onToggleChartType} className="cursor-pointer active:opacity-70 transition-opacity">
           {chartType === 'candles' ? <LineChart size={16} /> : <BarChart2 size={16} />}
         </button>
-        <button type="button" disabled className="opacity-40"><Edit3 size={15} /></button>
-        <button type="button" disabled className="opacity-40"><Settings2 size={16} /></button>
       </div>
     </div>
   );
